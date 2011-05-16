@@ -1,0 +1,9 @@
+# -*- python -*-
+
+todo = Platform('caba', 'top.cpp',
+        uses = [
+        Uses('caba:video_gen'),
+        Uses('caba:display'),
+        ],
+        )
+
