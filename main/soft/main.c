@@ -36,7 +36,7 @@
 
 image_t images[NB_MAX_IMAGES] = {{{0}}};
 image_t images_processed[NB_MAX_IMAGES] = {{{0}}};
-COEFF_INCR coeff_incr_array[NB_TILE_HEIGHT][NB_TILE_WIDTH];
+COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
 volatile uint32_t nb_image;
 volatile uint32_t nb_image_processed;
@@ -59,12 +59,10 @@ int main(void)
   first_image = 1;
   first_image_processed = 1;
 
+  init_poly();
 
   //First address to store the image
   VIDEO_IN = (uint32_t)&images[0];
-
-  init_poly();
-
 
   while(1);
 
