@@ -1,0 +1,13 @@
+
+# -*- python -*-
+
+Module('caba:video_gen',
+        classname = 'soclib::caba::VideoGen',
+        tmpl_parameters = [ ],
+        header_files = ['video_gen.h',],
+        implementation_files = ['video_gen.cpp',],
+        ports = [ ],
+        uses = [ ],
+        debug = True ,
+      )
+

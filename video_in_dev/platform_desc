@@ -1,0 +1,35 @@
+# -*- python -*-
+
+todo = Platform('caba', 'top.cpp',
+        uses = [
+        Uses('caba:video_gen'),
+		Uses('caba:video_in'),
+        Uses('caba:display'),
+        Uses('caba:wb_xcache_wrapper',
+            iss_t = 'common:iss2_simhelper',
+            simhelper_iss_t = 'common:lm32'
+            ),
+        Uses('caba:vci_ram'),
+        Uses('caba:vci_rom'),
+        Uses('caba:vci_multi_tty'),
+        Uses('caba:wishbone'),
+        Uses('caba:wb_interco'),
+        Uses('caba:wb_slave_vci_initiator_wrapper'),
+	Uses('caba:wb_simple_slave'),
+        Uses('common:elf_file_loader'),
+        ],
+        cell_size = 4,
+        plen_size = 8,
+        addr_size = 32,
+        rerror_size = 1,
+        clen_size = 1,
+        rflag_size = 1,
+        srcid_size = 8,
+        pktid_size = 1,
+        trdid_size = 1,
+        wrplen_size = 1,
+        wb_data_width = 32,
+        wb_addr_width = 32,
+        lEndianInterface = 'false',
+        )
+

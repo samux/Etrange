@@ -1,0 +1,13 @@
+
+# -*- python -*-
+
+Module('caba:display',
+        classname = 'soclib::caba::Display',
+        tmpl_parameters = [ ],
+        header_files = ['display.h',],
+        implementation_files = ['display.cpp',],
+        ports = [ ],
+        uses = [ ],
+        debug = True ,
+      )
+
