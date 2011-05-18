@@ -82,8 +82,10 @@ int sc_main(int argc, char *argv[])
 	maptab.add(Segment("wb_slave"  , WBS_BASE  , WBS_SIZE  , IntTab(3), false));
 
 	// Global signals
-	sc_time     clk_periode(40, SC_NS); // clk period
-	sc_clock	signal_clk("signal_clk",clk_periode);
+	sc_time     clk_periode_pixel(40, SC_NS); // clk period 25 MHz
+	sc_time		clk_periode_system(10, SC_NS); // clk period 100 MHz
+	sc_clock	signal_clk("signal_clk",clk_periode_pixel);
+	sc_clock	system_clk("system_clk",clk_periode_system);
 
 	sc_signal<bool> signal_resetn("signal_resetn");
 
@@ -141,21 +143,21 @@ int sc_main(int argc, char *argv[])
 
 	// ram
 	soclib::caba::WbSlaveVciInitiatorWrapper<vci_param, wb_param> ram_w ("ram_w") ;
-	ram_w.p_clk               (signal_clk);
+	ram_w.p_clk               (system_clk);
 	ram_w.p_resetn            (signal_resetn);
 	ram_w.p_vci               (signal_vci_ram);
 	ram_w.p_wb                (signal_wb_ram);
 
 	// rom
 	soclib::caba::WbSlaveVciInitiatorWrapper<vci_param, wb_param> rom_w ("rom_w") ;
-	rom_w.p_clk               (signal_clk);
+	rom_w.p_clk               (system_clk);
 	rom_w.p_resetn            (signal_resetn);
 	rom_w.p_vci               (signal_vci_rom);
 	rom_w.p_wb                (signal_wb_rom);
 
 	// tty
 	soclib::caba::WbSlaveVciInitiatorWrapper<vci_param, wb_param> tty_w ("tty_w") ;
-	tty_w.p_clk               (signal_clk);
+	tty_w.p_clk               (system_clk);
 	tty_w.p_resetn            (signal_resetn);
 	tty_w.p_vci               (signal_vci_tty);
 	tty_w.p_wb                (signal_wb_tty);
@@ -163,9 +165,9 @@ int sc_main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 	/////////////////////WB Slave //////////////////////////////
 	////////////////////////////////////////////////////////////
-	soclib::caba::WbSimpleSlave<wb_param> simple_slave ("WB_simple_slave", WBS_BASE, 5);
+	soclib::caba::WbSimpleSlave<wb_param> simple_slave ("WB_simple_slave", WBS_BASE, WBS_SIZE/4);
 
-	simple_slave.p_clk(signal_clk);
+	simple_slave.p_clk(system_clk);
 	simple_slave.p_resetn(signal_resetn);
 	simple_slave.p_wb(signal_wb_slave);
 
@@ -182,7 +184,8 @@ int sc_main(int argc, char *argv[])
 
 	Video_in<wb_param> my_video_in ("video_in", simple_slave.data_tab);
 
-	my_video_in.clk (signal_clk);
+	my_video_in.clk (system_clk);
+	my_video_in.clk_in (signal_clk);
 	my_video_in.reset_n(signal_resetn);
 	my_video_in.line_valid(line_valid);
 	my_video_in.frame_valid(frame_valid);
@@ -285,14 +288,14 @@ int sc_main(int argc, char *argv[])
    	 unconnected_irq = false;
 	/* Initialisation de la simulation */
 	signal_resetn = true;
-	sc_start(clk_periode);
-	sc_start(clk_periode);
+	sc_start(clk_periode_pixel);
+	sc_start(clk_periode_pixel);
 
 	/* Generation d'un reset */
 	signal_resetn = false;
-	sc_start(clk_periode);
-	sc_start(clk_periode);
-	sc_start(clk_periode);
+	sc_start(clk_periode_pixel);
+	sc_start(clk_periode_pixel);
+	sc_start(clk_periode_pixel);
 	signal_resetn = true;
 
 	// run SystemC simulator

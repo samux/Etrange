@@ -5,7 +5,7 @@
 #include <systemc>
 #include "wb_master_module.h"
 #include "../segmentation.h"
-#define p_NB_PACK 8
+#define p_NB_PACK 64
 #define VIN_offset 0 //Adresse du stockage en RAM
 
 using namespace sc_core;
@@ -20,6 +20,7 @@ namespace soclib { namespace caba {
 			// IO PORTS
 
 			sc_in_clk           clk;
+			sc_in_clk			clk_in;
 			sc_in<bool>         reset_n;
 
 			sc_in <bool>        line_valid;

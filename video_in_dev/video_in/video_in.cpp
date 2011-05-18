@@ -20,13 +20,14 @@ namespace soclib { namespace caba {
 		p_LINE_SYNC(lsync), p_FRAME_SYNC(fsync),
 		wb_tab(tab),
 		p_clk("p_clk"), p_resetn("p_resetn"),
-		master0(p_clk,p_wb)
+		master0(p_clk,p_wb),
+		fifo(256)
 	{
 
 		//Lecture des pixels entrants
 		//Et stockage dans la fifo
 		SC_THREAD(read_pixels);
-		sensitive << clk.pos();
+		sensitive << clk_in.pos();
 		dont_initialize();
 
 
@@ -47,6 +48,7 @@ namespace soclib { namespace caba {
 	// Lit les pixels reçus et les place dans la fifo
 	tmpl(void)::read_pixels()
 	{
+		int plouf;
 		cout << "read_pixels" << endl;
 		while(true)
 		{
@@ -66,7 +68,10 @@ reset:
 					if (pixel_c < p_WIDTH && pixel_l < p_HEIGHT)
 					{
 						//TO DO On stocke le pixel dans la fifo
-						fifo.write(pixel_in.read());
+						if (fifo.nb_write(pixel_in.read()))
+							plouf++;			
+							//cout << "Stocke pixel c" << pixel_c << " l " << pixel_l << "valeur " << "dans fifo" << endl;
+						else cout << "Stockage bloque sur fifo pleine" << endl;
 						pixel_c++;
 					}
 					else
@@ -112,12 +117,14 @@ reset:
 	//Ce Thread surveille la fifo. Dès que celle-ci contient au moins p_NB_PACK pixels, il les lit et les mets dans un tableau
 	//TO DO remplacer le tableau par une écriture en RAM via wishbone
 	tmpl(void)::store_pixels() {
-
 		uint32_t pixel_stored_l;
 		uint32_t pixel_stored_c;
 		//Adresse de début de stockage de l'image
 		uint32_t deb_im = RAM_BASE;
-		uint32_t to_store;
+		uint32_t to_store[p_NB_PACK/4];
+		uint8_t mask[p_NB_PACK/4];
+
+		for (int i = 0; i <p_NB_PACK/4; i++) mask[i] = 0xf;
 
 		cout << "store_pixels" << endl;
 
@@ -128,32 +135,39 @@ reset:
 				deb_im = wb_tab[0];
 				if (deb_im< RAM_BASE)
 					deb_im = RAM_BASE;
-				cout << "deb_im" << endl;
+				cout << "reset : deb_im " << deb_im<< endl;
 				wait();
 			}
 			else {
+				if (pixel_stored_l ==0 && pixel_stored_c == 0) {
+					if (deb_im< RAM_BASE)
+						deb_im = RAM_BASE;
+				}
+
 				//Tant que la fifo ne contient pas assez de pixels,
 				//on attend
 				if ((unsigned int)fifo.num_available() < (p_NB_PACK)) wait();
 				else {
 					//On stocke p_NB_PACK pixels dans le tableau
+					cout << "fifo quantitee" << fifo.num_available() << endl;
 					for (unsigned int i = 0; i< p_NB_PACK/4; i++) {
-						to_store = 0;
+						to_store[i] = 0;
 						for (unsigned int j = 0; j < 4; j++) {
-							to_store = to_store << 8;
-							to_store += fifo.read();
-						}
-						master0.wb_write_at(deb_im+(p_WIDTH*pixel_stored_l +pixel_stored_c),0xf,to_store); 
-						cout << "Video_in : Stockage de " << to_store <<" en " << p_WIDTH*pixel_stored_l + pixel_stored_c << endl;
-						pixel_stored_c = (pixel_stored_c + 4) % p_WIDTH;
-						if (pixel_stored_c == 0) {
-							pixel_stored_l = (pixel_stored_l + 1) % p_HEIGHT;
-							if (pixel_stored_l == 0) {
-								cout << "Stockage d'une image terminée" << endl;
-								deb_im = wb_tab[0];
-							}
+							to_store[i] = to_store[i] << 8;
+							to_store[i] += fifo.read();
 						}
 					}
+					master0.wb_write_blk(deb_im+(p_WIDTH*pixel_stored_l +pixel_stored_c),mask,to_store, p_NB_PACK/4); 
+					cout << "Video_in : Stockage en " << deb_im + p_WIDTH*pixel_stored_l + pixel_stored_c << endl;
+					pixel_stored_c = (pixel_stored_c + p_NB_PACK) % p_WIDTH;
+					if (pixel_stored_c == 0) {
+						pixel_stored_l = (pixel_stored_l + 1) % p_HEIGHT;
+						if (pixel_stored_l == 0) {
+							cout << "Stockage d'une image terminée" << endl;
+							deb_im = wb_tab[0];
+						}
+					}
+
 				}
 			}
 			wait();
