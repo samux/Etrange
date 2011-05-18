@@ -30,6 +30,8 @@ void video_in_handler()
   {
 	 CALC_HARD = (uint32_t)&images[0];
 	 CALC_HARD = (uint32_t)&images_processed[0];
+	 CALC_HARD = (uint32_t)&coeff_incr_array[0][0][0];
+
 	 first_image = 0;
   }
 }
@@ -49,6 +51,8 @@ void calc_hard_handler()
   CALC_HARD = (uint32_t)&images[nb_image_processed%NB_MAX_IMAGES];
   //We send the address of the new image to be stored
   CALC_HARD = (uint32_t)&images_processed[nb_image_processed%NB_MAX_IMAGES];
+  //We send the address of the coeff
+  CALC_HARD = (uint32_t)&coeff_incr_array[0][0][0];
 
   if(first_image_processed)
   {
