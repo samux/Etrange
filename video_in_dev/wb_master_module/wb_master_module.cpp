@@ -72,6 +72,7 @@ namespace soclib { namespace caba {
         void WbMasterModule<wb_param>::wb_read_blk
         ( uint32_t saddr, uint32_t num, uint32_t *dest)
         {
+	    std::cout << "wb_master reads " << num << std::endl; 
             for (uint32_t i = 0; i< num; i++)
             {
                 sc_core::wait(p_clk.negedge_event());
@@ -91,25 +92,29 @@ namespace soclib { namespace caba {
             // clean request after clk falling edge
             sc_core::wait(p_clk.negedge_event());
             CleanWb();
+	    std::cout << "wb_master read " << num << std::endl; 
         }
 
     template<typename wb_param>
         void     WbMasterModule<wb_param>::wb_write_blk
         ( uint32_t saddr, uint8_t *mask, uint32_t *data, uint32_t num)
         {
+	    std::cout << "wb_master writes " << num << std::endl; 
             for (uint32_t i = 0; i< num; i++)
             {
                 // set request on clk falling edge
                 sc_core::wait(p_clk.negedge_event());
+				std::cout << "p_clk negedge event " << std::endl;
                 p_wb.DAT_O = *data++;
                 p_wb.ADR_O = saddr;
                 p_wb.SEL_O = *mask++;
                 p_wb.STB_O = true;
                 p_wb.CYC_O = true;
                 p_wb.WE_O  = true;
-
+				std::cout << "Will wait for ack" << std::endl;
                 // sc_core::wait for ack
                 WaitWbAck();
+				std::cout << "Received ack" << std::endl;
                 num_writes++;
                 // next data
                 saddr = saddr + 4;
@@ -117,6 +122,7 @@ namespace soclib { namespace caba {
             // clean request after clk falling edge
             sc_core::wait(p_clk.negedge_event());
             CleanWb();
+	    std::cout << "wb_master wrote " << num << std::endl; 
         }
 
     // Reset
