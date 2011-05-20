@@ -19,4 +19,4 @@ $(SOFT_IMAGE):$(OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH) -o $@ $^
 clean:
 	rm -f $(OBJS) $(SOFT_IMAGE)
-	rm *~
+	rm -f *\~

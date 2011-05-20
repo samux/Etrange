@@ -1,4 +1,5 @@
 #include "poly.h"
+#include "stdio.h"
 
 int coeff_x[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
 int coeff_y[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
@@ -24,7 +25,7 @@ void init_poly()
   {
 	 Y_p = Y * TILE_WIDTH;
 
-	 for(X = 0; Y < NB_TILE_WIDTH; X++)
+	 for(X = 0; X < NB_TILE_WIDTH; X++)
 	 {
 
 		X_p = X * TILE_HEIGHT;
