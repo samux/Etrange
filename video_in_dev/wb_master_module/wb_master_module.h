@@ -61,6 +61,7 @@ namespace soclib { namespace caba {
 
             // constructor
             WbMasterModule ( sc_core::sc_in<bool> &p_clk,
+					sc_core::sc_in<bool> &p_resetn,
                     soclib::caba::WbMaster<wb_param> &p_wb
                     );
 
@@ -74,6 +75,7 @@ namespace soclib { namespace caba {
 
             // port are private and should be provided  as constructor arguments
             sc_core::sc_in<bool> &p_clk;
+            sc_core::sc_in<bool> &p_resetn;
             soclib::caba::WbMaster<wb_param> &p_wb;
 
             // simulation cycle
@@ -87,6 +89,10 @@ namespace soclib { namespace caba {
                 do {
                     trans_wait_cycles ++;
                     sc_core::wait(p_clk.posedge_event());
+					if (p_resetn == false) {
+						std::cout << "Reset wishbone master" << std::endl;
+						reset();
+					}
                     // error in cycle
                     if (p_wb.ERR_I) {
                         std::cout

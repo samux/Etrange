@@ -101,8 +101,8 @@ int sc_main(int argc, char *argv[])
 	soclib::caba::WbSignal<wb_param> signal_wb_rom("signal_wb_rom");
 	soclib::caba::WbSignal<wb_param> signal_wb_tty("signal_wb_tty");
 	soclib::caba::WbSignal<wb_param> signal_wb_slave("signal_wb_slave");
-    	soclib::caba::WbSignal<wb_param> signal_wb_vin  ("signal_wb_vin");
-    	soclib::caba::WbSignal<wb_param> signal_wb_vout  ("signal_wb_vout");
+    soclib::caba::WbSignal<wb_param> signal_wb_vin  ("signal_wb_vin");
+    soclib::caba::WbSignal<wb_param> signal_wb_vout  ("signal_wb_vout");
 
 	// irq from uart
 	sc_signal<bool> signal_tty_irq("signal_tty_irq");
@@ -271,34 +271,18 @@ int sc_main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 	//////////////// Traces ////////////////////////////////////
 	////////////////////////////////////////////////////////////
-
-#ifdef DO_TRACES
+/*
 	sc_trace_file *TRACEFILE;
 	TRACEFILE = sc_create_vcd_trace_file("vcd_traces");
 	sc_trace (TRACEFILE, signal_resetn, "resetn" );
 	sc_trace (TRACEFILE, signal_clk,    "clk"    );
 	sc_trace (TRACEFILE, signal_wb_lm32,"lm32_wb");
 	sc_trace (TRACEFILE, signal_wb_ram, "ram_wb" );
-	sc_trace (TRACEFILE, signal_vci_rom,"rom_vci");
 	sc_trace (TRACEFILE, signal_wb_rom, "rom_wb" );
 	sc_trace (TRACEFILE, signal_wb_tty, "tty_wb" );
-#endif
-
-
-#if 0
-	// open trace file
-	sc_trace_file *my_trace_file;
-	my_trace_file = sc_create_vcd_trace_file ("simulation_trace");
-
-	// chronogrammes signaux CLK et NRESET
-	sc_trace(my_trace_file, signal_clk,         "CLK");
-	sc_trace(my_trace_file, signal_resetn,      "NRESET");
-
-	// chronogrammes video
-	sc_trace(my_trace_file, line_valid ,        "LINE_VAL");
-	sc_trace(my_trace_file, frame_valid,        "FRAME_VAL");
-	sc_trace(my_trace_file, pixel,       "PIXEL");
-#endif
+	sc_trace (TRACEFILE, signal_wb_vin,  "Vin" );
+	sc_trace (TRACEFILE, signal_wb_vout, "Vout" );
+*/	
 
         ////////////////////////////////////////////////////////////
         //////////////// Start Simulation //////////////////////////
@@ -322,8 +306,10 @@ int sc_main(int argc, char *argv[])
 #ifdef MTI_SYSTEMC
 	sc_start();
 #else
-	sc_start(sc_time(500, SC_MS));
+	sc_start(sc_time(100, SC_MS));
 #endif
+
+//	sc_close_vcd_trace_file(TRACEFILE);
 
 	return EXIT_SUCCESS;
 }

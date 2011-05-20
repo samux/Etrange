@@ -22,7 +22,7 @@ namespace soclib { namespace caba {
         p_WIDTH(w), p_HEIGHT(h), p_LINE_SYNC(lsync), 
 	p_FRAME_SYNC(fsync), fifo(64), wb_tab(wb_tab),
 	p_clk("p_clk"), p_resetn("p_resetn"),
-	master0(p_clk,p_wb)
+	master0(p_clk,p_resetn, p_wb)
     {
         SC_THREAD(gen_sorties);
         sensitive << clk_out.pos();
@@ -40,6 +40,7 @@ namespace soclib { namespace caba {
     // dans la fifo
     tmpl(void)::gen_sorties()
     {
+		unsigned char pixel_tmp;
         while(1)
         {
             if(reset_n == false)
@@ -66,8 +67,12 @@ reset:
                         // Si on est dans la fenêtre active, on sort le pixel courant
                         // Rappel : une trame video fait ( p_WIDTH + p_LINE_SYNC )*( p_HEIGHT + p_FRAME_SYNC ),
                         // l'image active est de p_WIDTH*p_HEIGHT
-                        if((i<p_HEIGHT) && (j>p_LINE_SYNC-1))
-                            pixel_out = fifo.read();
+                        if((i<p_HEIGHT) && (j>p_LINE_SYNC-1)) {
+							if (!fifo.nb_read(pixel_tmp)) 
+								std::cout<< "Video_out: Rien a lire dans la fifo" <<std::endl;
+							else
+								pixel_out = pixel_tmp;
+						}
                         else
                             pixel_out = 0xBB;
 
@@ -105,7 +110,12 @@ reset:
 	uint32_t im_addr;
 	uint32_t buffer[VOUT_PACK];
 	
+
 	for (;;) {
+		if (reset_n == false) {
+			im_addr = wb_tab[VOUT_OFFSET];
+			while (fifo.read());
+		}
 	//Nouvelle image, on met à jour l'adresse de l'image
 	//en ram
 	im_addr = wb_tab[VOUT_OFFSET];

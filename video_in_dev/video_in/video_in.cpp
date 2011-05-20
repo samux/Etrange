@@ -20,7 +20,7 @@ namespace soclib { namespace caba {
 		p_LINE_SYNC(lsync), p_FRAME_SYNC(fsync),
 		wb_tab(tab),
 		p_clk("p_clk"), p_resetn("p_resetn"),
-		master0(p_clk,p_wb),
+		master0(p_clk,p_resetn, p_wb),
 		fifo(256)
 	{
 
@@ -68,14 +68,16 @@ reset:
 					if (pixel_c < p_WIDTH && pixel_l < p_HEIGHT)
 					{
 						//TO DO On stocke le pixel dans la fifo
-						if (fifo.nb_write(pixel_in.read())) 
-							cout << "Stocke pixel c" << pixel_c << " l " << pixel_l << "valeur " << "dans fifo" << endl;
-						else cout << "Stockage bloque sur fifo pleine" << endl;
+						if (fifo.nb_write(pixel_in.read())) {
+							if (pixel_c%40==0) 
+								cout << "Video_in:Stocke pixel c" << pixel_c << " l " << pixel_l << "valeur " << "dans fifo" << endl;
+						}
+						else cout << "Video_in:Stockage bloque sur fifo pleine" << endl;
 						pixel_c++;
 					}
 					else
 					{
-						cout << name() << " WARNING: Too much pixels..!!!!!" 
+						cout << name() << " Video_in:WARNING: Too much pixels..!!!!!" 
 							<< " lines : " << pixel_l << " col : " << pixel_c << endl;
 						exit(-1);
 					}
@@ -91,7 +93,7 @@ reset:
 						}
 						else if (pixel_c != 0)
 						{
-							cout << name() << " Warning.........!!" 
+							cout << name() << " Video_in:Warning.........!!" 
 								<< " lines : " << pixel_l << "col :" << pixel_c << endl;
 						}
 					}
@@ -156,7 +158,6 @@ reset:
 							to_store[i] += fifo.read();
 						}
 					}
-					cout << "Va stocker 64 pixels";
 					master0.wb_write_blk(deb_im+(p_WIDTH*pixel_stored_l +pixel_stored_c),mask,to_store, p_NB_PACK/4); 
 					cout << "Video_in : Stockage en " << deb_im + p_WIDTH*pixel_stored_l + pixel_stored_c << endl;
 					pixel_stored_c = (pixel_stored_c + p_NB_PACK) % p_WIDTH;
