@@ -55,6 +55,7 @@
 //Video
 #include "video_gen.h"
 #include "video_in.h"
+#include "video_out.h"
 #include "display.h"
 
 // SystemC main
@@ -100,7 +101,8 @@ int sc_main(int argc, char *argv[])
 	soclib::caba::WbSignal<wb_param> signal_wb_rom("signal_wb_rom");
 	soclib::caba::WbSignal<wb_param> signal_wb_tty("signal_wb_tty");
 	soclib::caba::WbSignal<wb_param> signal_wb_slave("signal_wb_slave");
-    soclib::caba::WbSignal<wb_param> signal_wb_vin  ("signal_wb_vin");
+    	soclib::caba::WbSignal<wb_param> signal_wb_vin  ("signal_wb_vin");
+    	soclib::caba::WbSignal<wb_param> signal_wb_vout  ("signal_wb_vout");
 
 	// irq from uart
 	sc_signal<bool> signal_tty_irq("signal_tty_irq");
@@ -108,10 +110,15 @@ int sc_main(int argc, char *argv[])
 	sc_signal<bool> unconnected_irq ("unconnected_irq");
 
 	//video signals
-	sc_signal<bool>        line_valid("line_val");
-	sc_signal<bool>        frame_valid("frame_val");
+	sc_signal<bool>        line_valid_in("line_val_in");
+	sc_signal<bool>        frame_valid_in("frame_val_in");
 
-	sc_signal<unsigned char> pixel("pixel_val");
+	sc_signal<unsigned char> pixel_in("pixel_val_in");
+
+	sc_signal<bool>        line_valid_out("line_val_out");
+	sc_signal<bool>        frame_valid_out("frame_val_out");
+
+	sc_signal<unsigned char> pixel_out("pixel_val_out");
 
 	// Components
 	// lm32 real cache configuration can be:
@@ -135,7 +142,7 @@ int sc_main(int argc, char *argv[])
 
 	// WB interconnect
 	//                                           sc_name    maptab  masters slaves
-	soclib::caba::WbInterco<wb_param> wbinterco("wbinterco",maptab, 2,4);
+	soclib::caba::WbInterco<wb_param> wbinterco("wbinterco",maptab, 3,4);
 
 	////////////////////////////////////////////////////////////
 	/////////////////// WB -> VCI Wrappers /////////////////////
@@ -178,29 +185,41 @@ int sc_main(int argc, char *argv[])
 
 	my_videogen.clk (signal_clk);
 	my_videogen.reset_n(signal_resetn);
-	my_videogen.line_valid(line_valid);
-	my_videogen.frame_valid(frame_valid);
-	my_videogen.pixel_out(pixel);
+	my_videogen.line_valid(line_valid_in);
+	my_videogen.frame_valid(frame_valid_in);
+	my_videogen.pixel_out(pixel_in);
 
 	Video_in<wb_param> my_video_in ("video_in", simple_slave.data_tab);
 
 	my_video_in.clk (system_clk);
 	my_video_in.clk_in (signal_clk);
 	my_video_in.reset_n(signal_resetn);
-	my_video_in.line_valid(line_valid);
-	my_video_in.frame_valid(frame_valid);
-	my_video_in.pixel_in(pixel);
+	my_video_in.line_valid(line_valid_in);
+	my_video_in.frame_valid(frame_valid_in);
+	my_video_in.pixel_in(pixel_in);
 	my_video_in.p_clk   (signal_clk);
 	my_video_in.p_resetn(signal_resetn);
 	my_video_in.p_wb    (signal_wb_vin);
+
+	VideoOut<wb_param> my_video_out ("video_out", simple_slave.data_tab);
+
+	my_video_out.clk (system_clk);
+	my_video_out.p_clk   (signal_clk);
+	my_video_out.clk_out (signal_clk);
+	my_video_out.reset_n(signal_resetn);
+	my_video_out.line_valid(line_valid_out);
+	my_video_out.frame_valid(frame_valid_out);
+	my_video_out.pixel_out(pixel_out);
+	my_video_out.p_resetn(signal_resetn);
+	my_video_out.p_wb    (signal_wb_vout);
 
 	Display my_display ("My_display");
 
 	my_display.clk (signal_clk);
 	my_display.reset_n(signal_resetn);
-	my_display.line_valid(line_valid);
-	my_display.frame_valid(frame_valid);
-	my_display.pixel_in(pixel);
+	my_display.line_valid(line_valid_out);
+	my_display.frame_valid(frame_valid_out);
+	my_display.pixel_in(pixel_out);
 
 	////////////////////////////////////////////////////////////
 	///////////////////// WB Net List //////////////////////////
@@ -211,6 +230,7 @@ int sc_main(int argc, char *argv[])
 
 	wbinterco.p_from_master[0](signal_wb_lm32);
 	wbinterco.p_from_master[1](signal_wb_vin);
+	wbinterco.p_from_master[2](signal_wb_vout);
 
 	wbinterco.p_to_slave[0](signal_wb_rom);
 	wbinterco.p_to_slave[1](signal_wb_ram);

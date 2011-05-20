@@ -68,9 +68,8 @@ reset:
 					if (pixel_c < p_WIDTH && pixel_l < p_HEIGHT)
 					{
 						//TO DO On stocke le pixel dans la fifo
-						if (fifo.nb_write(pixel_in.read()))
-							plouf++;			
-							//cout << "Stocke pixel c" << pixel_c << " l " << pixel_l << "valeur " << "dans fifo" << endl;
+						if (fifo.nb_write(pixel_in.read())) 
+							cout << "Stocke pixel c" << pixel_c << " l " << pixel_l << "valeur " << "dans fifo" << endl;
 						else cout << "Stockage bloque sur fifo pleine" << endl;
 						pixel_c++;
 					}
@@ -157,6 +156,7 @@ reset:
 							to_store[i] += fifo.read();
 						}
 					}
+					cout << "Va stocker 64 pixels";
 					master0.wb_write_blk(deb_im+(p_WIDTH*pixel_stored_l +pixel_stored_c),mask,to_store, p_NB_PACK/4); 
 					cout << "Video_in : Stockage en " << deb_im + p_WIDTH*pixel_stored_l + pixel_stored_c << endl;
 					pixel_stored_c = (pixel_stored_c + p_NB_PACK) % p_WIDTH;

@@ -6,7 +6,7 @@
 #include "wb_master_module.h"
 #include "../segmentation.h"
 #define p_NB_PACK 64
-#define VIN_offset 0 //Adresse du stockage en RAM
+#define VIN_OFFSET 0 //Adresse du stockage en RAM
 
 using namespace sc_core;
 using namespace std;
@@ -20,7 +20,7 @@ namespace soclib { namespace caba {
 			// IO PORTS
 
 			sc_in_clk           clk;
-			sc_in_clk			clk_in;
+			sc_in_clk	    clk_in;
 			sc_in<bool>         reset_n;
 
 			sc_in <bool>        line_valid;
@@ -45,11 +45,6 @@ namespace soclib { namespace caba {
 					const int lsync = 160,      // synchro ligne par defaut
 					const int fsync = 40        // synchro trame par defaut
 				 );
-			////////////////////////////////////////////////////
-			//	destructor
-			////////////////////////////////////////////////////
-
-			//~Video_in ();
 
 			////////////////////////////////////////////////////
 			//	methods and structural parameters
@@ -71,7 +66,6 @@ namespace soclib { namespace caba {
 
 			//Pour stocker les pixels entrants
 			sc_fifo<unsigned char> fifo;
-			unsigned char image[480][640];
 
 			//Tableau de Wb_slave
 			uint32_t * wb_tab;
