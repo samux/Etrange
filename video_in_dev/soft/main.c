@@ -38,9 +38,10 @@ int main(void)
 	//mfixed A,B,C,D;
 	int i;
 	int valeur = 0 ;
+	printf("Hello\n");
 	for (i=0; i<5; i++) {
-	*(volatile unsigned int*)(WBS_BASE)= RAM_BASE +640*480*4;
-	printf("MAIN: valeur ecrite %d", RAM_BASE);
+	*(volatile unsigned int*)(WBS_BASE)= RAM_BASE;
+	printf("MAIN: valeur ecrite %d\n", RAM_BASE);
 	}
 	while (1) {
 	}

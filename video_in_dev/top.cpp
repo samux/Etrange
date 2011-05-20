@@ -172,7 +172,7 @@ int sc_main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 	/////////////////////WB Slave //////////////////////////////
 	////////////////////////////////////////////////////////////
-	soclib::caba::WbSimpleSlave<wb_param> simple_slave ("WB_simple_slave", WBS_BASE, WBS_SIZE/4);
+	soclib::caba::WbSimpleSlave<wb_param> simple_slave ("WB_simple_slave", WBS_BASE, WBS_SIZE);
 
 	simple_slave.p_clk(system_clk);
 	simple_slave.p_resetn(signal_resetn);

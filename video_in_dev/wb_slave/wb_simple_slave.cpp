@@ -51,7 +51,7 @@ namespace soclib { namespace caba {
 			std::cout<<"ok"<<std::endl;
                         data_tab[p_wb.ADR_I.read()- slave_addr] = p_wb.DAT_I.read();
                     }
-		    else std::cout << "addr non attrib" << std::endl;
+		    else std::cout << "addr non attrib"<< p_wb.ADR_I.read() << std::endl;
                 }
                 else  {
                     std::cout << name() << " "

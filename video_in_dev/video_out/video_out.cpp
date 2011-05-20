@@ -109,6 +109,7 @@ reset:
 	//par 4 dans la mémoire.
 	uint32_t im_addr;
 	uint32_t buffer[VOUT_PACK];
+	wb_tab[VOUT_OFFSET] = RAM_BASE;
 	
 
 	for (;;) {
