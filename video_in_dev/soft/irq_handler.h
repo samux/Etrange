@@ -16,11 +16,11 @@
 //extern COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
 
-//extern volatile uint32_t nb_image;
-//extern volatile uint32_t nb_image_processed;
-//extern volatile uint32_t nb_image_out;
-//extern uint8_t first_image;
-//extern uint8_t first_image_processed;
+extern volatile uint32_t nb_image;
+extern volatile uint32_t nb_image_processed;
+extern volatile uint32_t nb_image_out;
+extern uint8_t first_image;
+extern uint8_t first_image_processed;
 
 void video_out_handler();
 

@@ -27,13 +27,8 @@
 #include "lm32_sys.h"
 #include "irq_handler.h"
 #include "utils.h"
-/*#include "poly.h"*/
 #include "../segmentation.h"
 #include <stdint.h>
-
-//image_t images[NB_MAX_IMAGES] ;
-/*image_t images_processed[NB_MAX_IMAGES] ;*/
-/*COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];*/
 
 volatile uint32_t nb_image;
 volatile uint32_t nb_image_processed;
@@ -44,7 +39,6 @@ uint8_t first_image_processed;
 
 int main(void)
 {
-  int i;
   irq_enable();
 
   RegisterIrqEntry(1, &video_out_handler);
@@ -63,8 +57,8 @@ int main(void)
   //First address to store the image
   VIN = (uint32_t)RAM_BASE;
   VIN_CRL = 1;
-  VOUT = (uint32_t)RAM_BASE;
-  VOUT_CRL = 1;
+  //VOUT = (uint32_t)RAM_BASE;
+  //VOUT_CRL = 1;
   printf("Ecrit\n");
 
   while(1);
