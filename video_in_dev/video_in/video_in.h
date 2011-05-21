@@ -28,6 +28,9 @@ namespace soclib { namespace caba {
 
 			sc_in<unsigned char> pixel_in;
 
+			//Interrupt
+			sc_out<bool> p_interrupt;
+
 			//Wishbone 
 			sc_core::sc_in<bool> p_clk;
 			sc_core::sc_in<bool> p_resetn;

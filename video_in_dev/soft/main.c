@@ -41,8 +41,8 @@ int main(void)
 {
   irq_enable();
 
-  RegisterIrqEntry(1, &video_out_handler);
-  RegisterIrqEntry(2, &video_in_handler);
+  RegisterIrqEntry(1, &video_in_handler);
+  RegisterIrqEntry(2, &video_out_handler);
   RegisterIrqEntry(3, &calc_hard_handler);
 
   nb_image = 0;
