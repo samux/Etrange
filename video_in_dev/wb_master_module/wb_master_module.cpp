@@ -12,6 +12,8 @@
  */
 
 #include <systemc>
+#define DEBUG_WB 1
+#define DEBUG_WB2 0
 
 #include "wb_master_module.h"
 
@@ -72,6 +74,9 @@ namespace soclib { namespace caba {
         void WbMasterModule<wb_param>::wb_read_blk
         ( uint32_t saddr, uint32_t num, uint32_t *dest)
         {
+#if DEBUG_WB
+			std::cout << "WBMaster lit "<< num << "mots en " << saddr << std::endl; 
+#endif
             for (uint32_t i = 0; i< num; i++)
             {
                 sc_core::wait(p_clk.negedge_event());
@@ -83,6 +88,9 @@ namespace soclib { namespace caba {
 
                 // sc_core::wait for ack
                 WaitWbAck();
+#if DEBUG_WB2
+				std::cout << "Ack WBM lecture OK" << std::endl;
+#endif
                 num_reads++;
                 *dest++ = (uint32_t) p_wb.DAT_I.read();
                 // next data
@@ -91,12 +99,19 @@ namespace soclib { namespace caba {
             // clean request after clk falling edge
             sc_core::wait(p_clk.negedge_event());
             CleanWb();
+#if DEBUG_WB
+			std::cout << "WBMaster lecture OK" << std::endl;
+#endif
         }
 
     template<typename wb_param>
         void     WbMasterModule<wb_param>::wb_write_blk
         ( uint32_t saddr, uint8_t *mask, uint32_t *data, uint32_t num)
         {
+			std::cout << "WBmaster ecrit" << std::endl;
+#if DEBUG_WB
+			std::cout << "WBMaster ecrit "<< num << "mots en " << saddr << std::endl; 
+#endif
             for (uint32_t i = 0; i< num; i++)
             {
                 // set request on clk falling edge
@@ -109,6 +124,9 @@ namespace soclib { namespace caba {
                 p_wb.WE_O  = true;
                 // sc_core::wait for ack
                 WaitWbAck();
+#if DEBUG_WB2
+				std::cout << "Ack WBM ecriture OK" << std::endl;
+#endif
                 num_writes++;
                 // next data
                 saddr = saddr + 4;
@@ -116,6 +134,9 @@ namespace soclib { namespace caba {
             // clean request after clk falling edge
             sc_core::wait(p_clk.negedge_event());
             CleanWb();
+#if DEBUG_WB
+			std::cout << "WBMaster ecriture OK" << std::endl;
+#endif
         }
 
     // Reset

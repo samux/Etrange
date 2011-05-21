@@ -20,32 +20,54 @@
  *
  * SOCLIB_GPL_HEADER_END
  *
- * Copyright (c) UPMC, Lip6, SoC
- *         Nicolas Pouillon <nipo@ssji.net>, 2006-2007
- *
- * Maintainers: tarik.graba@telecom-paristech.fr
  */
 
 
 #include <stdio.h>
 #include "lm32_sys.h"
+#include "irq_handler.h"
+#include "utils.h"
+/*#include "poly.h"*/
 #include "../segmentation.h"
+#include <stdint.h>
 
-#define N 10
+//image_t images[NB_MAX_IMAGES] ;
+/*image_t images_processed[NB_MAX_IMAGES] ;*/
+/*COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];*/
+
+volatile uint32_t nb_image;
+volatile uint32_t nb_image_processed;
+volatile uint32_t nb_image_out;
+uint8_t first_image;
+uint8_t first_image_processed;
+
 
 int main(void)
 {
-	//mfixed A,B,C,D;
-	int i;
-	int valeur = 0 ;
-	printf("Hello\n");
-	for (i=0; i<5; i++) {
-	*(volatile unsigned int*)(WBS_BASE)= RAM_BASE;
-	printf("MAIN: valeur ecrite %d\n", RAM_BASE);
-	}
-	while (1) {
-	}
-	return 0;
+  int i;
+  irq_enable();
+
+  RegisterIrqEntry(1, &video_out_handler);
+  RegisterIrqEntry(2, &video_in_handler);
+  RegisterIrqEntry(3, &calc_hard_handler);
+
+  nb_image = 0;
+  nb_image_processed = 0;
+  nb_image_out = 0;
+  first_image = 1;
+  first_image_processed = 1;
+
+  /*init_poly();*/
+  printf("coeff OK\n");
+
+  //First address to store the image
+  VIN = (uint32_t)RAM_BASE;
+  VIN_CRL = 1;
+  VOUT = (uint32_t)RAM_BASE;
+  VOUT_CRL = 1;
+  printf("Ecrit\n");
+
+  while(1);
+
+  return 0;
 }
-
-

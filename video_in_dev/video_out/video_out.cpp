@@ -109,24 +109,31 @@ reset:
 	//par 4 dans la mémoire.
 	uint32_t im_addr;
 	uint32_t buffer[VOUT_PACK];
-	wb_tab[VOUT_OFFSET] = RAM_BASE;
+	wb_tab[2] = RAM_BASE;
+	wb_tab[3] = 0;
+	im_addr = wb_tab[2];
 	
 
 	for (;;) {
 		if (reset_n == false) {
-			im_addr = wb_tab[VOUT_OFFSET];
+			im_addr = wb_tab[2];
+			wb_tab[3] = 0;
 			while (fifo.read());
 		}
 	//Nouvelle image, on met à jour l'adresse de l'image
 	//en ram
-	im_addr = wb_tab[VOUT_OFFSET];
+	while (wb_tab[3] == 0) wait();
+	im_addr = wb_tab[2];
+	wb_tab[3] = 0;
+	std::cout << "VOUT Lit une nouvelle image" << std::endl;
+
 	for (int i = 0; i < (p_HEIGHT*p_WIDTH)/VOUT_PACK; i++) {
 		std::cout << "Video_out va lire" << VOUT_PACK << "pixels en " << im_addr+i*VOUT_PACK << std::endl;
 		master0.wb_read_blk(im_addr+i*VOUT_PACK, VOUT_PACK, buffer);
 		for (int j = 0; j < VOUT_PACK; j++) {
-			for (int k = 0; k<4; k++) {
-				fifo.write(buffer[j]%256);
-			 	buffer[j] = buffer[j] >> 8;
+			for (int k = 3; k>=0; k--) {
+				fifo.write(buffer[j] >> 8*k);
+			 	buffer[j] = buffer[j] - ((buffer[j] >> 8*k) << 8*k);
 			}
 		}
 		

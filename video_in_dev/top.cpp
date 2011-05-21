@@ -271,7 +271,7 @@ int sc_main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 	//////////////// Traces ////////////////////////////////////
 	////////////////////////////////////////////////////////////
-/*
+
 	sc_trace_file *TRACEFILE;
 	TRACEFILE = sc_create_vcd_trace_file("vcd_traces");
 	sc_trace (TRACEFILE, signal_resetn, "resetn" );
@@ -282,7 +282,7 @@ int sc_main(int argc, char *argv[])
 	sc_trace (TRACEFILE, signal_wb_tty, "tty_wb" );
 	sc_trace (TRACEFILE, signal_wb_vin,  "Vin" );
 	sc_trace (TRACEFILE, signal_wb_vout, "Vout" );
-*/	
+	
 
         ////////////////////////////////////////////////////////////
         //////////////// Start Simulation //////////////////////////
@@ -306,10 +306,10 @@ int sc_main(int argc, char *argv[])
 #ifdef MTI_SYSTEMC
 	sc_start();
 #else
-	sc_start(sc_time(100, SC_MS));
+	sc_start(sc_time(100000, SC_US));
 #endif
 
-//	sc_close_vcd_trace_file(TRACEFILE);
+	sc_close_vcd_trace_file(TRACEFILE);
 
 	return EXIT_SUCCESS;
 }
