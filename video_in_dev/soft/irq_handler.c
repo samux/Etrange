@@ -7,7 +7,8 @@
  */
 void video_out_handler()
 {
-  if(nb_image_processed > nb_image_out && nb_image_processed - nb_image_out < 3)
+  printf("&&&&& Coucou de VOUT handler\n");
+  //if(nb_image_processed > nb_image_out && nb_image_processed - nb_image_out < 3)
 	 nb_image_out++;
 
   //VOUT = (uint32_t)&images_processed[nb_image_out%NB_MAX_IMAGES];

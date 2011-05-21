@@ -111,6 +111,8 @@ int sc_main(int argc, char *argv[])
   sc_signal<bool> signal_tty_irq("signal_tty_irq");
   // irq from video_in
   sc_signal<bool> signal_video_in_irq("signal_video_in_irq");
+  // irq from video_out
+  sc_signal<bool> signal_video_out_irq("signal_video_out_irq");
   // unconnected irqs
   sc_signal<bool> unconnected_irq ("unconnected_irq");
 
@@ -218,6 +220,7 @@ int sc_main(int argc, char *argv[])
   my_video_out.pixel_out(pixel_out);
   my_video_out.p_resetn(signal_resetn);
   my_video_out.p_wb    (signal_wb_vout);
+  my_video_out.p_interrupt    (signal_video_out_irq);
 
   Display my_display ("My_display");
 
@@ -252,7 +255,8 @@ int sc_main(int argc, char *argv[])
   // them active high
   lm32.p_irq[0] (signal_tty_irq);
   lm32.p_irq[1] (signal_video_in_irq);
-  for (int i=2; i<32; i++)
+  lm32.p_irq[2] (signal_video_out_irq);
+  for (int i=3; i<32; i++)
 	 lm32.p_irq[i] (unconnected_irq);
 
   ////////////////////////////////////////////////////////////

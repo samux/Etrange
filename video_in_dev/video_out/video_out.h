@@ -39,6 +39,8 @@ template<typename wb_param>
 
                 sc_out<unsigned char> pixel_out;
 
+					 sc_out<bool> p_interrupt;
+
 		//Wishbone
 		sc_core::sc_in<bool> p_clk;
 		sc_core::sc_in<bool> p_resetn;
