@@ -6,7 +6,7 @@
  ***********************************************************/
 
 #include "video_in.h"
-#define DEBUG_VIN 0
+#define DEBUG_VIN 1
 
 #define tmpl(x) template<typename wb_param> x Video_in<wb_param>
 namespace soclib { namespace caba {
@@ -130,6 +130,7 @@ reset:
 		uint32_t deb_im = RAM_BASE;
 		uint32_t to_store[p_NB_PACK/4];
 		uint8_t mask[p_NB_PACK/4];
+		bool stockage_ok;
 
 		for (int i = 0; i <p_NB_PACK/4; i++) mask[i] = 0xf;
 
@@ -137,6 +138,7 @@ reset:
 
 		while (true) {
 			if (reset_n == false) {
+				stockage_ok = false;
 				pixel_stored_c = 0;
 				pixel_stored_l = 0;
 				deb_im = wb_tab[0];
@@ -148,10 +150,12 @@ reset:
 			}
 			else {
 				if (pixel_stored_l ==0 && pixel_stored_c == 0) {
-					while (wb_tab[1]==0) wait();
+					if (wb_tab[1] !=0) {
 					deb_im = wb_tab[0];
 					wb_tab[1] = 0;
+					stockage_ok = true;
 					std::cout << "VIN Stockage d'une nouvelle image en "<<deb_im << std::endl;
+					} 
 				}
 
 				//Tant que la fifo ne contient pas assez de pixels,
@@ -169,10 +173,12 @@ reset:
 							to_store[i] += fifo.read();
 						}
 					}
+					if (stockage_ok) { 
 					master0.wb_write_blk(deb_im+(p_WIDTH*pixel_stored_l +pixel_stored_c),mask,to_store, p_NB_PACK/4); 
 #if DEBUG_VIN
 					cout << "Video_in : Stockage en " << deb_im + p_WIDTH*pixel_stored_l + pixel_stored_c << endl;
 #endif
+					}
 					pixel_stored_c = (pixel_stored_c + p_NB_PACK) % p_WIDTH;
 					if (pixel_stored_c == 0) {
 						pixel_stored_l = (pixel_stored_l + 1) % p_HEIGHT;
