@@ -11,7 +11,7 @@ void video_out_handler()
 	 nb_image_out++;
 
   //VOUT = (uint32_t)&images_processed[nb_image_out%NB_MAX_IMAGES];
-  VOUT = RAM_FIRST_IMAGE + (nb_image_out%NB_MAX_IMAGES) * 640 * 480 / 4;
+  VOUT = RAM_FIRST_IMAGE + (nb_image_out%NB_MAX_IMAGES) * 640 * 480;
   VOUT_CRL = 1;
 
 }
@@ -30,7 +30,7 @@ void video_in_handler()
 	 nb_image++;
 
   //VIN = (uint32_t)&images[(nb_image)%NB_MAX_IMAGES];
-  VIN = RAM_FIRST_IMAGE + (nb_image%NB_MAX_IMAGES) * 640 * 480 / 4;
+  VIN = RAM_FIRST_IMAGE + (nb_image%NB_MAX_IMAGES) * 640 * 480;
   VIN_CRL = 1;
   if(first_image)
   {
@@ -41,6 +41,8 @@ void video_in_handler()
 	 //HARD = (uint32_t)&coeff_incr_array[0][0][0];
 
 	 first_image = 0;
+	 VOUT = RAM_FIRST_IMAGE + ((nb_image-1)%NB_MAX_IMAGES) * 640 * 480;
+	 VOUT_CRL = 1;
   }
 }
 
