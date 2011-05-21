@@ -1,4 +1,5 @@
 #include "irq_handler.h"
+#include "stdio.h"
 
 /**
  * When we receive an interruption from video_out, we send
@@ -22,6 +23,7 @@ void video_out_handler()
  */
 void video_in_handler()
 {
+  printf("coucou de VIN handler\n");
   //The difference between nb_image and nb_image_processed
   //must be < than 2 to avoid owerwrting
   if(nb_image - nb_image_processed < 2)

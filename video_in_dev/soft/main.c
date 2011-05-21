@@ -39,6 +39,7 @@ uint8_t first_image_processed;
 
 int main(void)
 {
+  printf("Bonjour du LM32\n");
   irq_enable();
 
   RegisterIrqEntry(1, &video_in_handler);
@@ -52,14 +53,13 @@ int main(void)
   first_image_processed = 1;
 
   /*init_poly();*/
-  printf("coeff OK\n");
 
   //First address to store the image
   VIN = (uint32_t)RAM_BASE;
   VIN_CRL = 1;
   //VOUT = (uint32_t)RAM_BASE;
   //VOUT_CRL = 1;
-  printf("Ecrit\n");
+  printf("Addr video_in envoyee\n");
 
   while(1);
 

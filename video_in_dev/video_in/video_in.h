@@ -72,6 +72,8 @@ namespace soclib { namespace caba {
 
 			//Tableau de Wb_slave
 			uint32_t * wb_tab;
+
+			uint32_t cycle;
 			
 
             		WbMasterModule<wb_param> master0;

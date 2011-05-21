@@ -11,11 +11,6 @@
 #define VIN_CRL *((volatile uint32_t *)(WBS_BASE + 4))
 #define CALC_HARD *((volatile uint32_t *)HARD_BASE)
 
-//extern image_t images[NB_MAX_IMAGES];
-//extern image_t images_processed[NB_MAX_IMAGES];
-//extern COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
-
-
 extern volatile uint32_t nb_image;
 extern volatile uint32_t nb_image_processed;
 extern volatile uint32_t nb_image_out;

@@ -136,6 +136,8 @@ reset:
 	 cout << "store_pixels" << endl;
 
 	 while (true) {
+
+
 		if (reset_n == false) {
 		  stockage_ok = false;
 		  pixel_stored_c = 0;
@@ -149,9 +151,9 @@ reset:
 		  wait();
 		}
 		else {
-		  p_interrupt = 0;
 		  if (pixel_stored_l ==0 && pixel_stored_c == 0) {
 			 if (wb_tab[1] !=0) {
+				p_interrupt = 0;
 				deb_im = wb_tab[0];
 				wb_tab[1] = 0;
 				stockage_ok = true;
@@ -163,6 +165,7 @@ reset:
 		  //on attend
 		  if ((unsigned int)fifo.num_available() < (p_NB_PACK)) wait();
 		  else {
+			 p_interrupt = 0;
 			 //On stocke p_NB_PACK pixels dans le tableau
 #if DEBUG_VIN
 			 cout << "fifo quantitee" << fifo.num_available() << endl;
@@ -175,6 +178,7 @@ reset:
 				}
 			 }
 			 if (stockage_ok) { 
+				p_interrupt = 0;
 				master0.wb_write_blk(deb_im+(p_WIDTH*pixel_stored_l +pixel_stored_c),mask,to_store, p_NB_PACK/4); 
 #if DEBUG_VIN
 				cout << "Video_in : Stockage en " << deb_im + p_WIDTH*pixel_stored_l + pixel_stored_c << endl;
@@ -188,6 +192,8 @@ reset:
 				  //TODO CHANGE THIS
 				  std::cout << "J'ai fini une image" << std::endl;
 				}
+				else
+				  p_interrupt = 0;
 			 }
 
 		  }
