@@ -27,12 +27,12 @@
 #include "lm32_sys.h"
 #include "irq_handler.h"
 #include "utils.h"
-#include "poly.h"
+//#include "poly.h"
 #include <stdint.h>
 
-image_t images[NB_MAX_IMAGES] ;
-image_t images_processed[NB_MAX_IMAGES] ;
-COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
+//image_t images[NB_MAX_IMAGES] ;
+//image_t images_processed[NB_MAX_IMAGES] ;
+//COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
 volatile uint32_t nb_image;
 volatile uint32_t nb_image_processed;
@@ -55,11 +55,10 @@ int main(void)
   first_image = 1;
   first_image_processed = 1;
 
-  init_poly();
-  printf("coeff OK\n");
+  //init_poly();
 
   //First address to store the image
-  VIDEO_IN = (uint32_t)&images[0];
+  VIN = RAM_FIRST_IMAGE;
 
   while(1);
 

@@ -9,7 +9,8 @@ void video_out_handler()
   if(nb_image_processed > nb_image_out && nb_image_processed - nb_image_out < 3)
 	 nb_image_out++;
 
-  VIDEO_OUT = (uint32_t)&images_processed[nb_image_out%NB_MAX_IMAGES];
+  //VOUT = (uint32_t)&images_processed[nb_image_out%NB_MAX_IMAGES];
+  VOUT = RAM_FIRST_IMAGE + (nb_image_out%NB_MAX_IMAGES) * 640 * 480 / 4;
 
 }
 
@@ -25,12 +26,15 @@ void video_in_handler()
   if(nb_image - nb_image_processed < 2)
 	 nb_image++;
 
-  VIDEO_IN = (uint32_t)&images[(nb_image)%NB_MAX_IMAGES];
+  //VIN = (uint32_t)&images[(nb_image)%NB_MAX_IMAGES];
+  VIN = RAM_FIRST_IMAGE + (nb_image%NB_MAX_IMAGES) * 640 * 480 / 4;
   if(first_image)
   {
-	 CALC_HARD = (uint32_t)&images[0];
-	 CALC_HARD = (uint32_t)&images_processed[0];
-	 CALC_HARD = (uint32_t)&coeff_incr_array[0][0][0];
+	 //HARD = (uint32_t)&images[0];
+	 //HARD = (uint32_t)&images_processed[0];
+	 HARD = RAM_FIRST_IMAGE;
+	 HARD = RAM_FIRST_IMAGE_PROCESSED;
+	 //HARD = (uint32_t)&coeff_incr_array[0][0][0];
 
 	 first_image = 0;
   }
@@ -48,15 +52,18 @@ void calc_hard_handler()
 {
   nb_image_processed++;
   //We send the address of the new image to be read
-  CALC_HARD = (uint32_t)&images[nb_image_processed%NB_MAX_IMAGES];
+  //HARD = (uint32_t)&images[nb_image_processed%NB_MAX_IMAGES];
+  HARD = RAM_FIRST_IMAGE + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
   //We send the address of the new image to be stored
-  CALC_HARD = (uint32_t)&images_processed[nb_image_processed%NB_MAX_IMAGES];
+  //HARD = (uint32_t)&images_processed[nb_image_processed%NB_MAX_IMAGES];
+  HARD = RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
   //We send the address of the coeff
-  CALC_HARD = (uint32_t)&coeff_incr_array[0][0][0];
+  //HARD = (uint32_t)&coeff_incr_array[0][0][0];
 
   if(first_image_processed)
   {
-	 VIDEO_OUT = (uint32_t)&images_processed[0];
+	 //VOUT = (uint32_t)&images_processed[0];
+	 VOUT = RAM_FIRST_IMAGE_PROCESSED;
 	 first_image_processed = 0;
   }
 
