@@ -60,6 +60,7 @@ reset:
             }
             else
             {
+				while (fifo.num_available() == 0) wait();
                 unsigned int i,j;
                 for(i=0; i<( p_HEIGHT + p_FRAME_SYNC ); i++)
                     for(j=0; j<( p_WIDTH + p_LINE_SYNC ); j++)
@@ -68,8 +69,9 @@ reset:
                         // Rappel : une trame video fait ( p_WIDTH + p_LINE_SYNC )*( p_HEIGHT + p_FRAME_SYNC ),
                         // l'image active est de p_WIDTH*p_HEIGHT
                         if((i<p_HEIGHT) && (j>p_LINE_SYNC-1)) {
-							if (!fifo.nb_read(pixel_tmp)) 
-								std::cout<< "Video_out: Rien a lire dans la fifo" <<std::endl;
+							if (!fifo.nb_read(pixel_tmp)) {
+							//	std::cout<< "Video_out: Rien a lire dans la fifo" <<std::endl;
+							}
 							else
 								pixel_out = pixel_tmp;
 						}
@@ -127,9 +129,9 @@ reset:
 	wb_tab[3] = 0;
 	std::cout << "VOUT Lit une nouvelle image" << std::endl;
 
-	for (int i = 0; i < (p_HEIGHT*p_WIDTH)/VOUT_PACK; i++) {
-		std::cout << "Video_out va lire" << VOUT_PACK << "pixels en " << im_addr+i*VOUT_PACK << std::endl;
-		master0.wb_read_blk(im_addr+i*VOUT_PACK, VOUT_PACK, buffer);
+	for (int i = 0; i < (p_HEIGHT*p_WIDTH)/(VOUT_PACK*4); i++) {
+		std::cout << "Video_out va lire" << VOUT_PACK << "mots en " << im_addr+i*VOUT_PACK << std::endl;
+		master0.wb_read_blk(im_addr+ 4*i*VOUT_PACK, VOUT_PACK, buffer);
 		for (int j = 0; j < VOUT_PACK; j++) {
 			for (int k = 3; k>=0; k--) {
 				fifo.write(buffer[j] >> 8*k);
@@ -149,4 +151,4 @@ reset:
 // c-file-offsets:((innamespace . 0)(inline-open . 0))
 // indent-tabs-mode: nil
 // End:
-
+//1073741824

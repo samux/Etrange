@@ -6,7 +6,7 @@
  ***********************************************************/
 
 #include "video_in.h"
-#define DEBUG_VIN 1
+#define DEBUG_VIN 0
 
 #define tmpl(x) template<typename wb_param> x Video_in<wb_param>
 namespace soclib { namespace caba {
@@ -74,7 +74,9 @@ reset:
 							if (pixel_c%40==0) 
 
 								cout << "Video_in:Stocke pixel c" << pixel_c << " l " << pixel_l << "valeur " << "dans fifo" << endl;
+#endif
 						}
+#if DEBUG_VIN
 						else cout << "Video_in:Stockage bloque sur fifo pleine" << endl;
 #endif
 						pixel_c++;
