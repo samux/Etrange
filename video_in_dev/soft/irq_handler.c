@@ -9,12 +9,11 @@ void video_out_handler()
 {
   printf("&&&&& Coucou de VOUT handler\n");
   //if(nb_image_processed > nb_image_out && nb_image_processed - nb_image_out < 3)
-	 nb_image_out++;
+  nb_image_out++;
 
   //VOUT = (uint32_t)&images_processed[nb_image_out%NB_MAX_IMAGES];
   VOUT = RAM_FIRST_IMAGE + (nb_image_out%NB_MAX_IMAGES) * 640 * 480;
   VOUT_CRL = 1;
-
 }
 
 
@@ -27,8 +26,8 @@ void video_in_handler()
   printf("coucou de VIN handler\n");
   //The difference between nb_image and nb_image_processed
   //must be < than 2 to avoid owerwrting
-  if(nb_image - nb_image_processed < 2)
-	 nb_image++;
+  //if(nb_image - nb_image_processed < 2)
+  nb_image++;
 
   //VIN = (uint32_t)&images[(nb_image)%NB_MAX_IMAGES];
   VIN = RAM_FIRST_IMAGE + (nb_image%NB_MAX_IMAGES) * 640 * 480;
@@ -42,7 +41,7 @@ void video_in_handler()
 	 //HARD = (uint32_t)&coeff_incr_array[0][0][0];
 
 	 first_image = 0;
-	 VOUT = RAM_FIRST_IMAGE + ((nb_image-1)%NB_MAX_IMAGES) * 640 * 480;
+	 VOUT = RAM_FIRST_IMAGE;
 	 VOUT_CRL = 1;
   }
 }
@@ -74,6 +73,5 @@ void calc_hard_handler()
 	 VOUT_CRL = 1;
 	 first_image_processed = 0;
   }
-
 }
 

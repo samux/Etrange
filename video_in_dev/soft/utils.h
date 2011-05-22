@@ -6,7 +6,7 @@
 #define WIDTH 640
 #define HEIGHT 480
 
-#define NB_MAX_IMAGES 4
+#define NB_MAX_IMAGES 8
 
 #define TILE_WIDTH 16
 #define TILE_HEIGHT 16
