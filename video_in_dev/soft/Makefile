@@ -9,7 +9,7 @@ CPPFLAGS     = -I. -I..
 
 SOFT_IMAGE = soft.elf
 
-OBJS  =  main.o lm32_sys.o irq_handler.o 
+OBJS  =  main.o lm32_sys.o irq_handler.o poly.o 
 
 .PHONY: all clean
 

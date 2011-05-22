@@ -1,8 +1,6 @@
 #include "poly.h"
 #include "stdio.h"
 
-int coeff_x[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
-int coeff_y[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
 
 
 static int poly_3(int X, int Y, int a[4][4]);

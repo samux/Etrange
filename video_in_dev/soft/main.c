@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include "lm32_sys.h"
 #include "irq_handler.h"
+#include "poly.h"
 #include "utils.h"
 #include "../segmentation.h"
 #include <stdint.h>
@@ -36,10 +37,20 @@ volatile uint32_t nb_image_out;
 uint8_t first_image;
 uint8_t first_image_processed;
 
+COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
+
+int coeff_x[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
+int coeff_y[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
 
 int main(void)
 {
+
+  //char c;
+
   printf("Bonjour du LM32\n");
+  init_poly();
+  printf("Coeff OK\n");
+
   irq_enable();
 
   RegisterIrqEntry(1, &video_in_handler);
@@ -52,7 +63,6 @@ int main(void)
   first_image = 1;
   first_image_processed = 1;
 
-  /*init_poly();*/
 
   //First address to store the image
   VIN = (uint32_t)RAM_BASE;
@@ -62,6 +72,24 @@ int main(void)
   printf("Addr video_in envoyee\n");
 
   while(1);
+  /*{
+	 printf("lsdfkj\n");
+	 c = getchar();
+	 switch(c = getchar())
+	 {
+		case '/':
+		  printf("lsdkfjlksdjf\n");
+		  break;
+		case '*':
+		  break;
+		case '+':
+		  break;
+		case '-':
+		  break;
+		default:
+		  break;
+	 }
+  }*/
 
   return 0;
 }

@@ -283,7 +283,7 @@ int sc_main(int argc, char *argv[])
   //////////////// Traces ////////////////////////////////////
   ////////////////////////////////////////////////////////////
 
-  sc_trace_file *TRACEFILE;
+  /*sc_trace_file *TRACEFILE;
   TRACEFILE = sc_create_vcd_trace_file("vcd_traces");
   sc_trace (TRACEFILE, signal_resetn, "resetn" );
   sc_trace (TRACEFILE, signal_clk,    "clk"    );
@@ -292,7 +292,7 @@ int sc_main(int argc, char *argv[])
   sc_trace (TRACEFILE, signal_wb_rom, "rom_wb" );
   sc_trace (TRACEFILE, signal_wb_tty, "tty_wb" );
   sc_trace (TRACEFILE, signal_wb_vin,  "Vin" );
-  sc_trace (TRACEFILE, signal_wb_vout, "Vout" );
+  sc_trace (TRACEFILE, signal_wb_vout, "Vout" );*/
 
 
   ////////////////////////////////////////////////////////////
@@ -320,7 +320,7 @@ int sc_main(int argc, char *argv[])
   sc_start(sc_time(1000000, SC_US));
 #endif
 
-  sc_close_vcd_trace_file(TRACEFILE);
+  //sc_close_vcd_trace_file(TRACEFILE);
 
   return EXIT_SUCCESS;
 }
