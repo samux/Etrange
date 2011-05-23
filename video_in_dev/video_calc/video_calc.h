@@ -9,7 +9,8 @@
 #define T_H  16  //hauteur de la tuile traitée
 #define C_W  64 //largeur de la zone en cache,
 #define C_H  64 //hauteur de la zone en cache
-#define F_SIZE 3 //Taille de la fifo en nombre de tuile
+#define F_SIZE 4 //Taille de la fifo en nombre de tuile
+#define tmpl(x) template<typename wb_param> x VideoCalc<wb_param>
 
 using namespace sc_core;
 using namespace std;
@@ -42,10 +43,10 @@ namespace soclib { namespace caba {
 			// Constructeur
 			/////////////////////////////////////
 
-			VideoCalc (sc_module_name insname,
+			VideoCalc (sc_core::sc_module_name insname,
 					uint32_t * tab,
 					const int w = 640,		//largeur d'image par défaut
-					const int h = 480,		//hauteur d'image par défaut
+					const int h = 480		//hauteur d'image par défaut
 					);
 
 			//////////////////////////////////////
@@ -54,6 +55,11 @@ namespace soclib { namespace caba {
 			void get_cache();
 			void process_tile();
 			void store_tile();
+			void process_center(int tile_nb);
+			void process_invimg(int tile_nb, int invimg_c[T_H][T_W], int invimg_l[T_H][T_W]);
+			
+			void cache_fill(uint32_t img_addr,int tile_nb);
+
 
 		private:
 

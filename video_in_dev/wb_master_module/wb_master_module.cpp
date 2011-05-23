@@ -12,7 +12,7 @@
  */
 
 #include <systemc>
-#define DEBUG_WB 1
+#define DEBUG_WB 0
 #define DEBUG_WB2 0
 
 #include "wb_master_module.h"
@@ -108,7 +108,6 @@ namespace soclib { namespace caba {
         void     WbMasterModule<wb_param>::wb_write_blk
         ( uint32_t saddr, uint8_t *mask, uint32_t *data, uint32_t num)
         {
-			std::cout << "WBmaster ecrit" << std::endl;
 #if DEBUG_WB
 			std::cout << "WBMaster ecrit "<< num << "mots en " << saddr << std::endl; 
 #endif

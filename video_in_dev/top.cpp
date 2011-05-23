@@ -56,6 +56,7 @@
 #include "video_gen.h"
 #include "video_in.h"
 #include "video_out.h"
+#include "video_calc.h"
 #include "display.h"
 
 // SystemC main
@@ -83,8 +84,8 @@ int sc_main(int argc, char *argv[])
   maptab.add(Segment("wb_slave"  , WBS_BASE  , WBS_SIZE  , IntTab(3), false));
 
   // Global signals
-  sc_time     clk_periode_pixel(40, SC_NS); // clk period 25 MHz
-  sc_time		clk_periode_system(10, SC_NS); // clk period 100 MHz
+  sc_time	clk_periode_pixel(40, SC_NS); // clk period 25 MHz
+  sc_time	clk_periode_system(10, SC_NS); // clk period 100 MHz
   sc_clock	signal_clk("signal_clk",clk_periode_pixel);
   sc_clock	system_clk("system_clk",clk_periode_system);
 
@@ -103,6 +104,7 @@ int sc_main(int argc, char *argv[])
   soclib::caba::WbSignal<wb_param> signal_wb_slave("signal_wb_slave");
   soclib::caba::WbSignal<wb_param> signal_wb_vin  ("signal_wb_vin");
   soclib::caba::WbSignal<wb_param> signal_wb_vout  ("signal_wb_vout");
+  soclib::caba::WbSignal<wb_param> signal_wb_vcalc  ("signal_wb_vcalc");
 
   /**********************************************
 	* IRQ
@@ -113,6 +115,9 @@ int sc_main(int argc, char *argv[])
   sc_signal<bool> signal_video_in_irq("signal_video_in_irq");
   // irq from video_out
   sc_signal<bool> signal_video_out_irq("signal_video_out_irq");
+  // irq from video_calc 
+  sc_signal<bool> signal_video_calc_read_irq("signal_video_calc_r_irq");
+  sc_signal<bool> signal_video_calc_write_irq("signal_video_calc_w_irq");
   // unconnected irqs
   sc_signal<bool> unconnected_irq ("unconnected_irq");
 
@@ -149,7 +154,7 @@ int sc_main(int argc, char *argv[])
 
   // WB interconnect
   //                                           sc_name    maptab  masters slaves
-  soclib::caba::WbInterco<wb_param> wbinterco("wbinterco",maptab, 3,4);
+  soclib::caba::WbInterco<wb_param> wbinterco("wbinterco",maptab, 4,4);
 
   ////////////////////////////////////////////////////////////
   /////////////////// WB -> VCI Wrappers /////////////////////
@@ -222,6 +227,16 @@ int sc_main(int argc, char *argv[])
   my_video_out.p_wb    (signal_wb_vout);
   my_video_out.p_interrupt    (signal_video_out_irq);
 
+  VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
+
+  my_video_calc.clk (system_clk);
+  my_video_calc.p_clk   (signal_clk);
+  my_video_calc.p_resetn(signal_resetn);
+  my_video_calc.reset_n(signal_resetn);
+  my_video_calc.p_wb    (signal_wb_vcalc);
+  my_video_calc.img_r    (signal_video_calc_read_irq);
+  my_video_calc.img_w    (signal_video_calc_write_irq);
+
   Display my_display ("My_display");
 
   my_display.clk (signal_clk);
@@ -240,6 +255,7 @@ int sc_main(int argc, char *argv[])
   wbinterco.p_from_master[0](signal_wb_lm32);
   wbinterco.p_from_master[1](signal_wb_vin);
   wbinterco.p_from_master[2](signal_wb_vout);
+  wbinterco.p_from_master[3](signal_wb_vcalc);
 
   wbinterco.p_to_slave[0](signal_wb_rom);
   wbinterco.p_to_slave[1](signal_wb_ram);
