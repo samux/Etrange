@@ -31,7 +31,7 @@ namespace soclib { namespace caba {
 			if (p_resetn == false) {
 				// reset cycle couter
 				cycle = 0;
-#ifdef SOCLIB_MODULE_DEBUG
+#if 0
 				std::cout << name() << " "
 					<< "RESET:: waiting for requests"
 					<< std::endl;
@@ -41,14 +41,14 @@ namespace soclib { namespace caba {
 			cycle++;
 			if (p_wb.STB_I ) {
 				if (p_wb.CYC_I ) {
+				#if 0
 					std::cout << name() << " "
 						<< "Recived a valid strobe" << std::endl
 						<< p_wb
 						<< " at cycle "<< std::dec << cycle
 						<< std::endl;
-
+					#endif
 					if (p_wb.WE_I && (p_wb.ADR_I.read() >= slave_addr) && (p_wb.ADR_I.read() < (slave_addr + 4*size))) {
-						std::cout<<"ok"<<std::endl;
 						data_tab[(p_wb.ADR_I.read()- slave_addr)/4] = p_wb.DAT_I.read();
 					}
 					else std::cout << "addr non attrib"<< p_wb.ADR_I.read() << std::endl;
