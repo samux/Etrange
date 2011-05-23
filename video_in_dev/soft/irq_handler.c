@@ -33,20 +33,14 @@ void video_in_handler()
   printf("coucou de VIN handler\n");
   //The difference between nb_image and nb_image_processed
   //must be < than 2 to avoid owerwrting
-  //if(nb_image - nb_image_processed < 2)
-  nb_image_in++;
+  if(nb_image_in - nb_image_processed < 2)
+	 nb_image_in++;
 
   //VIN = (uint32_t)&images[(nb_image)%NB_MAX_IMAGES];
   VIN = (uint32_t)RAM_FIRST_IMAGE + (nb_image%NB_MAX_IMAGES) * 640 * 480;
   VIN_CRL = 1;
   if(first_image)
   {
-	 //HARD = (uint32_t)&images[0];
-	 //HARD = (uint32_t)&images_processed[0];
-	 //HARD = RAM_FIRST_IMAGE;
-	 //HARD = RAM_FIRST_IMAGE_PROCESSED;
-	 //HARD = (uint32_t)&coeff_incr_array[0][0][0];
-
 	 first_image = 0;
 	 VOUT = (uint32_t)RAM_FIRST_IMAGE;
 	 VOUT_CRL = 1;
@@ -61,41 +55,16 @@ void video_in_handler()
  * 	- the address where the next image processed will be stored
  * 	- the address of coeff
  */
-void video_calc_read_handler()
+void video_calc_handler()
 {
-  nb_image_processed_in++;
-  //We send the address of the new image to be read
-  //HARD = (uint32_t)&images[nb_image_processed%NB_MAX_IMAGES];
-  //HARD = RAM_FIRST_IMAGE + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
-  //We send the address of the new image to be stored
-  //HARD = (uint32_t)&images_processed[nb_image_processed%NB_MAX_IMAGES];
-  //HARD = RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
-  //We send the address of the coeff
-  //HARD = (uint32_t)&coeff_incr_array[0][0][0];
   printf("Coucou de video_calc_in_handler");
-  if(first_image_processed_in)
-  {
-	 //VOUT = (uint32_t)&images_processed[0];
-	 VCALC_R = RAM_FIRST_IMAGE;
-	 VCALC_R_CRL = 1;
-	 first_image_processed_in = 0;
-  }
-}
 
-void video_calc_write_handler()
-{
-  nb_image_processed_out++;
+  nb_image_processed++;
   //We send the address of the new image to be read
-  //HARD = (uint32_t)&images[nb_image_processed%NB_MAX_IMAGES];
-  //HARD = RAM_FIRST_IMAGE + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
+  VCALC = RAM_FIRST_IMAGE + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
   //We send the address of the new image to be stored
-  //HARD = (uint32_t)&images_processed[nb_image_processed%NB_MAX_IMAGES];
-  //HARD = RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
-  //We send the address of the coeff
-  //HARD = (uint32_t)&coeff_incr_array[0][0][0];
-
-  printf("Coucou de video_calc_write_handler");
-  if(first_image_processed_out)
+  VCALC = RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
+  if(first_image_processed)
   {
 	 //VOUT = (uint32_t)&images_processed[0];
 	 VOUT = (uint32_t)RAM_FIRST_IMAGE_PROCESSED;
@@ -103,6 +72,7 @@ void video_calc_write_handler()
 	 first_image_processed = 0;
   }
 }
+<<<<<<< HEAD
 
 
 void tty_handler()

@@ -38,8 +38,7 @@ volatile uint32_t nb_image;
 volatile uint32_t nb_image_processed;
 volatile uint32_t nb_image_out;
 uint8_t first_image;
-uint8_t first_image_processed_in;
-uint8_t first_image_processed_out;
+uint8_t first_image_processed;
 
 COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
@@ -66,12 +65,10 @@ int main(void)
   RegisterIrqEntry(0, &tty_handler);
 
   nb_image_in = 0;
-  nb_image_processed_in = 0;
-  nb_image_processed_out = 0;
+  nb_image_processed = 0;
   nb_image_out = 0;
   first_image = 1;
-  first_image_processed_in = 1;
-  first_image_processed_out = 1;
+  first_image_processed = 1;
 
   RAM_FIRST_IMAGE = (uint32_t *)malloc(5*sizeof(uint32_t)*640*480/4);
   RAM_FIRST_IMAGE_PROCESSED = (uint32_t *)malloc(5*sizeof(uint32_t)*640*480/4);
@@ -80,6 +77,7 @@ int main(void)
   //First address to store the image
   VIN = (uint32_t)RAM_FIRST_IMAGE;
   VIN_CRL = 1;
+<<<<<<< HEAD
   printf("Addr video_in envoyee\n");
   VCALC_R = (uint32_t)RAM_BASE;
   VCALC_R_CRL = 1;
@@ -101,6 +99,10 @@ int main(void)
 		  break;
 	 }
   }
+=======
+
+  while(1);
+>>>>>>> interrupts for calc_hard
 
   return 0;
 }
