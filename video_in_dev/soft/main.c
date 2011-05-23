@@ -31,11 +31,13 @@
 #include "../segmentation.h"
 #include <stdint.h>
 
-volatile uint32_t nb_image;
-volatile uint32_t nb_image_processed;
+volatile uint32_t nb_image_in;
+volatile uint32_t nb_image_processed_in;
+volatile uint32_t nb_image_processed_out;
 volatile uint32_t nb_image_out;
 uint8_t first_image;
-uint8_t first_image_processed;
+uint8_t first_image_processed_in;
+uint8_t first_image_processed_out;
 
 COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
@@ -55,13 +57,16 @@ int main(void)
 
   RegisterIrqEntry(1, &video_in_handler);
   RegisterIrqEntry(2, &video_out_handler);
-  RegisterIrqEntry(3, &calc_hard_handler);
+  RegisterIrqEntry(3, &video_calc_read_handler);
+  RegisterIrqEntry(4, &video_calc_write_handler);
 
-  nb_image = 0;
-  nb_image_processed = 0;
+  nb_image_in = 0;
+  nb_image_processed_in = 0;
+  nb_image_processed_out = 0;
   nb_image_out = 0;
   first_image = 1;
-  first_image_processed = 1;
+  first_image_processed_in = 1;
+  first_image_processed_out = 1;
 
 
   //First address to store the image
@@ -70,6 +75,8 @@ int main(void)
   //VOUT = (uint32_t)RAM_BASE;
   //VOUT_CRL = 1;
   printf("Addr video_in envoyee\n");
+  VCALC_R = (uint32_t)RAM_BASE;
+  VCALC_R_CRL = 1;
 
   while(1);
   /*{
