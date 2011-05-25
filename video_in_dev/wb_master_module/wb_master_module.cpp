@@ -89,7 +89,7 @@ namespace soclib { namespace caba {
                 // sc_core::wait for ack
                 WaitWbAck();
 #if DEBUG_WB2
-				std::cout << "Ack WBM lecture OK" << std::endl;
+				std::cout << "Ack WBM lecture OK" << i  << std::endl;
 #endif
                 num_reads++;
                 *dest++ = (uint32_t) p_wb.DAT_I.read();
@@ -124,7 +124,7 @@ namespace soclib { namespace caba {
                 // sc_core::wait for ack
                 WaitWbAck();
 #if DEBUG_WB2
-				std::cout << "Ack WBM ecriture OK" << std::endl;
+				std::cout << "Ack WBM ecriture OK " << std::endl;
 #endif
                 num_writes++;
                 // next data

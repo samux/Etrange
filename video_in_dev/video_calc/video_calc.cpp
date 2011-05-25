@@ -19,10 +19,9 @@ namespace soclib { namespace caba {
 	////////////////////////////////////////////////////////////////////
 
 	tmpl(/**/)::VideoCalc(sc_core::sc_module_name insname,
-			uint32_t * tab, int w, int h):
+			uint32_t * tab):
 		sc_core::sc_module(insname),
 		p_clk("p_clk"),p_resetn("p_resetn"),
-		p_WIDTH(w), p_HEIGHT(h),
 		fifo(F_SIZE*T_W*T_H),
 		wb_tab(tab),
 		master0(p_clk,p_resetn,p_wb) {
@@ -281,7 +280,6 @@ namespace soclib { namespace caba {
 		/*DEB*/ std::cout <<"VCALC process_invimg c'est parti pour la boucle" << std::endl;
 		for (int i = 0; i < T_H;  i++) {
 			for (int j = 0; j<T_W; j++) {
-				/*DEB*/ std::cout <<"VCALC process_invimg i " << i <<" j  "<< j << std::endl;
 				invimg_c[i][j] = pixel_c + j;
 				invimg_c[i][j] = pixel_l + i;
 			}
@@ -305,6 +303,7 @@ namespace soclib { namespace caba {
 		uint32_t cache_im_w;
 		//Ligne de cache en cours de traitement
 		uint32_t cache_line = 0;
+		std::cout << "VCALC cache_fill init OK" << std::endl;
 
 		//Calcul des coordonnées du pixels en haut à gauche de la zone
 		//à traiter
@@ -313,6 +312,8 @@ namespace soclib { namespace caba {
 		//On assure les accès mémoires alignés:
 		cache_c -= cache_c%4;
 		cache_l -= cache_l%4;
+		
+		std::cout << "VCALC cache_fill Calcul centre OK c " << cache_c << "l " << cache_l << std::endl;
 
 		//ATTENTION : il est possible que la zone de cache n'est
 		//pas forcément dans l'image
@@ -323,6 +324,8 @@ namespace soclib { namespace caba {
 				cache[i][j] = 0;
 			}
 		}
+
+		std::cout << "VCALC cache_fill remplissage zone de cache avec 0 OK" <<std::endl;
 		//Calcul de la zone de cache qu'il faut remplir avec 
 		//une recherche en mémoire
 
@@ -330,6 +333,8 @@ namespace soclib { namespace caba {
 		//La zone de cache doit être laissée noire
 		if (cache_c > (uint32_t)(p_WIDTH-1) || cache_l > (uint32_t)(p_HEIGHT-1)) return;
 
+
+		std::cout << "VCALC cache_fill calcul de la zone de cache" <<std::endl;
 		//Sinon on calcule l'intersection entre la zone de cache
 		//et l'image
 		cache_im_w = C_W;
@@ -349,19 +354,31 @@ namespace soclib { namespace caba {
 		}
 		if (cache_l + C_H > p_HEIGHT - 1) cache_im_h -= (cache_l +C_H - p_HEIGHT);
 
+		std::cout << "VCALC cache_fill Fin calcul de la zone de cache" << std::endl;
+		std::cout << "VCALC cache_fill pixel en haut à gauche : " << std::endl;
+		std::cout << "VCALC cache_fill c: "<< cache_im_c << "l: " <<cache_im_l << std::endl;
+		std::cout << "VCALC cache_fill largeur "<< cache_im_w << "hateur: " <<cache_im_h << std::endl;
+
+		std::cout << "VCALC cache_fill remplissage du cache" <<std::endl;
 		//Lectures blocs de chaque ligne de cache
 		for (cache_line = 0; cache_line < C_H; cache_line ++) {
-			master0.wb_read_blk(img_addr + (tile_nb/(p_WIDTH/T_W))*T_W*T_H + (tile_nb%(p_WIDTH*T_W))*T_W + cache_im_c , 
-					cache_im_w, (uint32_t *)&cache[cache_im_l+cache_line][cache_im_c%C_W]); 
+			std::cout << "VCALC Deb1" << img_addr<<std::endl;
+			std::cout << "VCALC Deb12 "<< tile_nb << std::endl;
+			std::cout << "VCALC Deb121 " << p_WIDTH << std::endl;
+			std::cout << "VCALC Deb123 " << T_W << std::endl;
+			std::cout << "VCALC Deb13 " << p_WIDTH/T_W << std::endl;
+			std::cout <<"VCALC Deb2 " << tile_nb/(p_WIDTH/T_W)<<std::endl;
+			std::cout << "VCALC Ddb3 " << (tile_nb/(p_WIDTH/T_W))*T_W*T_H << std::endl;
+			std::cout << "VCALC deb4 " << (tile_nb%(p_WIDTH*T_W)) << std::endl;
+			std::cout << "VCALC deb5 " << (tile_nb%(p_WIDTH*T_W))*T_W*cache_line << std::endl;
+			std::cout << "VCALC cache_fill adresse de dep " << img_addr + (tile_nb/(p_WIDTH/T_W))*T_W*T_H + (tile_nb%(p_WIDTH*T_W))*T_W*cache_line + cache_im_c << std::endl; //XXX TODO debugger cette ligne
+			std::cout << "VCALC cache_fill stockage en l "<<cache_im_l+cache_line << "c " <<cache_im_c%C_W << std::endl;
+			std::cout <<  (uint32_t *)&cache[cache_im_l+cache_line][cache_im_c%C_W] << std::endl;
+			master0.wb_read_blk(img_addr + (tile_nb/(p_WIDTH/T_W))*T_W*T_H + (tile_nb%(p_WIDTH*T_W))*T_W*cache_line + cache_im_c , 
+			cache_im_w, (uint32_t *)&cache[cache_im_l+cache_line][cache_im_c%C_W]); 
+			std::cout << "VCALC cache_fill line " << cache_line << "OK" << std::endl; 
 		}
-		//On s'assure de faire des accès alignés
-		cache_l += cache_l%4;
-		cache_c += cache_c%4;
-
-		for (cache_line = 0; cache_line < cache_im_h; cache_line++)  
-			master0.wb_read_blk(img_addr + ((cache_im_l+cache_line)*p_WIDTH) + cache_im_c, cache_im_w/4, (uint32_t *)&cache[(cache_im_l+cache_line)%C_H][cache_im_c%C_W]); 
-
-
+		std::cout << "VCALC remplissage du cache termine" << std::endl;
 	}
 }}
 

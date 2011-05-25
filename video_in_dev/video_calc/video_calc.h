@@ -5,6 +5,8 @@
 #include "wb_master_module.h"
 #include "../segmentation.h"
 #define NBPACK 32
+#define p_WIDTH 640
+#define p_HEIGHT 480
 #define T_W  16 //largeur de la tuile traitée
 #define T_H  16  //hauteur de la tuile traitée
 #define C_W  64 //largeur de la zone en cache,
@@ -45,8 +47,6 @@ namespace soclib { namespace caba {
 
 			VideoCalc (sc_core::sc_module_name insname,
 					uint32_t * tab,
-					const int w = 640,		//largeur d'image par défaut
-					const int h = 480		//hauteur d'image par défaut
 					);
 
 			//////////////////////////////////////
@@ -69,10 +69,6 @@ namespace soclib { namespace caba {
 			//Coordonnées du pixel au centre de la zone de cache
 			int cache_center_c;
 			int cache_center_l;
-
-			//paramètres de l'image
-			const uint32_t p_WIDTH ;
-			const uint32_t p_HEIGHT ;
 
 			//Pour indiquer qu'il est temps de remplir
 			//le cache
