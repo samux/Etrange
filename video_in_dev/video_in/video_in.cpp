@@ -6,7 +6,7 @@
  ***********************************************************/
 
 #include "video_in.h"
-#define DEBUG_VIN 1
+#define DEBUG_VIN 0
 
 #define tmpl(x) template<typename wb_param> x Video_in<wb_param>
 namespace soclib { namespace caba {
@@ -22,7 +22,7 @@ namespace soclib { namespace caba {
 	 wb_tab(tab),
 	 p_clk("p_clk"), p_resetn("p_resetn"),
 	 master0(p_clk,p_resetn, p_wb),
-	 fifo(256)
+	 fifo(5024)
   {
 
 	 //Lecture des pixels entrants
@@ -75,9 +75,7 @@ reset:
 					 cout << "Video_in:Stocke pixel c" << pixel_c << " l " << pixel_l << "valeur " << "dans fifo" << endl;
 #endif
 				}
-#if DEBUG_VIN
 				else cout << "Video_in:Stockage bloque sur fifo pleine" << endl;
-#endif
 				pixel_c++;
 			 }
 			 else

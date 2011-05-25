@@ -5,7 +5,7 @@
 #include <systemc>
 #include "wb_master_module.h"
 #include "../segmentation.h"
-#define p_NB_PACK 64
+#define p_NB_PACK 16
 #define VIN_OFFSET 0 //Adresse du stockage en RAM
 
 using namespace sc_core;

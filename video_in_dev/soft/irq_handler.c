@@ -1,5 +1,9 @@
 #include "irq_handler.h"
+#include "lm32_sys.h"
 #include "stdio.h"
+
+unsigned long begin_cc = 0;
+unsigned long end_cc = 0;
 
 /**
  * When we receive an interruption from video_out, we send
@@ -8,12 +12,15 @@
 void video_out_handler()
 {
   printf("&&&&& Coucou de VOUT handler\n");
+  end_cc = get_cc();
   //if(nb_image_processed > nb_image_out && nb_image_processed - nb_image_out < 3)
   nb_image_out++;
 
   //VOUT = (uint32_t)&images_processed[nb_image_out%NB_MAX_IMAGES];
-  VOUT = RAM_FIRST_IMAGE + (nb_image_out%NB_MAX_IMAGES) * 640 * 480;
+  VOUT = (uint32_t)RAM_FIRST_IMAGE + (nb_image_out%NB_MAX_IMAGES) * 640 * 480;
   VOUT_CRL = 1;
+  begin_cc = get_cc();
+  printf("freq = %d Hz\n", 1000000000/(begin_cc - end_cc));
 }
 
 
@@ -30,7 +37,7 @@ void video_in_handler()
   nb_image++;
 
   //VIN = (uint32_t)&images[(nb_image)%NB_MAX_IMAGES];
-  VIN = RAM_FIRST_IMAGE + (nb_image%NB_MAX_IMAGES) * 640 * 480;
+  VIN = (uint32_t)RAM_FIRST_IMAGE + (nb_image%NB_MAX_IMAGES) * 640 * 480;
   VIN_CRL = 1;
   if(first_image)
   {
@@ -41,7 +48,7 @@ void video_in_handler()
 	 //HARD = (uint32_t)&coeff_incr_array[0][0][0];
 
 	 first_image = 0;
-	 VOUT = RAM_FIRST_IMAGE;
+	 VOUT = (uint32_t)RAM_FIRST_IMAGE;
 	 VOUT_CRL = 1;
   }
 }
@@ -69,9 +76,17 @@ void calc_hard_handler()
   if(first_image_processed)
   {
 	 //VOUT = (uint32_t)&images_processed[0];
-	 VOUT = RAM_FIRST_IMAGE_PROCESSED;
+	 VOUT = (uint32_t)RAM_FIRST_IMAGE_PROCESSED;
 	 VOUT_CRL = 1;
 	 first_image_processed = 0;
   }
+}
+
+
+void tty_handler()
+{
+  char c = inbyte();
+  printf("char received %c\n",c);
+
 }
 

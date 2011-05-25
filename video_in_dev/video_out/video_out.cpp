@@ -20,7 +20,7 @@ namespace soclib { namespace caba {
 		const int lsync , const int fsync ):
 	 sc_core::sc_module(insname),
 	 p_WIDTH(w), p_HEIGHT(h), p_LINE_SYNC(lsync), 
-	 p_FRAME_SYNC(fsync), fifo(64), wb_tab(wb_tab),
+	 p_FRAME_SYNC(fsync), fifo(256), wb_tab(wb_tab),
 	 p_clk("p_clk"), p_resetn("p_resetn"),
 	 master0(p_clk,p_resetn, p_wb)
   {
@@ -72,7 +72,7 @@ reset:
 				if((i<p_HEIGHT) && (j>p_LINE_SYNC-1)) {
 				  p_interrupt = 0;
 				  if (!fifo.nb_read(pixel_tmp)) {
-					 //	std::cout<< "Video_out: Rien a lire dans la fifo" <<std::endl;
+					 std::cout<< "Video_out: Rien a lire dans la fifo" <<std::endl;
 				  }
 				  else
 					 pixel_out = pixel_tmp;
@@ -129,10 +129,10 @@ reset:
 		while (wb_tab[3] == 0) wait();
 		im_addr = wb_tab[2];
 		wb_tab[3] = 0;
-		std::cout << "VOUT Lit une nouvelle image" << std::endl;
+		//std::cout << "VOUT Lit une nouvelle image" << std::endl;
 
 		for (int i = 0; i < (p_HEIGHT*p_WIDTH)/(VOUT_PACK*4); i++) {
-		  std::cout << "Video_out va lire" << VOUT_PACK << "mots en " << im_addr+i*VOUT_PACK << std::endl;
+		  //std::cout << "Video_out va lire" << VOUT_PACK << "mots en " << im_addr+i*VOUT_PACK << std::endl;
 		  master0.wb_read_blk(im_addr+ 4*i*VOUT_PACK, VOUT_PACK, buffer);
 		  for (int j = 0; j < VOUT_PACK; j++) {
 			 for (int k = 3; k>=0; k--) {

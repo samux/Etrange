@@ -14,11 +14,6 @@
 #define NB_TILE_HEIGHT HEIGHT/TILE_HEIGHT
 #define NB_TILE NB_TILE_WIDTH*NB_TILE_HEIGHT
 
-#define RAM_FIRST_IMAGE 				(RAM_BASE + 5*640*480) 
-#define RAM_FIRST_IMAGE_PROCESSED 	(RAM_BASE + 15*640*480)
-
-typedef uint32_t image_t[HEIGHT][WIDTH/4];
-
 typedef struct coeff_incr_t {
   float P0;
   float P1;

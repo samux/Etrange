@@ -24,12 +24,15 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "lm32_sys.h"
 #include "irq_handler.h"
 #include "poly.h"
 #include "utils.h"
 #include "../segmentation.h"
 #include <stdint.h>
+
+extern char inbyte();
 
 volatile uint32_t nb_image;
 volatile uint32_t nb_image_processed;
@@ -42,10 +45,13 @@ COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 int coeff_x[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
 int coeff_y[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
 
+uint32_t * RAM_FIRST_IMAGE;
+uint32_t * RAM_FIRST_IMAGE_PROCESSED;
+
 int main(void)
 {
 
-  //char c;
+  char c;
 
   printf("Bonjour du LM32\n");
   init_poly();
@@ -56,6 +62,7 @@ int main(void)
   RegisterIrqEntry(1, &video_in_handler);
   RegisterIrqEntry(2, &video_out_handler);
   RegisterIrqEntry(3, &calc_hard_handler);
+  RegisterIrqEntry(0, &tty_handler);
 
   nb_image = 0;
   nb_image_processed = 0;
@@ -63,22 +70,21 @@ int main(void)
   first_image = 1;
   first_image_processed = 1;
 
+  RAM_FIRST_IMAGE = (uint32_t *)malloc(5*sizeof(uint32_t)*640*480/4);
+  RAM_FIRST_IMAGE_PROCESSED = (uint32_t *)malloc(5*sizeof(uint32_t)*640*480/4);
+
 
   //First address to store the image
-  VIN = (uint32_t)RAM_BASE;
+  VIN = (uint32_t)RAM_FIRST_IMAGE;
   VIN_CRL = 1;
-  //VOUT = (uint32_t)RAM_BASE;
-  //VOUT_CRL = 1;
   printf("Addr video_in envoyee\n");
 
   while(1);
-  /*{
-	 printf("lsdfkj\n");
-	 c = getchar();
-	 switch(c = getchar())
+  {
+	 printf("test getchar\n");
+	 switch(c = inbyte())
 	 {
 		case '/':
-		  printf("lsdkfjlksdjf\n");
 		  break;
 		case '*':
 		  break;
@@ -89,7 +95,7 @@ int main(void)
 		default:
 		  break;
 	 }
-  }*/
+  }
 
   return 0;
 }

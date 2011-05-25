@@ -285,14 +285,17 @@ int sc_main(int argc, char *argv[])
 
   /*sc_trace_file *TRACEFILE;
   TRACEFILE = sc_create_vcd_trace_file("vcd_traces");
-  sc_trace (TRACEFILE, signal_resetn, "resetn" );
-  sc_trace (TRACEFILE, signal_clk,    "clk"    );
+  //sc_trace (TRACEFILE, signal_resetn, "resetn" );
+  //sc_trace (TRACEFILE, signal_clk,    "clk"    );
   sc_trace (TRACEFILE, signal_wb_lm32,"lm32_wb");
-  sc_trace (TRACEFILE, signal_wb_ram, "ram_wb" );
-  sc_trace (TRACEFILE, signal_wb_rom, "rom_wb" );
-  sc_trace (TRACEFILE, signal_wb_tty, "tty_wb" );
-  sc_trace (TRACEFILE, signal_wb_vin,  "Vin" );
-  sc_trace (TRACEFILE, signal_wb_vout, "Vout" );*/
+  //sc_trace (TRACEFILE, signal_wb_ram, "ram_wb" );
+  //sc_trace (TRACEFILE, signal_wb_rom, "rom_wb" );
+  //sc_trace (TRACEFILE, signal_wb_tty, "tty_wb" );
+  sc_trace (TRACEFILE, signal_tty_irq, "tty_wb" );
+  //sc_trace (TRACEFILE, signal_wb_vin,  "Vin" );
+  //sc_trace (TRACEFILE, signal_wb_vout, "Vout" );
+  //sc_trace (TRACEFILE, signal_video_in_irq, "Vin_irq" );
+  //sc_trace (TRACEFILE, signal_video_out_irq, "Vout_irq" );*/
 
 
   ////////////////////////////////////////////////////////////
