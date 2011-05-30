@@ -3,7 +3,7 @@ SOFT       = soft/soft.elf
 OUTPUT_LOG = simu.log
 
 PLATFORM_DESC    =  platform_desc
-SOCLIB_INCLUDES  =  -I. -I./video_in -I./display -I./wb_slave -I./video_gen -I./wb_master_module -I./dummy_wb_master -I./video_out
+SOCLIB_INCLUDES  =  -I. -I./video_in -I./display -I./wb_slave -I./video_gen -I./wb_master_module -I./dummy_wb_master -I./video_out -I./coproc
 SOCLIB_CC_ARGS   = -j4 -p $(PLATFORM_DESC) $(SOCLIB_INCLUDES)
 
 SOCLIB_CC = soclib-cc

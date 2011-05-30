@@ -59,6 +59,9 @@
 #include "video_calc.h"
 #include "display.h"
 
+// Coproc
+#include "coproc/coproc.h"
+
 // SystemC main
 int sc_main(int argc, char *argv[])
 {
@@ -82,6 +85,7 @@ int sc_main(int argc, char *argv[])
   maptab.add(Segment("ram" , RAM_BASE , RAM_SIZE , IntTab(1), true));
   maptab.add(Segment("tty"  , TTY_BASE  , TTY_SIZE  , IntTab(2), false));
   maptab.add(Segment("wb_slave"  , WBS_BASE  , WBS_SIZE  , IntTab(3), false));
+  maptab.add(Segment("coproc"  , HARD_BASE , HARD_SIZE , IntTab(4), false));
 
   // Global signals
   sc_time	clk_periode_pixel(40, SC_NS); // clk period 25 MHz
@@ -107,19 +111,21 @@ int sc_main(int argc, char *argv[])
   soclib::caba::WbSignal<wb_param> signal_wb_vcalc  ("signal_wb_vcalc");
 
   /**********************************************
-	* IRQ
-	*********************************************/
+   * IRQ
+   *********************************************/
   // irq from uart
   sc_signal<bool> signal_tty_irq("signal_tty_irq");
   // irq from video_in
   sc_signal<bool> signal_video_in_irq("signal_video_in_irq");
   // irq from video_out
   sc_signal<bool> signal_video_out_irq("signal_video_out_irq");
-  // irq from video_calc 
+  // irq from video_calc
   sc_signal<bool> signal_video_calc_read_irq("signal_video_calc_r_irq");
   sc_signal<bool> signal_video_calc_write_irq("signal_video_calc_w_irq");
   // unconnected irqs
   sc_signal<bool> unconnected_irq ("unconnected_irq");
+  // irq from coproc
+  sc_signal<bool> signal_coproc_irq_("signal_coproc_irq");
 
   //video signals
   sc_signal<bool>        line_valid_in("line_val_in");
@@ -132,6 +138,11 @@ int sc_main(int argc, char *argv[])
 
   sc_signal<unsigned char> pixel_out("pixel_val_out");
 
+  //coproc signals
+  sc_signal<bool>        frame_in_rdy("frame_in_rdy");
+  sc_signal<bool>        frame_out_rdy("frame_out_rdy");
+
+
   // Components
   // lm32 real cache configuration can be:
   // Ways 1 or 2
@@ -141,8 +152,8 @@ int sc_main(int argc, char *argv[])
   // To simulate a processor without a these parameters should be
   // changed to 1,1,4
   soclib::caba::WbXcacheWrapper
-	 <wb_param, soclib::common::Iss2Simhelper<soclib::common::LM32Iss <false > > >
-	 lm32("lm32", 0, maptab,IntTab(0), 2,128,8, 2,128,8);
+    <wb_param, soclib::common::Iss2Simhelper<soclib::common::LM32Iss <false > > >
+    lm32("lm32", 0, maptab,IntTab(0), 2,128,8, 2,128,8);
 
   // elf loader
   soclib::common::Loader loader("soft/soft.elf");
@@ -245,6 +256,44 @@ int sc_main(int argc, char *argv[])
   my_display.frame_valid(frame_valid_out);
   my_display.pixel_in(pixel_out);
 
+  // ////////////////////////////////////////////////////////////
+  // ///////////////////coproc slave ///////////////////////////
+  // ////////////////////////////////////////////////////////////
+
+  soclib::caba::WbSignal<wb_param> coproc_Signal_Slave_Wb("coproc_Signal_Slave_Wb");
+  soclib::caba::VciSignals<vci_param> coproc_Signal_Slave_Vci("coproc_Signal_Slave_Vci");
+  //Ajouter le wrapper
+  soclib::caba::WbMasterVciTargetWrapper<vci_param, wb_param> coproc_Signal_Slave_Wrapper ("coproc_Signal_Slave_Vci");
+  my_coproc_Slave_w.p_clk               (signal_clk);
+  my_coproc_Slave_w.p_resetn            (signal_resetn);
+  my_coproc_Slave_w.p_vci               (coproc_Signal_Slave_Vci);
+  my_coproc_Slave_w.p_wb                (coproc_Signal_Slave_Wb);
+
+  ////////////////////////////////////////////////////////////
+  ///////////////////coproc master ///////////////////////////
+  ////////////////////////////////////////////////////////////
+
+  soclib::caba::WbSignal<wb_param> coproc_Signal_Master_Wb("coproc_Signal_Master_Wb");
+  soclib::caba::VciSignals<vci_param> coproc_Signal_Master_Vci("coproc_Signal_Master_VCI");
+  //Ajouter le wrapper
+  soclib::caba::WbSlaveVciInitiatorWrapper<vci_param, wb_param> coproc_Master_Wrapper ("coproc_Master_Wrapper", maptab, IntTab(2));
+  my_coproc_Master_w.p_clk               (signal_clk);
+  my_coproc_Master_w.p_resetn            (signal_resetn);
+  my_coproc_Master_w.p_vci               (coproc_Signal_Master_Vci);
+  my_coproc_Master_w.p_wb                (coproc_Signal_Master_Wb);
+
+  ////////////////////////////////////////////////////////////
+  ///////////////////coproc module ///////////////////////////
+  ////////////////////////////////////////////////////////////
+
+  soclib::caba::coproc<wb_param> my_coproc ("coproc");
+  my_coproc.p_clk              (signal_clk);
+  my_coproc.p_resetn           (signal_resetn);
+  my_coproc.p_swb              (coproc_Signal_Slave_Wb);
+  my_coproc.p_mwb              (coproc_Signal_Master_Wb);
+  my_coproc.frame_in_rdy       (input_frame_rdy);
+  my_coproc.frame_out_rdy      (output_frame_rdy);
+
   ////////////////////////////////////////////////////////////
   ///////////////////// WB Net List //////////////////////////
   ////////////////////////////////////////////////////////////
@@ -273,7 +322,7 @@ int sc_main(int argc, char *argv[])
   lm32.p_irq[1] (signal_video_in_irq);
   lm32.p_irq[2] (signal_video_out_irq);
   for (int i=3; i<32; i++)
-	 lm32.p_irq[i] (unconnected_irq);
+    lm32.p_irq[i] (unconnected_irq);
 
   ////////////////////////////////////////////////////////////
   //////////////////// VCI Net List //////////////////////////
