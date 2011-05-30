@@ -34,7 +34,7 @@
 
 extern char inbyte();
 
-volatile uint32_t nb_image;
+volatile uint32_t nb_image_in;
 volatile uint32_t nb_image_processed;
 volatile uint32_t nb_image_out;
 uint8_t first_image;
@@ -61,7 +61,7 @@ int main(void)
 
   RegisterIrqEntry(1, &video_in_handler);
   RegisterIrqEntry(2, &video_out_handler);
-  RegisterIrqEntry(3, &calc_hard_handler);
+  RegisterIrqEntry(3, &video_calc_handler);
   RegisterIrqEntry(0, &tty_handler);
 
   nb_image_in = 0;
@@ -77,10 +77,6 @@ int main(void)
   //First address to store the image
   VIN = (uint32_t)RAM_FIRST_IMAGE;
   VIN_CRL = 1;
-<<<<<<< HEAD
-  printf("Addr video_in envoyee\n");
-  VCALC_R = (uint32_t)RAM_BASE;
-  VCALC_R_CRL = 1;
 
   while(1);
   {
@@ -99,10 +95,10 @@ int main(void)
 		  break;
 	 }
   }
-=======
+
 
   while(1);
->>>>>>> interrupts for calc_hard
+
 
   return 0;
 }

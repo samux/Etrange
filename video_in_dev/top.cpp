@@ -238,15 +238,15 @@ int sc_main(int argc, char *argv[])
   my_video_out.p_wb    (signal_wb_vout);
   my_video_out.p_interrupt    (signal_video_out_irq);
 
-  VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
+  // VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
 
-  my_video_calc.clk (system_clk);
-  my_video_calc.p_clk   (signal_clk);
-  my_video_calc.p_resetn(signal_resetn);
-  my_video_calc.reset_n(signal_resetn);
-  my_video_calc.p_wb    (signal_wb_vcalc);
-  my_video_calc.img_r    (signal_video_calc_read_irq);
-  my_video_calc.img_w    (signal_video_calc_write_irq);
+  // my_video_calc.clk (system_clk);
+  // my_video_calc.p_clk   (signal_clk);
+  // my_video_calc.p_resetn(signal_resetn);
+  // my_video_calc.reset_n(signal_resetn);
+  // my_video_calc.p_wb    (signal_wb_vcalc);
+  // my_video_calc.img_r    (signal_video_calc_read_irq);
+  // my_video_calc.img_w    (signal_video_calc_write_irq);
 
   Display my_display ("My_display");
 
@@ -256,43 +256,16 @@ int sc_main(int argc, char *argv[])
   my_display.frame_valid(frame_valid_out);
   my_display.pixel_in(pixel_out);
 
-  // ////////////////////////////////////////////////////////////
-  // ///////////////////coproc slave ///////////////////////////
-  // ////////////////////////////////////////////////////////////
-
-  soclib::caba::WbSignal<wb_param> coproc_Signal_Slave_Wb("coproc_Signal_Slave_Wb");
-  soclib::caba::VciSignals<vci_param> coproc_Signal_Slave_Vci("coproc_Signal_Slave_Vci");
-  //Ajouter le wrapper
-  soclib::caba::WbMasterVciTargetWrapper<vci_param, wb_param> coproc_Signal_Slave_Wrapper ("coproc_Signal_Slave_Vci");
-  my_coproc_Slave_w.p_clk               (signal_clk);
-  my_coproc_Slave_w.p_resetn            (signal_resetn);
-  my_coproc_Slave_w.p_vci               (coproc_Signal_Slave_Vci);
-  my_coproc_Slave_w.p_wb                (coproc_Signal_Slave_Wb);
-
-  ////////////////////////////////////////////////////////////
-  ///////////////////coproc master ///////////////////////////
-  ////////////////////////////////////////////////////////////
-
-  soclib::caba::WbSignal<wb_param> coproc_Signal_Master_Wb("coproc_Signal_Master_Wb");
-  soclib::caba::VciSignals<vci_param> coproc_Signal_Master_Vci("coproc_Signal_Master_VCI");
-  //Ajouter le wrapper
-  soclib::caba::WbSlaveVciInitiatorWrapper<vci_param, wb_param> coproc_Master_Wrapper ("coproc_Master_Wrapper", maptab, IntTab(2));
-  my_coproc_Master_w.p_clk               (signal_clk);
-  my_coproc_Master_w.p_resetn            (signal_resetn);
-  my_coproc_Master_w.p_vci               (coproc_Signal_Master_Vci);
-  my_coproc_Master_w.p_wb                (coproc_Signal_Master_Wb);
-
-  ////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////
   ///////////////////coproc module ///////////////////////////
   ////////////////////////////////////////////////////////////
 
-  soclib::caba::coproc<wb_param> my_coproc ("coproc");
-  my_coproc.p_clk              (signal_clk);
-  my_coproc.p_resetn           (signal_resetn);
-  my_coproc.p_swb              (coproc_Signal_Slave_Wb);
-  my_coproc.p_mwb              (coproc_Signal_Master_Wb);
-  my_coproc.frame_in_rdy       (input_frame_rdy);
-  my_coproc.frame_out_rdy      (output_frame_rdy);
+  // soclib::caba::coproc<wb_param> my_coproc ("coproc", simple_slave.data_tab);
+  // my_coproc.p_clk              (signal_clk);
+  // my_coproc.p_resetn           (signal_resetn);
+  // my_coproc.p_mwb              (signal_wb_vcalc);
+  // my_coproc.frame_in_rdy       (frame_in_rdy);
+  // my_coproc.frame_out_rdy      (frame_out_rdy);
 
   ////////////////////////////////////////////////////////////
   ///////////////////// WB Net List //////////////////////////
@@ -385,7 +358,7 @@ int sc_main(int argc, char *argv[])
 #ifdef MTI_SYSTEMC
   sc_start();
 #else
-  sc_start(sc_time(1000000, SC_US));
+  sc_start(sc_time(500000, SC_US));
 #endif
 
   //sc_close_vcd_trace_file(TRACEFILE);

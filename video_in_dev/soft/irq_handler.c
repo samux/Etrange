@@ -20,12 +20,12 @@ void video_out_handler()
   VOUT = (uint32_t)RAM_FIRST_IMAGE + (nb_image_out%NB_MAX_IMAGES) * 640 * 480;
   VOUT_CRL = 1;
   begin_cc = get_cc();
-  printf("freq = %d Hz\n", 1000000000/(begin_cc - end_cc));
+  printf("freq = %ld Hz\n", 1000000000/(begin_cc - end_cc));
 }
 
 
 /**
- * When we receive an interruption from video_in, we send 
+ * When we receive an interruption from video_in, we send
  * the address where will be stored the next image
  */
 void video_in_handler()
@@ -33,11 +33,11 @@ void video_in_handler()
   printf("coucou de VIN handler\n");
   //The difference between nb_image and nb_image_processed
   //must be < than 2 to avoid owerwrting
-  if(nb_image_in - nb_image_processed < 2)
+  //if(nb_image_in - nb_image_processed < 2)
 	 nb_image_in++;
 
   //VIN = (uint32_t)&images[(nb_image)%NB_MAX_IMAGES];
-  VIN = (uint32_t)RAM_FIRST_IMAGE + (nb_image%NB_MAX_IMAGES) * 640 * 480;
+  VIN = (uint32_t)RAM_FIRST_IMAGE + (nb_image_in%NB_MAX_IMAGES) * 640 * 480;
   VIN_CRL = 1;
   if(first_image)
   {
@@ -50,7 +50,7 @@ void video_in_handler()
 
 /**
  * When we received an interruption from calc_hard, we send
- * to this module: 
+ * to this module:
  * 	- the address where the next image will be read
  * 	- the address where the next image processed will be stored
  * 	- the address of coeff
@@ -61,9 +61,9 @@ void video_calc_handler()
 
   nb_image_processed++;
   //We send the address of the new image to be read
-  VCALC = RAM_FIRST_IMAGE + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
+  VCALC = (uint32_t)RAM_FIRST_IMAGE + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
   //We send the address of the new image to be stored
-  VCALC = RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
+  VCALC = (uint32_t)RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed%NB_MAX_IMAGES) * 640 * 480 / 4;
   if(first_image_processed)
   {
 	 //VOUT = (uint32_t)&images_processed[0];
@@ -72,7 +72,7 @@ void video_calc_handler()
 	 first_image_processed = 0;
   }
 }
-<<<<<<< HEAD
+
 
 
 void tty_handler()

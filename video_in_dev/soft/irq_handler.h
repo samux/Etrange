@@ -16,7 +16,7 @@
 
 extern char inbyte();
 
-extern volatile uint32_t nb_image;
+extern volatile uint32_t nb_image_in;
 extern volatile uint32_t nb_image_processed;
 extern volatile uint32_t nb_image_out;
 extern uint8_t first_image;
@@ -30,7 +30,7 @@ void video_out_handler();
 void video_in_handler();
 
 void video_calc_handler();
-void video_calc_write_handler();
+
 
 void tty_handler();
 
