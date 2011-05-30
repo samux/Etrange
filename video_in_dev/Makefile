@@ -37,6 +37,7 @@ clean: soft_clean
 	rm -f tty.log
 	rm -f vcd_traces.vcd
 	rm -f $(OUTPUT_LOG)
+	rm -f *~
 
 soft_clean:
 	$(MAKE) -C soft clean
