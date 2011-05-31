@@ -11,8 +11,6 @@
 #define VOUT_CRL *((volatile uint32_t *)(WBS_BASE + 12))
 #define VCALC *((volatile uint32_t *)(WBS_BASE + 16))
 #define VCALC_CRL *((volatile uint32_t *)(WBS_BASE + 20))
-#define VCALC_W *((volatile uint32_t *)(WBS_BASE + 24))
-#define VCALC_W_CRL *((volatile uint32_t *)(WBS_BASE + 28))
 
 extern char inbyte();
 
