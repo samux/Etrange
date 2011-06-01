@@ -1,4 +1,4 @@
-parameter ADDR_SIZE = 16;
+parameter ADDR_SIZE = 4;
 parameter DATA_SIZE = 32;
 
 module fifo (
@@ -12,8 +12,8 @@ module fifo (
 
 reg [ADDR_SIZE-1:0] addr_first;
 reg [ADDR_SIZE-1:0] addr_last;
-wire [DATA_SIZE-1:0] addr_first_next;
-wire [DATA_SIZE-1:0] addr_last_next;
+wire [ADDR_SIZE-1:0] addr_first_next;
+wire [ADDR_SIZE-1:0] addr_last_next;
 
 reg full;
 reg empty;
@@ -28,7 +28,7 @@ ram ram (
 	.data_out_B(data_out),
 	.addr_A(addr_last),
 	.addr_B(addr_first),
-	.w_e_A(w_e)
+	.w_e_A(w_e & ~full)
 	);
 
 assign addr_last_next = (w_e & ~full)?addr_last + 1:addr_last;
