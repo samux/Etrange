@@ -17,7 +17,7 @@ module ram (
 reg  [DATA_SIZE-1:0] internal_data[2**ADDR_SIZE-1:0];
 
 
-always_ff@(posedge clk or negedge nRST) 
+always_ff@(posedge clk) 
 	begin
 		data_out_B <= internal_data[addr_B];
 		data_out_A <= internal_data[addr_A];

@@ -6,12 +6,12 @@ module fifo (
 	input wire nRST,
 	input wire [DATA_SIZE-1:0] data_in,
 	input wire w_e,
-	input wire r_e,
+	input wire r_ack,
 	output reg [DATA_SIZE-1:0] data_out
 	);
 
-reg [DATA_SIZE-1:0] addr_first;
-reg [DATA_SIZE-1:0] addr_last;
+reg [ADDR_SIZE-1:0] addr_first;
+reg [ADDR_SIZE-1:0] addr_last;
 wire [DATA_SIZE-1:0] addr_first_next;
 wire [DATA_SIZE-1:0] addr_last_next;
 
@@ -26,13 +26,13 @@ ram ram (
 	.clk(clk),
 	.data_in_A(data_in),
 	.data_out_B(data_out),
-	.addr_A(addr_first),
-	.addr_B(addr_last),
+	.addr_A(addr_last),
+	.addr_B(addr_first),
 	.w_e_A(w_e)
 	);
 
 assign addr_last_next = (w_e & ~full)?addr_last + 1:addr_last;
-assign addr_first_next = (r_e & ~empty)?addr_first + 1:addr_first;
+assign addr_first_next = (r_ack & ~empty)?addr_first + 1:addr_first;
 
 
 /////////////////////////////////
@@ -49,13 +49,13 @@ if (nRST)
 else
 	begin
 	addr_last <= addr_last_next;
-	addr_first <= addr_firs_next;
+	addr_first <= addr_first_next;
 	if (w_e)
 		begin
 			full <= (addr_last_next==addr_first_next);
 			empty <= 0;
 		end
-		else if (r_e)
+		else if (r_ack)
 		begin
 			empty <= (addr_last_next==addr_first_next);
 			full <= 0;
