@@ -94,11 +94,16 @@ namespace soclib { namespace caba {
       private:
 
       //Pour contenir la zone en cache
-      unsigned char cache[C_H][C_W];
+      uint8_t buffer[B_H][B_W];
 
       //Coordonnées du pixel au centre de la zone de cache
-      int cache_center_c;
-      int cache_center_l;
+      int buffer_center_c;
+      int buffer_center_l;
+
+      // Numéro de la tuile en train d'être traitée.
+      //   - Si vaut 0, c'est que l'on est entre deux images.
+      //   - Si vaut n, on traite la nième tuile de l'image
+      uint32_t nb_tile = 0;
 
       //paramètres de l'image
       const uint32_t p_WIDTH ;
