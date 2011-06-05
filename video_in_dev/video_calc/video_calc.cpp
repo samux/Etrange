@@ -49,7 +49,7 @@ namespace soclib { namespace caba {
       sensitive << clk.pos();
 
       std::cout << "Video_calc "  << name()
-                << " was created successfully " << std::endl;
+                << "was created successfully " << std::endl;
     }
 
     ///////////////////////////
@@ -65,45 +65,40 @@ namespace soclib { namespace caba {
 
     tmpl(void)::get_buffer()
     {
-      /*DEB*/ std::cout <<"VCALC get_buffer in progress" << std::endl;
 
-      // Adresse de l'image en RAM
-      uint32_t img_adr;
-      wb_tab[4] = RAM_BASE;
-      wb_tab[5] = 0;
-      img_addr = wb_tab[4];
+      tile_nb = 0;
 
       for (;;)
       {
-        buffer_rdy = false;
-        img_rdy = false;
-
-        if (reset_n == false)
-        {
-          nb_tile = 0;
-          img_adr = wb_tab[4];
-          wb_tab[5] = 0;
-          tile_nb = 0;
-          buffer_rdy = false;
-          img_rdy = false;
-          /*DEB*/ std::cout <<"VCALC get_cache reset ok" << std::endl;
-        }
+        /*DEB*/ std::cout <<"VCALC get_buffer in progress" << std::endl;
 
         // Si nouvelle image, on met à jour l'adresse
         // de l'image en RAM
         if (tile_nb == 0)
         {
-          /*DEB*/ std::cout <<"VCALC get_buffer wait for a new address" << std::endl;
+          // Lorsqu'on est entre 2 images
+          // on remets à 0 l'interruption
+          // img_rdy
+          img_rdy = false;
+
+          /*DEB*/ std::cout <<"VCALC get_buffer wait for an address in" << std::endl;
           while (wb_tab[5] == 0)
             wait();
-          img_adr = wb_tab[4];
+          /*DEB*/ std::cout << "VCALC get_buffer got an address in" << std::endl;
+          img_adr_in = wb_tab[4];
           wb_tab[5] = 0;
+          /*DEB*/ std::cout <<"VCALC get_buffer wait for an address out" << std::endl;
+          while (wb_tab[7] == 0)
+            wait();
+          /*DEB*/ std::cout << "VCALC get_buffer got an address out" << std::endl;
+          img_adr_out = wb_tab[6];
+          wb_tab[6] = 0;
+          // On mets à jour le nombre de tuile traitées
+          tile_nb = 1;
         }
         // Si on possède une adresse valide
         else
         {
-          /*DEB*/ std::cout << "VCALC get_buffer got a new address" << std::endl;
-
           // On attend que process_tile fasse une demande
           // de remplissage du buffer.
           while (!ask_buffer)
@@ -111,15 +106,17 @@ namespace soclib { namespace caba {
 
           // Remplissage du buffer
           /*DEB*/ std::cout << "VCALC get_buffer is filling the buffer" << std::endl;
-          buffer_fill(img_adr, tile_nb);
+          buffer_fill(img_adr_in, tile_nb);
 
           // Le buffer est maintenant rempli
           /*DEB*/ std::cout << "VCALC get_buffer the buffer is now full" << std::endl;
           buffer_rdy = true;
+          ask_buffer = false;
 
           /*DEB*/ std::cout << "VCALC get_buffer end of Thread " << tile_nb<< std::endl;
         }
       }
+      wait();
     }
 
     ////////////////////////////
@@ -134,299 +131,314 @@ namespace soclib { namespace caba {
 
     // TO DO : Pour l'instant on se contente de ressortir l'image sans modification.
 
-    tmpl(void)::process_tile() {
-
-      /*DEB*/ std::cout <<"VCALC process_tile in progress" << std::endl;
-
-      // Numéro de la tuile en train d'être traitée.
-      //   - Si vaut 0, c'est que l'on est entre deux images.
-      //   - Si vaut n, on traite la nième tuile de l'image
-      uint32_t nb_tile = 0;
-
+    tmpl(void)::process_tile()
+    {
       // Tableau des antécédents des pixels
       // de la tuile traitée
       int invimg_c[T_H][T_W];
       int invimg_l[T_H][T_W];
 
-      tile_nb++;
-
-      //Calcul du centre
-      /*DEB*/ std::cout <<"VCALC process_tile center coord calculus" << std::endl;
-      process_center(tile_nb);
-
-      /*DEB*/ std::cout <<"VCALC process_tile calcul asking to fill buffer" << std::endl;
-      //Demande de remplissage du cache
-      ask_buffer = true;
-
-      //Calcul des antécédents
-      process_invimg(tile_nb, invimg_c, invimg_l);
-      /*DEB*/ std::cout <<"VCALC process_tile process_invimg finished : wait for buffer to be full" << std::endl;
-
-      //On attend que le buffer soit rempli
-      while (buffer_rdy == false)
-        wait();
+      // Initialisations
       ask_buffer = false;
-      /*DEB*/ std::cout <<"VCALC process_tile buffer ready" << std::endl;
+      buffer_rdy = false;
+      process_rdy = false;
+      img_rdy = false;
 
-      //On parcourt le tableau des coordonnées
-      //des antécédents. On met dans la fifo
-      //les pixels du cache correspondants
-      for (int l = 0; l<T_H; l++)
-        for (int c = 0; c<T_W; c++)
-          //Si le pixel n'est pas dans
-          //le cache, on met un pixel noir
-          if (invimg_c[l][c] < (cache_center_c - C_W/2) ||
-              invimg_c[l][c] > (cache_center_c + C_W/2) ||
-              invimg_l[l][c] < (cache_center_l - C_H/2) ||
-              invimg_l[l][c] > (cache_center_l + C_H/2)
-            )
-            fifo.write(255);
-      //Sinon on écrit le pixel du cache correspondant
-          else fifo.write(cache[invimg_l[l][c]%C_H][invimg_c[l][c]%C_W]); //XXX TODO CHANGE THIS, C EST PAS CA
+      for (;;)
+      {
+        /*DEB*/ std::cout <<"VCALC process_tile in progress" << std::endl;
 
-      /*DEB*/ std::cout <<"VCALC process_tile buffer in FIFO" << std::endl;
-    }
-    wait();
-  }
-
-  /////////////////////////////
-  // Store_tile
-  /////////////////////////////
-
-  /* Stocke les tuiles de la fifo à l'adresse de la RAM stockée dans wb_tab[6]
-   * indique au processeur quand l'image a fini d'être stockée
-   */
-  tmpl(void)::store_tile() {
-    // Numéro de la tuile en train d'être traitée.
-    //   - Si vaut 0, c'est que l'on est entre deux images.
-    //   - Si vaut n, on traite la nième tuile de l'image
-    uint32_t nb_tile = 0;
-
-    //Ligne de tuile en cours de stockage, on stocke
-    //par une écriture bloc, ligne de tuile par ligne
-    //de tuile
-    int tile_line = 0;
-    //adresse de l'image en RAM
-    int img_addr = 0;
-    //Interruption pour indique la fin de l'écriture d'une image
-    img_w = false;
-
-    //Une ligne de pixels groupés par paquets de 4
-    uint32_t pixel_pack[T_W/4];
-    uint8_t mask[T_W/4];
-    for (int i = 0; i<T_W/4; i++) {
-      mask[i] = 0xff;
-    }
-
-    /*DEB*/ std::cout <<"VCALC store_tile ICI" << std::endl;
-    for (;;) {
-      img_w = false;
-      if (reset_n == false)  {
-        tile_nb = 0;
-        tile_line = 0;
-        img_addr = 0;
-        /*DEB*/ std::cout <<"VCALC store_tile reset OK" << std::endl;
-      }
-      else {
-        //Si on est entre 2 images, on attend
-        //de disposer d'une adresse fournie par le
-        //processeur
-        if (tile_nb == 0) {
-          /*DEB*/ std::cout <<"VCALC store_tile attend une adresse" << std::endl;
-          while (wb_tab[7] != 1)
-            wait();
-          img_addr = wb_tab[6];
+        // Si un reset a lieu on réinitialise
+        // toutes les variables
+        if (reset_n == false)
+        {
+          tile_nb = 0;
+          buffer_rdy = false;
+          img_rdy = false;
+          ask_buffer = false;
+          img_adr_in = wb_tab[4];
+          img_adr_out = wb_tab[6];
+          wb_tab[5] = 0;
           wb_tab[7] = 0;
-          tile_nb = 1;
-          /*DEB*/ std::cout <<"VCALC store_tile a une adresse" << std::endl;
+          /*DEB*/ std::cout <<"VCALC get_cache reset ok" << std::endl;
         }
+
+        //Calcul du centre
+        /*DEB*/ std::cout <<"VCALC process_tile center coord calculus" << std::endl;
+        process_center(tile_nb);
+
+        //Demande de remplissage du cache
+        /*DEB*/ std::cout <<"VCALC process_tile calcul asking to fill buffer" << std::endl;
+        ask_buffer = true;
+
+        //Calcul des antécédents
+        process_invimg(tile_nb, invimg_c, invimg_l);
+        /*DEB*/ std::cout <<"VCALC  process_invimg finished : wait for buffer to be fill in" << std::endl;
+
+        //On attend que le buffer soit rempli
+        while (buffer_rdy == false)
+          wait();
+
+        /*DEB*/ std::cout <<"VCALC process_tile buffer ready" << std::endl;
+
+        //On parcourt le tableau des coordonnées
+        //des antécédents. On met dans la fifo
+        //les pixels du buffer correspondants
+        for (int l = 0; l < T_H; l++)
+          for (int c = 0; c < T_W; c++)
+            //Si le pixel n'est pas dans
+            //le buffer, on met un pixel noir
+            if (invimg_c[l][c] < (buffer_center_c - B_W/2) ||
+                ipnvimg_c[l][c] > (buffer_center_c + B_W/2) ||
+                invimg_l[l][c] < (buffer_center_l - B_H/2) ||
+                invimg_l[l][c] > (buffer_center_l + B_H/2)
+              )
+              fifo.write(255);
+        //Sinon on écrit le pixel du buffer correspondant
+            else
+              fifo.write(buffer[invimg_l[l][c] % B_H][invimg_c[l][c] % B_W]);
+        process_rdy = true;
+
+        /*DEB*/ std::cout <<"VCALC process_tile buffer in FIFO" << std::endl;
+      }
+      wait();
+    }
+
+    /////////////////////////////
+    // Store_tile
+    /////////////////////////////
+
+    /* Stocke les tuiles de la fifo à l'adresse de la RAM stockée dans wb_tab[6]
+     * Indique au processeur quand l'image a fini d'être stockée
+     */
+
+    tmpl(void)::store_tile()
+    {
+
+      // Ligne de tuile en cours de stockage.
+      // On stocke par une écriture bloc, ligne
+      // de tuile par ligne de tuile
+      int tile_line = 0;
+
+      //Une ligne de pixels groupés par paquets de 4
+      uint32_t pixel_pack[T_W/4];
+      uint8_t mask[T_W/4];
+
+      for (int i = 0; i < T_W/4; i++)
+        mask[i] = 0xff;
+
+      for (;;)
+      {
+        /*DEB*/ std::cout << "VCALC store_tile" << std::endl;
+
+        while (!process_rdy)
+          **          wait();
+
         //Dès que l'on a une ligne de tuiles en pixels on la stocke
         //en RAM. On garde le compte de la position dans l'image
-        else {
-          //Parce qu'on aime les boucles for...
 
-          //Pour chaque ligne de tuile
-          for (int l = 0; l < T_H; l++)
-          {
-            //On récupère la ligne de tuile
-            for (int c = 0; c < T_W/4; c++)
+        //Pour chaque ligne de tuile
+        for (int l = 0; l < T_H; l++)
+          //On récupère la ligne de tuile
+          for (int c = 0; c < T_W/4; c++)
+            //On récupère les pixels 4 par 4
+            for (int p = 0; p < 3; p++)
             {
-              //On récupère les pixels 4 par 4
-              for (int p = 0; p < 3; p++) {
-                pixel_pack[c] = pixel_pack[c] << 8;
-                pixel_pack[c] = fifo.read();
-              }
+              pixel_pack[c] = pixel_pack[c] << 8;
+              pixel_pack[c] = fifo.read();
             }
-            //Et on la stocke en RAM
-            //p_WIDTH/T_W = nombre de tuiles par ligne
-            master0.wb_write_blk(	img_addr + (tile_nb/(p_WIDTH/T_W))*T_W*T_H + l*p_WIDTH + (tile_nb%(p_WIDTH/T_W) - 1)*T_W,
-                                        mask,
-                                        pixel_pack,
-                                        T_W/4);
-          }
-          //tuile suivante
-          tile_nb = (tile_nb +1)%((p_WIDTH*p_HEIGHT)/(T_W*T_H) + 1);
-          if (tile_nb == 0) {
-            img_w = true;
-            wait();
-          }
-        }
+        //Et on la stocke en RAM
+        master0.wb_write_blk(img_addr_out + (l * p_WIDTH) + (tile_nb % T_OUT_L_NB - 1) * T_W + (tile_nb / T_OUT_L_NB) * T_W * T_H,
+                             mask,
+                             pixel_pack,
+                             T_W/4);
+
+        // On vient de terminer une tuile, il faut
+        // maintenant en traiter une autre avant de
+        // pouvoir la stocker
+        process_rdy = false;
+        // tuile suivante
+        tile_nb++;
+        tile_nb = (tile_nb + 1) % (T_OUT_NB + 1);
+        // Si on a terminé une image on met l'interruption
+        // img_rdy à 1 pour dire au processeur que le
+        // traitement est terminé
+        if (tile_nb == 0)
+          img_rdy = true;
+        // Sinon on attend
+        else
+          img_rdy = false;
       }
+      wait();
     }
-  }
 
-  //TODO CHANGE THIS : pour l'instant on ne fait
-  //aucun calcul sur l'image. Le centre du cache est
-  //le centre de la tuile
-  tmpl(void)::process_invimg(int tile_nb, int invimg_c[T_H][T_W], int invimg_l[T_H][T_W]) {
-    /*DEB*/ std::cout <<"VCALC process_invimg ICI" << std::endl;
-    int tile_line = p_WIDTH / C_W;
-    //Coin en haut à gauche
-    int pixel_c = (tile_nb-1) % tile_line * C_W;
-    int pixel_l = (tile_nb-1) / tile_line * C_H;
+    /////////////////////////////
+    // Process_invimg
+    /////////////////////////////
 
-    /*DEB*/ std::cout <<"VCALC process_invimg c'est parti pour la boucle" << std::endl;
-    for (int i = 0; i < T_H;  i++) {
-      for (int j = 0; j<T_W; j++) {
-        /*DEB*/ std::cout <<"VCALC process_invimg i " << i <<" j  "<< j << std::endl;
-        invimg_c[i][j] = pixel_c + j;
-        invimg_c[i][j] = pixel_l + i;
-      }
-    }
-    /*DEB*/ std::cout <<"VCALC process_invimg boucle fini avec succes" << std::endl;
-  }
+    /* Calcul les coordonnées des antécédents des pixels de la tuile
+     * en cours de traitement.
+     * Met ces antécédents dans deux tableaux :
+     *   - invimg_c pour les coordonnées en c
+     *   - invimg_l pour les coordonnées en l
+     */
 
-  /////////////////////////////
-  // Process_center
-  /////////////////////////////
-
-  /* Calcul les coordonnées du centre de la zone de buffer à récuperer.
-   */
-
-  // TO DO :
-  // Pour l'instant on ne fait aucun calcul sur l'image.
-  // Le centre du buffer est le centre de la tuile
-  tmpl(void)::process_center(int tile_nb)
-  {
-    buffer_center_c = ((tile_nb - 1) % T_IN_L_NB) * B_W + B_W/2;
-    buffer_center_l = ((tile_nb - 1) / T_IN_L_NB) * B_H + B_H/2;
-  }
-
-  /////////////////////////////
-  // Buffer_fill
-  /////////////////////////////
-
-  /* Calcul l'intersection de la zone à récupérer avec les images
-   * et remplit le buffer avec cette zone.
-   */
-
-  tmpl(void)::buffer_fill(uint32_t img_addr, int tile_nb)
-  {
-    // Coordonnées du point en haut à gauche
-    // de la zone de buffer à remplir
-    // Peut se trouver en dehors de l'image réelle
-    int32_t buffer_l = 0;
-    int32_t buffer_c = 0;
-
-    // Coordonnées du point en haut à gauche du buffer
-    // qui est vraiment dans l'image
-    int32_t buffer_im_l = 0;
-    int32_t buffer_im_c = 0;
-
-    // Taille de la zone de buffer qui est dans l'image
-    int32_t buffer_im_h;
-    int32_t buffer_im_w;
-
-    // Ligne de buffer en cours de traitement
-    int32_t buffer_line = 0;
-    uint32_t buffer_line_temp[B_W/4];
-
-    // Calcul des coordonnées du pixel en haut à gauche de la zone
-    // à traiter
-    buffer_c = buffer_center_c - B_W/2;
-    buffer_l = buffer_center_l - B_H/2;
-
-    //On assure les accès mémoires alignés:
-    buffer_c -= buffer_c % 4;
-    buffer_l -= buffer_l % 4;
-
-    // ATTENTION : il est possible que la zone de buffer ne soit
-    // pas forcément dans l'image
-
-    // On remplit la zone buffer de 0 (pixels noirs)
-    for (int i = 0; i < B_H; i++)
-      for (int j = 0; j < B_W; j++)
-        buffer[i][j] = 0;
-
-    // Calcul de la zone de buffer qu'il faut remplir avec
-    // une recherche en mémoire
-
-    // Cas où la zone de buffer est complétement en dehors de l'image
-    // La zone de buffer doit être laissée noire
-    if (buffer_c > (int32_t) (p_WIDTH - 1)  ||
-        buffer_l > (int32_t) (p_HEIGHT - 1) ||
-      )
-      return;
-
-    // Sinon on calcule l'intersection entre la zone de buffer
-    // et l'image
-
-    // Par défaut la taille du buffer est la taille d'une
-    // tuile d'entrée
-    buffer_im_w = B_W;
-    buffer_im_h = B_H;
-
-    // Par défaut les coordonnées du pixel en haut à gauche
-    // du buffer qui est véritablement dans l'image
-    // sont les même
-    buffer_im_c = buffer_c;
-    buffer_im_l = buffer_l;
-
-    // Dépassement à gauche
-    if (buffer_c < 0)
+    //TODO CHANGE THIS : pour l'instant on ne fait
+    //aucun calcul sur l'image. Le centre du buffer est
+    //le centre de la tuile
+    tmpl(void)::process_invimg(int tile_nb, int invimg_c[T_H][T_W], int invimg_l[T_H][T_W])
     {
-      buffer_im_c = 0;
-      if ((-buffer_c) > B_W)
-        return;
-      else
-        buffer_im_w += buffer_c;
-    }
+      /*DEB*/ std::cout <<"VCALC process_invimg" << std::endl;
 
-    // Dépassement à droite
-    if ((buffer_c + B_W) > (int32_t) (p_WIDTH - 1))
-      buffer_im_w -= (buffer_c + B_W - p_WIDTH);
+      //Coin en haut à gauche
+      int pixel_c = ((tile_nb - 1) % T_IN_L_NB) * B_W;
+      int pixel_l = ((tile_nb - 1) / T_IN_L_NB) * B_H;
 
-    // Dépassement en haut
-    if (buffer_l < 0)
-    {
-      buffer_im_l = 0;
-      if ((-buffer_l) > B_H)
-        return;
-      buffer_im_l += buffer_l;
-    }
-
-    // Dépassement en bas
-    if (buffer_l + B_H > p_HEIGHT - 1)
-      buffer_im_h -= (buffer_l + B_H - p_HEIGHT);
-
-    // On fait une lecture bloc ligne par ligne
-    // On récupere chaque ligne composées d'éléments
-    // de 4 pixels que l'on met ensuite dans le buffer.
-    for (buffer_line = 0; buffer_line < buffer_im_h; buffer_line++)
-    {
-      master0.wb_read_blk(img_addr + ((buffer_im_l + buffer_line) * p_WIDTH) + buffer_im_c,
-                          buffer_im_w / 4,
-                          buffer_line_temp);
-
-      for (int i = 0; i < (buffer_im_w / 4); i++)
-        for (int j = 0; j < 4; j++)
+      /*DEB*/ std::cout <<"VCALC process_invimg is filling invimg_c" << std::endl;
+      for (int l = 0; l < T_H;  l++)
+        for (int c = 0; c < T_W; c++)
         {
-          buffer[(buffer_im_l + buffer_line) % B_H][(buffer_im_c + i + j) % B_W] = buffer_line_temp[i];
-          buffer_line_temp[j] >>= 8;
+          /*DEB*/ std::cout <<"VCALC process_invimg l " << l << " c  "<< c << std::endl;
+          invimg_c[l][c] = pixel_c + c;
+          invimg_l[l][c] = pixel_l + l;
         }
+
+      /*DEB*/ std::cout <<"VCALC process_invimg finished" << std::endl;
     }
+
+    /////////////////////////////
+    // Process_center
+    /////////////////////////////
+
+    /* Calcul les coordonnées du centre de la zone de buffer à récuperer.
+     */
+
+    // TO DO :
+    // Pour l'instant on ne fait aucun calcul sur l'image.
+    // Le centre du buffer est le centre de la tuile
+    tmpl(void)::process_center(int tile_nb)
+    {
+      buffer_center_c = ((tile_nb - 1) % T_IN_L_NB) * B_W + B_W/2;
+      buffer_center_l = ((tile_nb - 1) / T_IN_L_NB) * B_H + B_H/2;
+    }
+
+    /////////////////////////////
+    // Buffer_fill
+    /////////////////////////////
+
+    /* Calcul l'intersection de la zone à récupérer avec les images
+     * et remplit le buffer avec cette zone.
+     */
+
+    tmpl(void)::buffer_fill(uint32_t img_addr, int tile_nb)
+    {
+      // Coordonnées du point en haut à gauche
+      // de la zone de buffer à remplir
+      // Peut se trouver en dehors de l'image réelle
+      int32_t buffer_l = 0;
+      int32_t buffer_c = 0;
+
+      // Coordonnées du point en haut à gauche du buffer
+      // qui est vraiment dans l'image
+      int32_t buffer_im_l = 0;
+      int32_t buffer_im_c = 0;
+
+      // Taille de la zone de buffer qui est dans l'image
+      int32_t buffer_im_h;
+      int32_t buffer_im_w;
+
+      // Ligne de buffer en cours de traitement
+      int32_t buffer_line = 0;
+      uint32_t buffer_line_temp[B_W/4];
+
+      // Calcul des coordonnées du pixel en haut à gauche de la zone
+      // à traiter
+      buffer_c = buffer_center_c - B_W/2;
+      buffer_l = buffer_center_l - B_H/2;
+
+      //On assure les accès mémoires alignés:
+      buffer_c -= buffer_c % 4;
+      buffer_l -= buffer_l % 4;
+
+      // ATTENTION : il est possible que la zone de buffer ne soit
+      // pas forcément dans l'image
+
+      // On remplit la zone buffer de 0 (pixels noirs)
+      for (int i = 0; i < B_H; i++)
+        for (int j = 0; j < B_W; j++)
+          buffer[i][j] = 0;
+
+      // Calcul de la zone de buffer qu'il faut remplir avec
+      // une recherche en mémoire
+
+      // Cas où la zone de buffer est complétement en dehors de l'image
+      // La zone de buffer doit être laissée noire
+      if (buffer_c > (int32_t) (p_WIDTH - 1)  ||
+          buffer_l > (int32_t) (p_HEIGHT - 1) ||
+        )
+        return;
+
+      // Sinon on calcule l'intersection entre la zone de buffer
+      // et l'image
+
+      // Par défaut la taille du buffer est la taille d'une
+      // tuile d'entrée
+      buffer_im_w = B_W;
+      buffer_im_h = B_H;
+
+      // Par défaut les coordonnées du pixel en haut à gauche
+      // du buffer qui est véritablement dans l'image
+      // sont les même
+      buffer_im_c = buffer_c;
+      buffer_im_l = buffer_l;
+
+      // Dépassement à gauche
+      if (buffer_c < 0)
+      {
+        buffer_im_c = 0;
+        if ((-buffer_c) > B_W)
+          return;
+        else
+          buffer_im_w += buffer_c;
+      }
+
+      // Dépassement à droite
+      if ((buffer_c + B_W) > (int32_t) (p_WIDTH - 1))
+        buffer_im_w -= (buffer_c + B_W - p_WIDTH);
+
+      // Dépassement en haut
+      if (buffer_l < 0)
+      {
+        buffer_im_l = 0;
+        if ((-buffer_l) > B_H)
+          return;
+        buffer_im_l += buffer_l;
+      }
+
+      // Dépassement en bas
+      if (buffer_l + B_H > p_HEIGHT - 1)
+        buffer_im_h -= (buffer_l + B_H - p_HEIGHT);
+
+      // On fait une lecture bloc ligne par ligne
+      // On récupere chaque ligne composées d'éléments
+      // de 4 pixels que l'on met ensuite dans le buffer.
+      for (buffer_line = 0; buffer_line < buffer_im_h; buffer_line++)
+      {
+        master0.wb_read_blk(img_addr + ((buffer_im_l + buffer_line) * p_WIDTH) + buffer_im_c,
+                            buffer_im_w / 4,
+                            buffer_line_temp);
+
+        for (int i = 0; i < (buffer_im_w / 4); i++)
+          for (int j = 0; j < 4; j++)
+          {
+            buffer[(buffer_im_l + buffer_line) % B_H][(buffer_im_c + i + j) % B_W] = buffer_line_temp[i];
+            buffer_line_temp[j] >>= 8;
+          }
+      }
+
+    }
+
   }
-}
 
 
 
