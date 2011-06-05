@@ -45,7 +45,8 @@ namespace soclib { namespace caba {
       //Wishbone
       sc_core::sc_in<bool> p_clk;
       sc_core::sc_in<bool> p_resetn;
-      soclib::caba::WbMaster<wb_param> p_wb;
+      soclib::caba::WbMaster<wb_param> p_wb_read;
+      soclib::caba::WbMaster<wb_param> p_wb_write;
 
       //Interruptions de fin d'écriture d'une image
       sc_out<bool> img_rdy;
@@ -68,7 +69,7 @@ namespace soclib { namespace caba {
       void store_tile();
       void process_center(int tile_nb);
       void process_invimg(int tile_nb, int invimg_c[T_H][T_W], int invimg_l[T_H][T_W]);
-      void buffer_fill(uint32_t img_addr,int tile_nb);
+      void buffer_fill(uint32_t img_adr_in,int tile_nb);
 
       private:
 
@@ -82,7 +83,7 @@ namespace soclib { namespace caba {
       // Numéro de la tuile en train d'être traitée.
       //   - Si vaut 0, c'est que l'on est entre deux images.
       //   - Si vaut n, on traite la nième tuile de l'image
-      uint32_t nb_tile = 0;
+      uint32_t tile_nb;
 
       // paramètres de l'image
       const uint32_t p_WIDTH ;
@@ -91,22 +92,27 @@ namespace soclib { namespace caba {
       // Pour indiquer qu'il est temps de remplir
       // le buffer
       sc_signal<bool> ask_buffer;
-
       // Pour indiquer qu'il est temps de store
       // une tuile en ram
       sc_signal<bool> process_rdy;;
-
       // Pour indique que le buffer a été rempli
       sc_signal<bool> buffer_rdy;
 
       // Fifo de tuile à stocker en RAM
       sc_fifo<unsigned char> fifo;
 
+      // variable contenant l'adresse des images
+      uint32_t img_adr_in;
+      uint32_t img_adr_out;
+
       // Adresse de lecture et ecriture en RAM
       uint32_t * wb_tab;
 
-      // Maître wishbone pour l'écriture et la lecture en RAM
+      // Maître wishbone pour la lecture en RAM
       WbMasterModule<wb_param> master0;
+
+      // Maître wishbone pour l'écriture en RAM
+      WbMasterModule<wb_param> master1;
 
       protected:
       SC_HAS_PROCESS(VideoCalc);

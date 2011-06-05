@@ -103,7 +103,8 @@ int sc_main(int argc, char *argv[])
   soclib::caba::WbSignal<wb_param> signal_wb_slave("signal_wb_slave");
   soclib::caba::WbSignal<wb_param> signal_wb_vin  ("signal_wb_vin");
   soclib::caba::WbSignal<wb_param> signal_wb_vout  ("signal_wb_vout");
-  soclib::caba::WbSignal<wb_param> signal_wb_vcalc  ("signal_wb_vcalc");
+  soclib::caba::WbSignal<wb_param> signal_wb_vcalc_read  ("signal_wb_vcalc_read");
+  soclib::caba::WbSignal<wb_param> signal_wb_vcalc_write  ("signal_wb_vcalc_write");
 
   /**********************************************
    * IRQ
@@ -152,7 +153,7 @@ int sc_main(int argc, char *argv[])
 
   // WB interconnect
   //                                           sc_name    maptab  masters slaves
-  soclib::caba::WbInterco<wb_param> wbinterco("wbinterco",maptab, 4,4);
+  soclib::caba::WbInterco<wb_param> wbinterco("wbinterco",maptab, 5,4);
 
   ////////////////////////////////////////////////////////////
   /////////////////// WB -> VCI Wrappers /////////////////////
@@ -226,7 +227,8 @@ int sc_main(int argc, char *argv[])
   my_video_calc.p_clk   (signal_clk);
   my_video_calc.p_resetn(signal_resetn);
   my_video_calc.reset_n(signal_resetn);
-  my_video_calc.p_wb    (signal_wb_vcalc);
+  my_video_calc.p_wb_read    (signal_wb_vcalc_read);
+  my_video_calc.p_wb_write   (signal_wb_vcalc_write);
   my_video_calc.img_rdy    (signal_video_calc_irq);
 
   Display my_display ("My_display");
@@ -245,7 +247,8 @@ int sc_main(int argc, char *argv[])
   wbinterco.p_from_master[0](signal_wb_lm32);
   wbinterco.p_from_master[1](signal_wb_vin);
   wbinterco.p_from_master[2](signal_wb_vout);
-  wbinterco.p_from_master[3](signal_wb_vcalc);
+  wbinterco.p_from_master[3](signal_wb_vcalc_read);
+  wbinterco.p_from_master[4](signal_wb_vcalc_write);
 
   wbinterco.p_to_slave[0](signal_wb_rom);
   wbinterco.p_to_slave[1](signal_wb_ram);

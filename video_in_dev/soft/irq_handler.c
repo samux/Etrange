@@ -23,7 +23,7 @@ void video_in_handler()
     first_image = 0;
     VCALC_IN = (uint32_t) RAM_FIRST_IMAGE;
     VCALC_IN_CRL = 1;
-    V_CALC_OUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED;
+    VCALC_OUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED;
     VCALC_OUT_CRL = 1;
   }
 }
@@ -42,11 +42,11 @@ void video_calc_handler()
 
   //We send the address of the new image to be read
   VCALC_IN = (uint32_t) RAM_FIRST_IMAGE + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480 / 4;
-  V_CALC_IN_CRL = 1;
+  VCALC_IN_CRL = 1;
 
   //We send the address of the new image to be stored
   VCALC_OUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480 / 4;
-  V_CALC_OUT_CRL = 1;
+  VCALC_OUT_CRL = 1;
 
   if(first_image_processed)
   {

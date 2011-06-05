@@ -163,7 +163,7 @@ namespace soclib { namespace caba {
         {
           if (pixel_stored_l ==0 && pixel_stored_c == 0)
           {
-            if (wb_tab[1] == 0)
+            if (wb_tab[1] != 0)
             {
               p_interrupt = 0;
               deb_im = wb_tab[0];
