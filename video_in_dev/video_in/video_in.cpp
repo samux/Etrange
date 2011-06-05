@@ -198,7 +198,7 @@ namespace soclib { namespace caba {
             if (stockage_ok)
             {
               p_interrupt = 0;
-              master0.wb_write_blk(deb_im + (p_WIDTH*pixel_stored_l + pixel_stored_c), mask, to_store, p_NB_PACK/4);
+              master0.wb_write_blk(deb_im + (p_WIDTH * pixel_stored_l + pixel_stored_c), mask, to_store, p_NB_PACK/4);
 
 #if DEBUG_VIN
               //cout << "Video_in : Stockage en " << deb_im + p_WIDTH*pixel_stored_l + pixel_stored_c << endl;

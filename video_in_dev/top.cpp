@@ -115,8 +115,7 @@ int sc_main(int argc, char *argv[])
   // Irq from video_out
   sc_signal<bool> signal_video_out_irq("signal_video_out_irq");
   // Irq from video_calc
-  sc_signal<bool> signal_video_calc_read_irq("signal_video_calc_r_irq");
-  sc_signal<bool> signal_video_calc_write_irq("signal_video_calc_w_irq");
+  sc_signal<bool> signal_video_calc_irq("signal_video_calc_irq");
   // Unconnected irqs
   sc_signal<bool> unconnected_irq ("unconnected_irq");
 
@@ -222,14 +221,13 @@ int sc_main(int argc, char *argv[])
   my_video_out.p_wb    (signal_wb_vout);
   my_video_out.p_interrupt    (signal_video_out_irq);
 
-  // VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
-  // my_video_calc.clk (system_clk);
-  // my_video_calc.p_clk   (signal_clk);
-  // my_video_calc.p_resetn(signal_resetn);
-  // my_video_calc.reset_n(signal_resetn);
-  // my_video_calc.p_wb    (signal_wb_vcalc);
-  // my_video_calc.img_r    (signal_video_calc_read_irq);
-  // my_video_calc.img_w    (signal_video_calc_write_irq);
+  VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
+  my_video_calc.clk (system_clk);
+  my_video_calc.p_clk   (signal_clk);
+  my_video_calc.p_resetn(signal_resetn);
+  my_video_calc.reset_n(signal_resetn);
+  my_video_calc.p_wb    (signal_wb_vcalc);
+  my_video_calc.img_rdy    (signal_video_calc_irq);
 
   Display my_display ("My_display");
   my_display.clk (signal_clk);
@@ -264,7 +262,8 @@ int sc_main(int argc, char *argv[])
   lm32.p_irq[0] (signal_tty_irq);
   lm32.p_irq[1] (signal_video_in_irq);
   lm32.p_irq[2] (signal_video_out_irq);
-  for (int i=3; i<32; i++)
+  lm32.p_irq[3] (signal_video_calc_irq);
+  for (int i=4; i<32; i++)
     lm32.p_irq[i] (unconnected_irq);
 
   ////////////////////////////////////////////////////////////
