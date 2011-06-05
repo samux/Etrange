@@ -67,14 +67,15 @@ int main(void)
   nb_image_in = 0;
   nb_image_processed = 0;
   nb_image_out = 0;
+
   first_image = 1;
   first_image_processed = 1;
 
-  RAM_FIRST_IMAGE = (uint32_t *)malloc(5*sizeof(uint32_t)*640*480/4);
-  RAM_FIRST_IMAGE_PROCESSED = (uint32_t *)malloc(5*sizeof(uint32_t)*640*480/4);
+  RAM_FIRST_IMAGE = (uint32_t *) malloc( 5 * sizeof(uint32_t) * 640 * 480 / 4);
+  RAM_FIRST_IMAGE_PROCESSED = (uint32_t *)malloc(5 * sizeof(uint32_t) * 640 * 480 / 4);
 
   //First address to store the image
-  VIN = (uint32_t)RAM_FIRST_IMAGE;
+  VIN = (uint32_t) RAM_FIRST_IMAGE;
   VIN_CRL = 1;
 
   while(1);
