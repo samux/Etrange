@@ -14,12 +14,12 @@ export SOCLIB
 .PHONY: all soft simlog soft_clean $(SIM_BINARY)
 
 
-all: test_soclib $(SIM_BINARY) soft top.cpp
+all: test_soclib $(SIM_BINARY) soft
 
-soft: top.cpp
+soft:
 	$(MAKE) -C soft
 
-test_soclib: top.cpp
+test_soclib:
 	@test -z "$(SOCLIB)" && (\
 	echo "You must have soclib-cc in your $$PATH" ; exit 1 ) || exit 0
 	@test ! -z "$(SOCLIB)"

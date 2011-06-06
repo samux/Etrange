@@ -312,12 +312,10 @@ namespace soclib { namespace caba {
         if (reset_n == false)
         {
           tile_nb = 0;
-          img_rdy = false;
+          p_interrupt = 0;
           /*DEB*/ std::cout <<" VCALC STORE_TILE: RESET" << std::endl;
           wait();
         }
-
-        img_rdy = false;
 
         while ((uint32_t) fifo.num_available() < (uint32_t) (T_W * T_H))
           wait();
@@ -348,23 +346,20 @@ namespace soclib { namespace caba {
 
         tile_nb++;
         // Si on a terminé une image on met l'interruption
-        // img_rdy à 1 pour dire au processeur que le
+        // p_interrupt à 1 pour dire au processeur que le
         // traitement est terminé
         if (tile_nb == T_OUT_NB)
         {
-          /*DEB*/ std::cout << " VCALC STORE_TILE: INTERRUPTION SENT" << std::endl;
           img_proc = false;
-          img_rdy = true;
+          p_interrupt = 1;
           tile_nb = 0;
-          wait();
+          /*DEB*/ std::cout << " VCALC STORE_TILE: INTERRUPTION SENT" << std::endl;
         }
         else
-        {
-          img_rdy = false;
-          wait();
-        }
+          p_interrupt = 0;
 
         /*DEB*/ std::cout << " VCALC STORE_TILE: END " << std::endl;
+        wait();
       }
     }
 

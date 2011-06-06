@@ -49,7 +49,7 @@ namespace soclib { namespace caba {
       soclib::caba::WbMaster<wb_param> p_wb_write;
 
       //Interruptions de fin d'écriture d'une image
-      sc_out<bool> img_rdy;
+      sc_out<bool> p_interrupt;
 
       /////////////////////////////////////
       // Constructeur
