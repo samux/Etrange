@@ -14,7 +14,7 @@
 // Hauteur zone buffer
 # define B_H 32
 // Taille FIFO en nb de tuiles
-# define F_SIZE 4
+# define F_SIZE 400000
 // Nb tuiles d'entrée dans le buffer
 # define T_IN_NB (p_WIDTH * p_HEIGHT) / (B_W * B_H)
 // Nb tuiles de sortie
@@ -80,11 +80,6 @@ namespace soclib { namespace caba {
       int buffer_center_c;
       int buffer_center_l;
 
-      // Numéro de la tuile en train d'être traitée.
-      //   - Si vaut 0, c'est que l'on est entre deux images.
-      //   - Si vaut n, on traite la nième tuile de l'image
-      uint32_t tile_nb;
-
       // paramètres de l'image
       const uint32_t p_WIDTH ;
       const uint32_t p_HEIGHT ;
@@ -104,6 +99,10 @@ namespace soclib { namespace caba {
       // variable contenant l'adresse des images
       uint32_t img_adr_in;
       uint32_t img_adr_out;
+
+      // booleen permettant de savoir si on doit
+      // traiter une nouvelle image
+      bool img_proc;
 
       // Adresse de lecture et ecriture en RAM
       uint32_t * wb_tab;

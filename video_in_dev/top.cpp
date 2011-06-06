@@ -328,7 +328,7 @@ int sc_main(int argc, char *argv[])
 #ifdef MTI_SYSTEMC
   sc_start();
 #else
-  sc_start(sc_time(500000, SC_US));
+  sc_start(sc_time(250000, SC_US));
 #endif
 
   // Sc_close_vcd_trace_file(TRACEFILE);

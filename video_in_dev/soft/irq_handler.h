@@ -25,13 +25,9 @@ extern uint8_t first_image_processed;
 extern uint32_t * RAM_FIRST_IMAGE;
 extern uint32_t * RAM_FIRST_IMAGE_PROCESSED;
 
-void video_out_handler();
-
 void video_in_handler();
-
 void video_calc_handler();
-
-
+void video_out_handler();
 void tty_handler();
 
 #endif
