@@ -242,28 +242,28 @@ namespace soclib { namespace caba {
           for (int c = 0; c < T_W; c++)
             // Si le pixel n'est pas dans
             // le buffer, on met un pixel noir
-            // if (invimg_c[l][c] < (buffer_center_c - B_W / 2) ||
-            //     invimg_c[l][c] > (buffer_center_c + B_W / 2) ||
-            //     invimg_l[l][c] < (buffer_center_l - B_H / 2) ||
-            //     invimg_l[l][c] > (buffer_center_l + B_H / 2)
-            //   )
+            if (invimg_c[l][c] < (buffer_center_c - B_W / 2) ||
+                invimg_c[l][c] > (buffer_center_c + B_W / 2) ||
+                invimg_l[l][c] < (buffer_center_l - B_H / 2) ||
+                invimg_l[l][c] > (buffer_center_l + B_H / 2)
+              )
               fifo.write(255);
         // Sinon on écrit le pixel du buffer correspondant
-            // else
-            // {
-            //   distance_c = invimg_c[l][c] - buffer_c;
-            //   distance_l = invimg_l[l][c] - buffer_l;
+            else
+            {
+              distance_c = invimg_c[l][c] - buffer_c;
+              distance_l = invimg_l[l][c] - buffer_l;
 
-            //   // /*DEB*/ std::cout << "     VCALC PROCESS_TILE: DISTANCE: tile_nb:"
-            //   //                   << tile_nb
-            //   //                   << " distance_l:"
-            //   //                   << distance_l
-            //   //                   << " distance c:"
-            //   //                   << distance_c
-            //   //                   << std::endl;
+              // /*DEB*/ std::cout << "     VCALC PROCESS_TILE: DISTANCE: tile_nb:"
+              //                   << tile_nb
+              //                   << " distance_l:"
+              //                   << distance_l
+              //                   << " distance c:"
+              //                   << distance_c
+              //                   << std::endl;
 
-            //   fifo.write(buffer[distance_l][distance_c]);
-            // }
+              fifo.write(buffer[distance_l][distance_c]);
+            }
         wait();
 
         /*DEB*/ std::cout << " VCALC PROCESS_TILE: tile_processed: " << tile_nb + 1 << std::endl;
@@ -332,7 +332,7 @@ namespace soclib { namespace caba {
             }
 
           // Et on la stocke en RAM
-          master1.wb_write_blk(img_adr_out + ( tile_nb / tile_line) * T_W * T_H + i * p_WIDTH + (tile_nb % tile_line) * T_W,
+          master1.wb_write_blk(img_adr_out + ((tile_nb / tile_line) * T_H + i ) * p_WIDTH + (tile_nb % tile_line) * T_W,
                                mask,
                                pixel_pack,
                                T_W/4);
@@ -342,7 +342,7 @@ namespace soclib { namespace caba {
           /*DEB*/ std::cout << "     STORE TILE: INDICES: tile_nb:"
                             << tile_nb
                             << " numero de ligne:"
-                            << (i + (tile_nb / tile_line) ) * p_WIDTH + (tile_nb % tile_line) * T_W
+                            << ((tile_nb / tile_line) * T_H + i ) * p_WIDTH + (tile_nb % tile_line) * T_W
                             << std::endl;
         }
 

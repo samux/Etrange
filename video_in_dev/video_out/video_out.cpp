@@ -27,7 +27,7 @@ tmpl(/**/)::VideoOut (sc_core::sc_module_name insname,
            p_clk("p_clk"),
            p_resetn("p_resetn"),
            master0(p_clk,p_resetn, p_wb),
-           fifo(256)
+           fifo(2048)
 {
     // Lecture des pixels en RAM
     SC_THREAD(read_image);

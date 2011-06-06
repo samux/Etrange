@@ -27,7 +27,7 @@ namespace soclib { namespace caba {
                p_clk("p_clk"),
                p_resetn("p_resetn"),
                master0(p_clk,p_resetn, p_wb),
-               fifo(5024)
+               fifo(10048)
     {
 
       // Lecture des pixels entrants
