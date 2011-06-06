@@ -175,11 +175,9 @@ namespace soclib { namespace caba {
 
           //Tant que la fifo ne contient pas assez de pixels,
           //on attend
-          if ((unsigned int) fifo.num_available() < (p_NB_PACK))
+          while ((unsigned int) fifo.num_available() < (p_NB_PACK))
             wait();
-          else
-          {
-            p_interrupt = 0;
+
             //On stocke p_NB_PACK pixels dans le tableau
 
 #if DEBUG_VIN
@@ -197,7 +195,6 @@ namespace soclib { namespace caba {
             }
             if (stockage_ok)
             {
-              p_interrupt = 0;
               master0.wb_write_blk(deb_im + (p_WIDTH * pixel_stored_l + pixel_stored_c), mask, to_store, p_NB_PACK/4);
 
 #if DEBUG_VIN
@@ -211,15 +208,19 @@ namespace soclib { namespace caba {
             {
               pixel_stored_l = (pixel_stored_l + 1) % p_HEIGHT;
               if (pixel_stored_l == 0)
+              {
                 p_interrupt = 1;
-                //std::cout << "J'ai fini une image" << std::endl;
-              else
+                wait();
+                wait();
+                wait();
                 p_interrupt = 0;
+                //std::cout << "J'ai fini une image" << std::endl;
+              }
             }
-          }
         }
         wait();
       }
     }
+
   }
 }

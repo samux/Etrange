@@ -2,18 +2,18 @@
 #include "lm32_sys.h"
 #include "stdio.h"
 
-unsigned long begin_cc = 0;
-unsigned long end_cc = 0;
-
 /**
  * When we receive an interruption from video_in, we send
  * the address where will be stored the next image
  */
 void video_in_handler()
 {
-  printf(" Coucou de VIN handler \n");
 
-  nb_image_in++;
+ if(nb_image_in - nb_image_processed < 2)
+ {
+   printf(" Coucou de VIN handler \n");
+   nb_image_in++;
+ }
 
   VIN = (uint32_t) RAM_FIRST_IMAGE + (nb_image_in % NB_MAX_IMAGES) * 640 * 480;
   VIN_CRL = 1;
@@ -41,11 +41,11 @@ void video_calc_handler()
   nb_image_processed++;
 
   //We send the address of the new image to be read
-  VCALC_IN = (uint32_t) RAM_FIRST_IMAGE + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480 / 4;
+  VCALC_IN = (uint32_t) RAM_FIRST_IMAGE + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480;
   VCALC_IN_CRL = 1;
 
   //We send the address of the new image to be stored
-  VCALC_OUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480 / 4;
+  VCALC_OUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480;
   VCALC_OUT_CRL = 1;
 
   if(first_image_processed)
@@ -63,11 +63,13 @@ void video_calc_handler()
  */
 void video_out_handler()
 {
-  printf(" Coucou de VOUT handler \n");
 
-  nb_image_out++;
+  if((nb_image_processed > nb_image_out) && (nb_image_processed - nb_image_out < 3))
+  {
+    printf(" Coucou de VOUT handler \n");
+    nb_image_out++;
+  }
 
-  //VOUT = (uint32_t)&images_processed[nb_image_out%NB_MAX_IMAGES];
   VOUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_out % NB_MAX_IMAGES) * 640 * 480;
   VOUT_CRL = 1;
 }

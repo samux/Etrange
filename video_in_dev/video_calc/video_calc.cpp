@@ -84,8 +84,6 @@ namespace soclib { namespace caba {
         {
           tile_nb = 0;
           buffer_rdy = false;
-          wb_tab[5] = 0;
-          wb_tab[7] = 0;
           /*DEB*/ std::cout << " VCALC GET_BUFFER: RESET " << std::endl;
           wait();
         }
@@ -334,7 +332,7 @@ namespace soclib { namespace caba {
             }
           }
           // Et on la stocke en RAM
-          master1.wb_write_blk(img_adr_out + (i * p_WIDTH) + (tile_nb % T_OUT_L_NB - 1) * T_W + (tile_nb / T_OUT_L_NB) * T_W * T_H,
+          master1.wb_write_blk( img_adr_out + (i + (tile_nb / T_OUT_L_NB) ) * p_WIDTH + (tile_nb % T_OUT_L_NB) * T_W,
                                mask,
                                pixel_pack,
                                T_W/4);
@@ -352,14 +350,15 @@ namespace soclib { namespace caba {
         {
           img_proc = false;
           p_interrupt = 1;
+          wait();
+          wait();
+          wait();
+          p_interrupt = 0;
           tile_nb = 0;
           /*DEB*/ std::cout << " VCALC STORE_TILE: INTERRUPTION SENT" << std::endl;
         }
-        else
-          p_interrupt = 0;
 
         /*DEB*/ std::cout << " VCALC STORE_TILE: END " << std::endl;
-        wait();
       }
     }
 
