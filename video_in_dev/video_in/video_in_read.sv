@@ -21,6 +21,17 @@ module video_in_read (
 reg [9:0] pixel_c;
 reg [9:0] pixel_l;
 
+//On va grouper les pixels par paquets de 4 avant
+//de les stocker dans la fifo
+union packed { logic [31:0] pack,
+				struct packed {
+					logic [7:0] pixel_0;
+					logic [7:0] pixel_1;
+					logic [7:0] pixel_2;
+					logic [7:0] pixel_3;
+				}
+} pixels;
+
 
 assign pixel_out = pixel_in;
 
@@ -42,7 +53,19 @@ begin
 		//seul type de message d'erreur.
 		if (line_valid && frame_valid && pixel_c <p_WIDTH && pixel_l < p_HEIGHT)
 		begin
-			w_e <= 1;
+			case (pixel_c%4)
+				0:
+					pixels.pixel_0 = pixel_in;
+				1:
+					pixels.pixel_1 = pixel_in;
+				2:
+					pixels.pixel_2 = pixel_in;
+				3:
+				begin
+					pixels.pixel_3 = pixel_in;
+					w_e <= 1;
+				end
+			endcase
 			pixel_c <= pixel_c + 1;
 		end
 		else if (frame_valid && !line_valid && pixel_c == p_WIDTH)
@@ -61,26 +84,6 @@ begin
 		//pragma translate_on
 	end
 end
-			
-			
-
-		
-
-
-
-
-					
-
-
-	
-				
-end
-	
-
-
-
-
-
 
 endmodule
 	

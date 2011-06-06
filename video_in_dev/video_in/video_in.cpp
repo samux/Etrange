@@ -120,8 +120,8 @@ reset:
 	 }
   }
 
-  //Ce Thread surveille la fifo. Dès que celle-ci contient au moins p_NB_PACK pixels, il les lit et les mets dans un tableau
-  //TO DO remplacer le tableau par une écriture en RAM via wishbone
+  //Ce Thread surveille la fifo. Dès que celle-ci contient au moins p_NB_PACK pixels,
+  //il les lit et les mets dans la ram
   tmpl(void)::store_pixels() {
 	 uint32_t pixel_stored_l;
 	 uint32_t pixel_stored_c;
