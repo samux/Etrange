@@ -144,6 +144,8 @@ namespace soclib { namespace caba {
             tile_nb = 0;
             wb_tab[5] = 0;
             wb_tab[7] = 0;
+            while (img_proc)
+              wait();
           }
 
           /*DEB*/ std::cout << " VCALC GET_BUFFER END " << std::endl;
@@ -208,9 +210,6 @@ namespace soclib { namespace caba {
           wait();
         }
 
-        while (!img_proc)
-          wait();
-
         //Calcul du centre
         process_center(tile_nb);
         /*DEB*/ std::cout << " VCALC PROCESS_TILE: tile center OK" << std::endl;
@@ -274,7 +273,11 @@ namespace soclib { namespace caba {
         tile_nb++;
         // On remets à 0 si on a traité toutes les tuiles de l'image
         if (tile_nb == T_OUT_NB)
+        {
           tile_nb = 0;
+          while (img_proc)
+            wait();
+        }
 
         /*DEB*/ std::cout << " VCALC PROCESS_TILE END " << std::endl;
         wait();
@@ -353,12 +356,15 @@ namespace soclib { namespace caba {
           img_proc = false;
           img_rdy = true;
           tile_nb = 0;
+          wait();
         }
         else
+        {
           img_rdy = false;
+          wait();
+        }
 
         /*DEB*/ std::cout << " VCALC STORE_TILE: END " << std::endl;
-        wait();
       }
     }
 
