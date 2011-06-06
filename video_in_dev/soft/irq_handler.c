@@ -11,7 +11,7 @@ unsigned long end_cc = 0;
  */
 void video_in_handler()
 {
-  printf(" Coucou de VIN handler\n");
+  printf(" Coucou de VIN handler \n");
 
   nb_image_in++;
 
@@ -36,7 +36,7 @@ void video_in_handler()
  */
 void video_calc_handler()
 {
-  printf("Coucou de video_calc_handler");
+  printf(" Coucou de VCALC _handler \n");
 
   nb_image_processed++;
 

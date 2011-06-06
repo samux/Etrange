@@ -14,7 +14,7 @@
 // Hauteur zone buffer
 # define B_H 32
 // Taille FIFO en nb de tuiles
-# define F_SIZE 400000
+# define F_SIZE 2048
 // Nb tuiles d'entrée dans le buffer
 # define T_IN_NB (p_WIDTH * p_HEIGHT) / (B_W * B_H)
 // Nb tuiles de sortie
@@ -87,9 +87,7 @@ namespace soclib { namespace caba {
       // Pour indiquer qu'il est temps de remplir
       // le buffer
       sc_signal<bool> ask_buffer;
-      // Pour indiquer qu'il est temps de store
-      // une tuile en ram
-      sc_signal<bool> process_rdy;;
+
       // Pour indique que le buffer a été rempli
       sc_signal<bool> buffer_rdy;
 
