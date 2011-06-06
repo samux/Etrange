@@ -242,28 +242,28 @@ namespace soclib { namespace caba {
           for (int c = 0; c < T_W; c++)
             // Si le pixel n'est pas dans
             // le buffer, on met un pixel noir
-            if (invimg_c[l][c] < (buffer_center_c - B_W / 2) ||
-                invimg_c[l][c] > (buffer_center_c + B_W / 2) ||
-                invimg_l[l][c] < (buffer_center_l - B_H / 2) ||
-                invimg_l[l][c] > (buffer_center_l + B_H / 2)
-              )
-              fifo.write(0);
+            // if (invimg_c[l][c] < (buffer_center_c - B_W / 2) ||
+            //     invimg_c[l][c] > (buffer_center_c + B_W / 2) ||
+            //     invimg_l[l][c] < (buffer_center_l - B_H / 2) ||
+            //     invimg_l[l][c] > (buffer_center_l + B_H / 2)
+            //   )
+              fifo.write(255);
         // Sinon on écrit le pixel du buffer correspondant
-            else
-            {
-              distance_c = invimg_c[l][c] - buffer_c;
-              distance_l = invimg_l[l][c] - buffer_l;
+            // else
+            // {
+            //   distance_c = invimg_c[l][c] - buffer_c;
+            //   distance_l = invimg_l[l][c] - buffer_l;
 
-              // /*DEB*/ std::cout << "     VCALC PROCESS_TILE: DISTANCE: tile_nb:"
-              //                   << tile_nb
-              //                   << " distance_l:"
-              //                   << distance_l
-              //                   << " distance c:"
-              //                   << distance_c
-              //                   << std::endl;
+            //   // /*DEB*/ std::cout << "     VCALC PROCESS_TILE: DISTANCE: tile_nb:"
+            //   //                   << tile_nb
+            //   //                   << " distance_l:"
+            //   //                   << distance_l
+            //   //                   << " distance c:"
+            //   //                   << distance_c
+            //   //                   << std::endl;
 
-              fifo.write(buffer[distance_l][distance_c]);
-            }
+            //   fifo.write(buffer[distance_l][distance_c]);
+            // }
         wait();
 
         /*DEB*/ std::cout << " VCALC PROCESS_TILE: tile_processed: " << tile_nb + 1 << std::endl;
@@ -293,6 +293,7 @@ namespace soclib { namespace caba {
     tmpl(void)::store_tile()
     {
       uint32_t tile_nb = 0;
+      int tile_line = p_WIDTH / T_W;
 
       //Une ligne de pixels groupés par paquets de 4
       uint32_t pixel_pack[T_W/4];
@@ -323,19 +324,26 @@ namespace soclib { namespace caba {
         {
           // On récupère la ligne de tuile
           for (int j = 0; j < T_W/4; j++)
-          {
             // On récupère les pixels 4 par 4
             for (int p = 0; p < 4; p++)
             {
               pixel_pack[j] = pixel_pack[j] << 8;
               pixel_pack[j] += fifo.read();
             }
-          }
+
           // Et on la stocke en RAM
-          master1.wb_write_blk( img_adr_out + (i + (tile_nb / T_OUT_L_NB) ) * p_WIDTH + (tile_nb % T_OUT_L_NB) * T_W,
+          master1.wb_write_blk(img_adr_out + ( tile_nb / tile_line) * T_W * T_H + i * p_WIDTH + (tile_nb % tile_line) * T_W,
                                mask,
                                pixel_pack,
                                T_W/4);
+
+          //img_addr_out + ( tile_nb / tile_line) * T_W * T_H + i * p_WIDTH + (tile_nb % (tile_line - 1) * T_W
+
+          /*DEB*/ std::cout << "     STORE TILE: INDICES: tile_nb:"
+                            << tile_nb
+                            << " numero de ligne:"
+                            << (i + (tile_nb / tile_line) ) * p_WIDTH + (tile_nb % tile_line) * T_W
+                            << std::endl;
         }
 
         /*DEB*/ std::cout << " VCALC STORE_TILE: tile_processed: "
@@ -490,7 +498,7 @@ namespace soclib { namespace caba {
       // On remplit la zone buffer de 0 (pixels noirs)
       for (int i = 0; i < B_H; i++)
         for (int j = 0; j < B_W; j++)
-          buffer[i][j] = 0;
+          buffer[i][j] = 255;
 
       // Calcul de la zone de buffer qu'il faut remplir avec
       // une recherche en mémoire
