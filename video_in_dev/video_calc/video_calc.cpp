@@ -68,6 +68,9 @@ namespace soclib { namespace caba {
       // Nb de tuiles traitées dans get_buffer
       uint32_t tile_nb = 0;
 
+      wb_tab[5] = 0;
+      wb_tab[7] = 0;
+
       for (;;)
       {
         /*DEB*/ std::cout << " VCALC GET_BUFFER: START " << std::endl;
@@ -81,7 +84,10 @@ namespace soclib { namespace caba {
         {
           tile_nb = 0;
           buffer_rdy = false;
+          wb_tab[5] = 0;
+          wb_tab[7] = 0;
           /*DEB*/ std::cout << " VCALC GET_BUFFER: RESET " << std::endl;
+          wait();
         }
         // Si nouvelle image, on met à jour l'adresse
         // de l'image en RAM
@@ -93,6 +99,7 @@ namespace soclib { namespace caba {
           /*DEB*/ std::cout << " VCALC GET_BUFFER: address IN OK " << std::endl;
           img_adr_in = wb_tab[4];
           wb_tab[5] = 0;
+
           /*DEB*/ std::cout << " VCALC GET_BUFFER: wait for address OUT " << std::endl;
           while (wb_tab[7] == 0)
             wait();
@@ -135,7 +142,8 @@ namespace soclib { namespace caba {
           if (tile_nb == T_OUT_NB)
           {
             tile_nb = 0;
-            img_proc = false;
+            wb_tab[5] = 0;
+            wb_tab[7] = 0;
           }
 
           /*DEB*/ std::cout << " VCALC GET_BUFFER END " << std::endl;
@@ -197,7 +205,11 @@ namespace soclib { namespace caba {
           wb_tab[5] = 0;
           wb_tab[7] = 0;
           /*DEB*/ std::cout << " VCALC PROCESS_TILE: RESET " << std::endl;
+          wait();
         }
+
+        while (!img_proc)
+          wait();
 
         //Calcul du centre
         process_center(tile_nb);
@@ -280,16 +292,13 @@ namespace soclib { namespace caba {
     tmpl(void)::store_tile()
     {
       uint32_t tile_nb = 0;
-      uint32_t line_nb = 0;
 
       //Une ligne de pixels groupés par paquets de 4
       uint32_t pixel_pack[T_W/4];
       uint8_t mask[T_W/4];
 
       for (int i = 0; i < T_W/4; i++)
-        mask[i] = 0xff;
-
-      img_rdy = false;
+        mask[i] = 0xf;
 
       for (;;)
       {
@@ -302,62 +311,54 @@ namespace soclib { namespace caba {
           tile_nb = 0;
           img_rdy = false;
           /*DEB*/ std::cout <<" VCALC STORE_TILE: RESET" << std::endl;
-        }
-
-        // Dès que l'on a une ligne de tuiles en pixels on la stocke
-        // en RAM. On garde le compte de la position dans l'image
-        if ((uint32_t) fifo.num_available() < (uint32_t) (T_W))
           wait();
-        else
-        {
-          // Pour chaque ligne de tuile
-          for (int i = 0; i < T_H; i++)
-          {
-            // On récupère la ligne de tuile
-            for (int j = 0; j < T_W/4; j++)
-            {
-              // On récupère les pixels 4 par 4
-              for (int p = 0; p < 3; p++)
-              {
-                pixel_pack[j] = pixel_pack[j] << 8;
-                pixel_pack[j] = fifo.read();
-              }
-            }
-            // Et on la stocke en RAM
-            master1.wb_write_blk(img_adr_out + (i * p_WIDTH) + (tile_nb % T_OUT_L_NB - 1) * T_W + (tile_nb / T_OUT_L_NB) * T_W * T_H,
-                                 mask,
-                                 pixel_pack,
-                                 T_W/4);
-          }
-
-          /*DEB*/ std::cout << " VCALC STORE_TILE: tile_processed: "
-                            << tile_nb + 1
-                            << " line_nb:"
-                            << line_nb
-                            << std::endl;
-
-          // ligne suivante
-          line_nb++;
-
-          if (line_nb == T_H)
-          {
-            line_nb = 0;
-            tile_nb++;
-          }
-
-          // Si on a terminé une image on met l'interruption
-          // img_rdy à 1 pour dire au processeur que le
-          // traitement est terminé
-          if (tile_nb == T_OUT_NB)
-          {
-            img_rdy = true;
-            tile_nb = 0;
-          }
-          else
-            img_rdy = false;
-
-          /*DEB*/ std::cout << " VCALC STORE_TILE: END " << std::endl;
         }
+
+        img_rdy = false;
+
+        while ((uint32_t) fifo.num_available() < (uint32_t) (T_W * T_H))
+          wait();
+
+        // Pour chaque ligne de tuile
+        for (int i = 0; i < T_H; i++)
+        {
+          // On récupère la ligne de tuile
+          for (int j = 0; j < T_W/4; j++)
+          {
+            // On récupère les pixels 4 par 4
+            for (int p = 0; p < 4; p++)
+            {
+              pixel_pack[j] = pixel_pack[j] << 8;
+              pixel_pack[j] += fifo.read();
+            }
+          }
+          // Et on la stocke en RAM
+          master1.wb_write_blk(img_adr_out + (i * p_WIDTH) + (tile_nb % T_OUT_L_NB - 1) * T_W + (tile_nb / T_OUT_L_NB) * T_W * T_H,
+                               mask,
+                               pixel_pack,
+                               T_W/4);
+        }
+
+        /*DEB*/ std::cout << " VCALC STORE_TILE: tile_processed: "
+                          << tile_nb + 1
+                          << std::endl;
+
+        tile_nb++;
+        // Si on a terminé une image on met l'interruption
+        // img_rdy à 1 pour dire au processeur que le
+        // traitement est terminé
+        if (tile_nb == T_OUT_NB)
+        {
+          /*DEB*/ std::cout << " VCALC STORE_TILE: INTERRUPTION SENT" << std::endl;
+          img_proc = false;
+          img_rdy = true;
+          tile_nb = 0;
+        }
+        else
+          img_rdy = false;
+
+        /*DEB*/ std::cout << " VCALC STORE_TILE: END " << std::endl;
+        wait();
       }
     }
 

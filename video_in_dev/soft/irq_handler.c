@@ -36,7 +36,7 @@ void video_in_handler()
  */
 void video_calc_handler()
 {
-  printf(" Coucou de VCALC _handler \n");
+  printf(" Coucou de VCALC handler \n");
 
   nb_image_processed++;
 
@@ -63,7 +63,7 @@ void video_calc_handler()
  */
 void video_out_handler()
 {
-  printf(" Coucou de VOUT handler\n");
+  printf(" Coucou de VOUT handler \n");
 
   nb_image_out++;
 

@@ -211,10 +211,8 @@ namespace soclib { namespace caba {
             {
               pixel_stored_l = (pixel_stored_l + 1) % p_HEIGHT;
               if (pixel_stored_l == 0)
-              {
                 p_interrupt = 1;
                 //std::cout << "J'ai fini une image" << std::endl;
-              }
               else
                 p_interrupt = 0;
             }
