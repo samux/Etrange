@@ -118,10 +118,10 @@ namespace soclib { namespace caba {
         {
           // On attend que process_tile fasse une demande
           // de remplissage du buffer.
-          /*DEB*/ std::cout << " VCALC GET_BUFFER: ask_buffer ?? " << std::endl;
+          ///*DEB*/ std::cout << " VCALC GET_BUFFER: ask_buffer ?? " << std::endl;
           while (!ask_buffer)
             wait();
-          /*DEB*/ std::cout << " VCALC GET_BUFFER: ask_buffer OK " << std::endl;
+          ///*DEB*/ std::cout << " VCALC GET_BUFFER: ask_buffer OK " << std::endl;
 
           // Remplissage du buffer
           /*DEB*/ std::cout << " VCALC GET_BUFFER: FILLING buffer " << std::endl;
@@ -145,8 +145,6 @@ namespace soclib { namespace caba {
             while (img_proc)
               wait();
           }
-
-          /*DEB*/ std::cout << " VCALC GET_BUFFER END " << std::endl;
           wait();
         }
       }
@@ -213,20 +211,20 @@ namespace soclib { namespace caba {
         /*DEB*/ std::cout << " VCALC PROCESS_TILE: tile center OK" << std::endl;
 
         //Demande de remplissage du cache
-        /*DEB*/ std::cout << " VCALC PROCESS_TILE: asking to fill buffer " << std::endl;
+        ///*DEB*/ std::cout << " VCALC PROCESS_TILE: asking to fill buffer " << std::endl;
         ask_buffer = true;
         wait();
 
         //Calcul des antécédents
-        /*DEB*/ std::cout << " VCALC PROCESS_TILE: starting back wrapping " << std::endl;
+        ///*DEB*/ std::cout << " VCALC PROCESS_TILE: starting back wrapping " << std::endl;
         process_invimg(tile_nb, invimg_c, invimg_l);
-        /*DEB*/ std::cout << " VCALC PROCESS_TILE: back wrapping ok " << std::endl;
+        /*DEB*/ std::cout << " VCALC PROCESS_TILE: back wrapping OK " << std::endl;
 
         //On attend que le buffer soit rempli
-        /*DEB*/ std::cout << " VCALC PROCESS_TILE: buffer full ?? " << std::endl;
+        ///*DEB*/ std::cout << " VCALC PROCESS_TILE: buffer full ?? " << std::endl;
         while (!buffer_rdy)
           wait();
-        /*DEB*/ std::cout << " VCALC  PROCESS_TILE: buffer full ok " << std::endl;
+        /*DEB*/ std::cout << " VCALC  PROCESS_TILE: buffer full OK " << std::endl;
 
         // On annule la demande de remplissage du cache
         ask_buffer = false;
@@ -339,11 +337,11 @@ namespace soclib { namespace caba {
 
           //img_addr_out + ( tile_nb / tile_line) * T_W * T_H + i * p_WIDTH + (tile_nb % (tile_line - 1) * T_W
 
-          /*DEB*/ std::cout << "     STORE TILE: INDICES: tile_nb:"
-                            << tile_nb
-                            << " numero de ligne:"
-                            << ((tile_nb / tile_line) * T_H + i ) * p_WIDTH + (tile_nb % tile_line) * T_W
-                            << std::endl;
+          // /*DEB*/ std::cout << " VCALC STORE_TILE: INDICES: tile_nb:"
+          //                   << tile_nb
+          //                   << " ADRESSE:"
+          //                   << img_adr_out + ((tile_nb / tile_line) * T_H + i ) * p_WIDTH + (tile_nb % tile_line) * T_W
+          //                   << std::endl;
         }
 
         /*DEB*/ std::cout << " VCALC STORE_TILE: tile_processed: "
@@ -404,6 +402,13 @@ namespace soclib { namespace caba {
         {
           invimg_c[l][c] = pixel_c + c;
           invimg_l[l][c] = pixel_l + l;
+          // /*DEB*/ std::cout << "     VCALC PROCESS_TILE: INVIMG: tile_nb:"
+          //                   << tile_nb
+          //                   << " col:"
+          //                   << invimg_c[l][c]
+          //                   << " line:"
+          //                   << invimg_l[l][c]
+          //                   << std::endl;
         }
     }
 
@@ -473,7 +478,7 @@ namespace soclib { namespace caba {
       buffer_c = buffer_center_c - B_W / 2;
       buffer_l = buffer_center_l - B_H / 2;
 
-      // /*DEB*/ std::cout << "     VCALC PROCESS_TILE: COIN GAUCHE (OP): tile_nb:"
+      // /*DEB*/ std::cout << "     VCALC GET_BUFFER: COIN GAUCHE (OP): tile_nb:"
       //                   << tile_nb
       //                   << " col:"
       //                   << buffer_c
@@ -484,7 +489,7 @@ namespace soclib { namespace caba {
       // //On assure les accès mémoires alignés:
       // buffer_c -= buffer_c % 4;
       // buffer_l -= buffer_l % 4;
-      // /*DEB*/ std::cout << "     VCALC PROCESS_TILE: COIN GAUCHE (OP aligné): tile_nb:"
+      // /*DEB*/ std::cout << "     VCALC GET_BUFFER: COIN GAUCHE (OP aligné): tile_nb:"
       //                   << tile_nb
       //                   << " col:"
       //                   << buffer_c
@@ -555,21 +560,30 @@ namespace soclib { namespace caba {
       if (buffer_l + B_H > (int32_t) p_HEIGHT - 1)
         buffer_im_h -= (buffer_l + B_H - p_HEIGHT);
 
-      // /*DEB*/ std::cout << "     VCALC PROCESS_TILE: COIN GAUCHE (IP): tile_nb:"
-      //                   << tile_nb
-      //                   << " col:"
-      //                   << buffer_im_c
-      //                   << " line:"
-      //                   << buffer_im_l
-      //                   << std::endl;
+    //   /*DEB*/ std::cout << "     VCALC GET_BUFFER: COIN GAUCHE (IP): tile_nb:"
+    //                     << tile_nb
+    //                     << " col:"
+    //                     << buffer_im_c
+    //                     << " line:"
+    //                     << buffer_im_l
+    //                     << std::endl;
 
-      // /*DEB*/ std::cout << "     VCALC PROCESS_TILE: DIMENSIONS (IP): tile_nb:"
-      //                   << tile_nb
-      //                   << " width:"
-      //                   << buffer_im_w
-      //                   << " height:"
-      //                   << buffer_im_h
-      //                   << std::endl;
+    //   /*DEB*/ std::cout << "     VCALC GET_BUFFER: DIMENSIONS (IP): tile_nb:"
+    //                     << tile_nb
+    //                     << " width:"
+    //                     << buffer_im_w
+    //                     << " height:"
+    //                     << buffer_im_h
+    //                     << std::endl;
+
+    // /*DEB*/ std::cout << "     VCALC GET_BUFFER: DECALAGE (IP): tile_nb:"
+    //                     << tile_nb
+    //                     << " decalage_w:"
+    //                     << decalage_w
+    //                     << " decalage_h:"
+    //                     << decalage_h
+    //                     << std::endl;
+
 
       // On fait une lecture bloc ligne par ligne
       // On récupere chaque ligne composées d'éléments
@@ -581,6 +595,13 @@ namespace soclib { namespace caba {
         master0.wb_read_blk(img_adr_in + ((buffer_im_l + buffer_line) * p_WIDTH) + buffer_im_c,
                             buffer_im_w / 4,
                             buffer_line_temp);
+
+    // /*DEB*/ std::cout << "     VCALC GET_BUFFER: ADRESSES: tile_nb:"
+    //                   << tile_nb
+    //                   << " ADRESSE:"
+    //                   << img_adr_in + ((buffer_im_l + buffer_line) * p_WIDTH) + buffer_im_c
+    //                   << std::endl;
+
         k = 0;
         for (int i = 0; i < (buffer_im_w / 4); i++)
         {

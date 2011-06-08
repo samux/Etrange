@@ -143,16 +143,16 @@ tmpl(void)::VideoOut::read_image()
 		wb_tab[3] = 0;
 		//std::cout << "VOUT Lit une nouvelle image" << std::endl;
 
-		for (int i = 0; i < (p_HEIGHT*p_WIDTH)/(VOUT_PACK*4); i++)
+		for (int i = 0; i < (p_HEIGHT * p_WIDTH) / (VOUT_PACK * 4); i++)
         {
             //std::cout << "Video_out va lire" << VOUT_PACK << "mots en " << im_addr+i*VOUT_PACK << std::endl;
-            master0.wb_read_blk(im_addr+ 4*i*VOUT_PACK, VOUT_PACK, buffer);
+            master0.wb_read_blk(im_addr+ 4 * i * VOUT_PACK, VOUT_PACK, buffer);
             for (int j = 0; j < VOUT_PACK; j++)
             {
                 for (int k = 3; k>=0; k--)
                 {
-                    fifo.write(buffer[j] >> 8*k);
-                    buffer[j] = buffer[j] - ((buffer[j] >> 8*k) << 8*k);
+                    fifo.write(buffer[j] >> 8 * k);
+                    buffer[j] = buffer[j] - ((buffer[j] >> 8 * k) << 8 * k);
                 }
             }
 		}

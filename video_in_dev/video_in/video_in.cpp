@@ -132,8 +132,8 @@ namespace soclib { namespace caba {
     // TO DO remplacer le tableau par une écriture en RAM via wishbone
     tmpl(void)::store_pixels()
     {
-      uint32_t pixel_stored_l;
-      uint32_t pixel_stored_c;
+      uint32_t pixel_stored_l = 0;
+      uint32_t pixel_stored_c = 0;
 
       //Adresse de début de stockage de l'image
       uint32_t deb_im = RAM_BASE;
@@ -141,48 +141,42 @@ namespace soclib { namespace caba {
       uint8_t mask[p_NB_PACK/4];
       bool stockage_ok;
 
-      for (int i = 0; i < p_NB_PACK/4; i++) mask[i] = 0xf;
+      for (int i = 0; i < p_NB_PACK/4; i++)
+        mask[i] = 0xf;
 
-      //cout << "store_pixels" << endl;
-      while (true)
+      p_interrupt = 0;
+
+      // std::cout << "VIN STORE_PIXEL: START" << std::endl;
+
+      for (;;)
       {
+
         if (reset_n == false)
         {
           stockage_ok = false;
           pixel_stored_c = 0;
           pixel_stored_l = 0;
           p_interrupt = 0;
-          deb_im = wb_tab[0];
-          wb_tab[1] = 0;
-          if (deb_im < RAM_BASE)
-            deb_im = RAM_BASE;
-          //cout << "reset : deb_im " << deb_im<< endl;
+          // std::cout << " VIN STORE_PIXEL: RESET " << std::endl;
           wait();
         }
-        else
+
+        if (wb_tab[1] != 0)
         {
-          if (pixel_stored_l ==0 && pixel_stored_c == 0)
+          pixel_stored_c = 0;
+          pixel_stored_l = 0;
+          deb_im = wb_tab[0];
+          wb_tab[1] = 0;
+          stockage_ok = true;
+          // std::cout << " VIN STORE_PIXEL: NOUVELLE ADRESSE: " << deb_im << std::endl;
+          wait();
+        }
+
+        if (stockage_ok)
+        {
+
+          if ((unsigned int) fifo.num_available() > (p_NB_PACK))
           {
-            if (wb_tab[1] != 0)
-            {
-              p_interrupt = 0;
-              deb_im = wb_tab[0];
-              wb_tab[1] = 0;
-              stockage_ok = true;
-              std::cout << "VIN Stockage d'une nouvelle image en "<< deb_im << std::endl;
-            }
-          }
-
-          //Tant que la fifo ne contient pas assez de pixels,
-          //on attend
-          while ((unsigned int) fifo.num_available() < (p_NB_PACK))
-            wait();
-
-            //On stocke p_NB_PACK pixels dans le tableau
-
-#if DEBUG_VIN
-            //cout << "fifo quantitee" << fifo.num_available() << endl;
-#endif
 
             for (unsigned int i = 0; i< p_NB_PACK/4; i++)
             {
@@ -193,30 +187,40 @@ namespace soclib { namespace caba {
                 to_store[i] += fifo.read();
               }
             }
-            if (stockage_ok)
+
+            master0.wb_write_blk(deb_im + (p_WIDTH * pixel_stored_l + pixel_stored_c), mask, to_store, p_NB_PACK/4);
+
+            // std::cout << " VIN STORE_PIXELS: "
+            //           << pixel_stored_c
+            //           << " ADRESSE PIXEL "
+            //           << deb_im + p_WIDTH * pixel_stored_l + pixel_stored_c
+            //           << std::endl;
+
+            pixel_stored_c = pixel_stored_c + p_NB_PACK;
+            if (pixel_stored_c == p_WIDTH)
             {
-              master0.wb_write_blk(deb_im + (p_WIDTH * pixel_stored_l + pixel_stored_c), mask, to_store, p_NB_PACK/4);
 
-#if DEBUG_VIN
-              //cout << "Video_in : Stockage en " << deb_im + p_WIDTH*pixel_stored_l + pixel_stored_c << endl;
-#endif
+              pixel_stored_c = 0;
+              pixel_stored_l++;
 
-            }
+              // std::cout << " VIN STORE_PIXELS: NOUVELLE LIGNE "
+              //           << pixel_stored_l
+              //           << " ADRESSE LIGNE "
+              //           << deb_im + p_WIDTH * pixel_stored_l + pixel_stored_c
+              //           << std::endl;
 
-            pixel_stored_c = (pixel_stored_c + p_NB_PACK) % p_WIDTH;
-            if (pixel_stored_c == 0)
-            {
-              pixel_stored_l = (pixel_stored_l + 1) % p_HEIGHT;
-              if (pixel_stored_l == 0)
+;              if (pixel_stored_l == p_HEIGHT)
               {
                 p_interrupt = 1;
                 wait();
                 wait();
                 wait();
                 p_interrupt = 0;
-                //std::cout << "J'ai fini une image" << std::endl;
+                stockage_ok = false;
+                // std::cout << " VIN STORE_PIXELS: INTERRUPTION SENT " << std::endl;
               }
             }
+          }
         }
         wait();
       }
