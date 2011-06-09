@@ -45,16 +45,20 @@ namespace soclib { namespace caba {
       pixel_c = 0;
       pixel_l = 0;
 
-      std::cout << "Video_in "  << name()
+      std::cout << name()
 		<< " was created successfully " << std::endl;
     }
 
     // Lit les pixels reçus et les place dans la fifo
     tmpl(void)::read_pixels()
     {
-      //cout << "read_pixels" << endl;
-      while(true)
+      std::cout << " VIN READ_PIXELS: START " << std::endl;
+
+      bool start_fifo = false;
+
+      for(;;)
       {
+
         if(reset_n == false)
         {
           reset:
@@ -62,33 +66,28 @@ namespace soclib { namespace caba {
           pixel_l = 0;
           wait();
         }
+
         else
         {
           // image valide
           if (line_valid && frame_valid)
           {
-            //	cout << name() << " valid ..." <<  " lines : " << pixel_l << "col :" << pixel_c << endl;
+            // std::cout << name() << " valid ..." <<  " lines : " << pixel_l << "col :" << pixel_c << std::endl;
             if (pixel_c < p_WIDTH && pixel_l < p_HEIGHT)
             {
-              //TO DO On stocke le pixel dans la fifo
-              if (fifo.nb_write(pixel_in.read())) {
-#if DEBUG_VIN
-                if (pixel_c%40==0)
-
-                  //cout << "Video_in:Stocke pixel c" << pixel_c << " l " << pixel_l << "valeur " << "dans fifo" << endl;
-#endif
-                  }
-
-#if DEBUG_VIN
-              //else cout << "Video_in:Stockage bloque sur fifo pleine" << endl;
-#endif
-
+              if (start_fifo)
+                fifo.nb_write(pixel_in.read());
               pixel_c++;
             }
             else
             {
-              cout << name() << " Video_in: WARNING: Too much pixels..!!!!!"
-                   << " lines : " << pixel_l << " col : " << pixel_c << endl;
+              std::cout << name()
+                        << " VIN PIXEL_READS: TOO MUCH PIXELS !"
+                        << " lines : "
+                        << pixel_l
+                        << " col : "
+                        << pixel_c
+                        << std::endl;
               exit(-1);
             }
           }
@@ -104,8 +103,13 @@ namespace soclib { namespace caba {
               }
               else if (pixel_c != 0)
               {
-                cout << name() << " Video_in: Warning.........!!"
-                     << " lines : " << pixel_l << "col :" << pixel_c << endl;
+                std::cout << name()
+                     << " VIN PIXEL_READS: TOO MUCH PIXELS!!"
+                     << " lines : "
+                     << pixel_l
+                     << "col :"
+                     << pixel_c
+                     << std::endl;
               }
             }
             // Synchro verticale
@@ -115,6 +119,8 @@ namespace soclib { namespace caba {
               {
                 pixel_c = 0;
                 pixel_l = 0;
+                if(first_interrupt)
+                  start_fifo = true;
               }
             }
           }
@@ -134,9 +140,10 @@ namespace soclib { namespace caba {
     {
       uint32_t pixel_stored_l = 0;
       uint32_t pixel_stored_c = 0;
+      first_interrupt = false;
 
       //Adresse de début de stockage de l'image
-      uint32_t deb_im = RAM_BASE;
+      uint32_t deb_im;
       uint32_t to_store[p_NB_PACK/4];
       uint8_t mask[p_NB_PACK/4];
       bool stockage_ok;
@@ -146,7 +153,7 @@ namespace soclib { namespace caba {
 
       p_interrupt = 0;
 
-      // std::cout << "VIN STORE_PIXEL: START" << std::endl;
+      std::cout << "VIN STORE_PIXEL: START" << std::endl;
 
       for (;;)
       {
@@ -157,18 +164,22 @@ namespace soclib { namespace caba {
           pixel_stored_c = 0;
           pixel_stored_l = 0;
           p_interrupt = 0;
-          // std::cout << " VIN STORE_PIXEL: RESET " << std::endl;
+          first_interrupt = false;
+          std::cout << " VIN STORE_PIXEL: RESET " << std::endl;
           wait();
         }
 
-        if (wb_tab[1] != 0)
+        if (wb_tab[1] != 0 && !stockage_ok)
         {
           pixel_stored_c = 0;
           pixel_stored_l = 0;
           deb_im = wb_tab[0];
           wb_tab[1] = 0;
           stockage_ok = true;
-          // std::cout << " VIN STORE_PIXEL: NOUVELLE ADRESSE: " << deb_im << std::endl;
+          if(!first_interrupt)
+            first_interrupt = true;
+
+          std::cout << " VIN STORE_PIXEL: NOUVELLE ADRESSE: " << deb_im << std::endl;
           wait();
         }
 
@@ -212,12 +223,13 @@ namespace soclib { namespace caba {
 ;              if (pixel_stored_l == p_HEIGHT)
               {
                 p_interrupt = 1;
-                wait();
+                for(int i = 0; i < 100; i++)
+                  wait();
                 wait();
                 wait();
                 p_interrupt = 0;
                 stockage_ok = false;
-                // std::cout << " VIN STORE_PIXELS: INTERRUPTION SENT " << std::endl;
+                std::cout << " VIN STORE_PIXELS: INTERRUPTION SENT " << std::endl;
               }
             }
           }

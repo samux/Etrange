@@ -64,6 +64,8 @@ namespace soclib { namespace caba {
       unsigned int pixel_c;
       unsigned int pixel_l;
 
+      bool first_interrupt;
+
       // Pour stocker les pixels entrants
       sc_fifo<unsigned char> fifo;
 

@@ -48,7 +48,7 @@ namespace soclib { namespace caba {
       SC_THREAD(store_tile);
       sensitive << clk.pos();
 
-      std::cout << " Video_calc "  << name()
+      std::cout <<  name()
                 << " was created successfully " << std::endl;
     }
 

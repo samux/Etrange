@@ -39,7 +39,7 @@ tmpl(/**/)::VideoOut (sc_core::sc_module_name insname,
     sensitive << clk_out.pos();
     dont_initialize();
 
-    std::cout << "Video_out"  << name()
+    std::cout << name()
               << " was created succesfully " << std::endl;
 }
 
@@ -47,33 +47,32 @@ tmpl(/**/)::VideoOut (sc_core::sc_module_name insname,
 // dans la fifo
 tmpl(void)::gen_sorties()
 {
+    std::cout << " VOUT GEN_SORTIES: START " << std::endl;
+
     unsigned char pixel_tmp;
 
-    while(1)
+    for(;;)
     {
+
 		if(reset_n == false)
 		{
           reset:
-
-#ifdef SOCLIB_MODULE_DEBUG
-            cout << name() << " Reset ..." << endl;
-#endif
             // On met les sorties à zero
             pixel_out = 0;
             line_valid = false;
             frame_valid = false;
             p_interrupt = 0;
-
-            // Puis on attend le prochain coup d'horloge, ou un reset
+            std::cout << " VOUT GEN_SORTIES: RESET " << std::endl;
             wait();
 		}
+
 		else
 		{
             while (fifo.num_available() == 0)
                 wait();
-            unsigned int i,j;
-            for(i=0; i<( p_HEIGHT + p_FRAME_SYNC ); i++)
-                for(j=0; j<( p_WIDTH + p_LINE_SYNC ); j++)
+
+            for(int i=0; i<( p_HEIGHT + p_FRAME_SYNC ); i++)
+                for(int j=0; j<( p_WIDTH + p_LINE_SYNC ); j++)
                 {
                     // Si on est dans la fenêtre active, on sort le pixel courant
                     // Rappel : une trame video fait ( p_WIDTH + p_LINE_SYNC )*( p_HEIGHT + p_FRAME_SYNC ),
@@ -81,9 +80,10 @@ tmpl(void)::gen_sorties()
                     if((i<p_HEIGHT) && (j>p_LINE_SYNC-1))
                     {
                         p_interrupt = 0;
+
                         if (!fifo.nb_read(pixel_tmp))
                         {
-                            std::cout<< "Video_out: Rien a lire dans la fifo" <<std::endl;
+                            std::cout<< "VOUT GEN_SORTIES: FIFO VIDE" <<std::endl;
                         }
                         else
                             pixel_out = pixel_tmp;
@@ -106,10 +106,9 @@ tmpl(void)::gen_sorties()
                         goto reset;
                 }
             p_interrupt = 1;
-#ifdef SOCLIB_MODULE_DEBUG
-            cout << name() << " Fin image " << endl;
-#endif
-		}
+            std::cout << " VOUT GEN_SORTIES: INTERRUPTION SENT " << std::endl;
+            wait();
+        }
     }
 }
 
@@ -122,11 +121,11 @@ tmpl(void)::VideoOut::read_image()
     //par 4 dans la mémoire.
     uint32_t im_addr;
     uint32_t buffer[VOUT_PACK];
-    wb_tab[2] = RAM_BASE;
-    wb_tab[3] = 0;
-    im_addr = wb_tab[2];
+
+    std::cout << " VOUT READ_IMAGE: START " << std::endl;
 
     for (;;) {
+
 		if (reset_n == false)
         {
             im_addr = wb_tab[2];
@@ -141,12 +140,15 @@ tmpl(void)::VideoOut::read_image()
 
 		im_addr = wb_tab[2];
 		wb_tab[3] = 0;
-		//std::cout << "VOUT Lit une nouvelle image" << std::endl;
+        wait();
+        std::cout << " VOUT READ_IMAGE: NOUVELLE ADRESSE " << wb_tab[2] << std::endl;
 
 		for (int i = 0; i < (p_HEIGHT * p_WIDTH) / (VOUT_PACK * 4); i++)
         {
-            //std::cout << "Video_out va lire" << VOUT_PACK << "mots en " << im_addr+i*VOUT_PACK << std::endl;
+            //std::cout << " VOUT READ_IMAGE: LECTURE DE" << VOUT_PACK << "mots en " << im_addr+i*VOUT_PACK << std::endl;
+
             master0.wb_read_blk(im_addr+ 4 * i * VOUT_PACK, VOUT_PACK, buffer);
+
             for (int j = 0; j < VOUT_PACK; j++)
             {
                 for (int k = 3; k>=0; k--)
@@ -155,6 +157,7 @@ tmpl(void)::VideoOut::read_image()
                     buffer[j] = buffer[j] - ((buffer[j] >> 8 * k) << 8 * k);
                 }
             }
+
 		}
     }
 }
