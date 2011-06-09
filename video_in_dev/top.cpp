@@ -222,14 +222,14 @@ int sc_main(int argc, char *argv[])
   my_video_out.p_wb    (signal_wb_vout);
   my_video_out.p_interrupt    (signal_video_out_irq);
 
-  // VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
-  // my_video_calc.clk (system_clk);
-  // my_video_calc.p_clk   (signal_clk);
-  // my_video_calc.p_resetn(signal_resetn);
-  // my_video_calc.reset_n(signal_resetn);
-  // my_video_calc.p_wb_read    (signal_wb_vcalc_read);
-  // my_video_calc.p_wb_write   (signal_wb_vcalc_write);
-  // my_video_calc.p_interrupt    (signal_video_calc_irq);
+  VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
+  my_video_calc.clk (system_clk);
+  my_video_calc.p_clk   (signal_clk);
+  my_video_calc.p_resetn(signal_resetn);
+  my_video_calc.reset_n(signal_resetn);
+  my_video_calc.p_wb_read    (signal_wb_vcalc_read);
+  my_video_calc.p_wb_write   (signal_wb_vcalc_write);
+  my_video_calc.p_interrupt    (signal_video_calc_irq);
 
   Display my_display ("My_display");
   my_display.clk (signal_clk);
@@ -333,7 +333,7 @@ int sc_main(int argc, char *argv[])
   sc_start(sc_time(200000, SC_US));
 #endif
 
-  sc_close_vcd_trace_file(TRACEFILE);
+  // sc_close_vcd_trace_file(TRACEFILE);
 
   return EXIT_SUCCESS;
 }

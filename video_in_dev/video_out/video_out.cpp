@@ -163,12 +163,3 @@ tmpl(void)::VideoOut::read_image()
 }
 
 }}
-
-
-// Local Variables:
-// tab-width: 4
-// c-basic-offset: 4
-// c-file-offsets:((innamespace . 0)(inline-open . 0))
-// indent-tabs-mode: nil
-// End:
-//1073741824

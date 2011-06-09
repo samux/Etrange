@@ -14,7 +14,7 @@
 // Hauteur zone buffer
 # define B_H 32
 // Taille FIFO en nb de tuiles
-# define F_SIZE 1024
+# define F_SIZE 100000
 // Nb tuiles d'entrée dans le buffer
 # define T_IN_NB (p_WIDTH * p_HEIGHT) / (B_W * B_H)
 // Nb tuiles de sortie

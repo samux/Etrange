@@ -63,7 +63,7 @@ int main(void)
   RegisterIrqEntry(0, &tty_handler);
   RegisterIrqEntry(1, &video_in_handler);
   RegisterIrqEntry(2, &video_out_handler);
-  //RegisterIrqEntry(3, &video_calc_handler);
+  RegisterIrqEntry(3, &video_calc_handler);
 
   nb_image_in = 0;
   nb_image_processed = 0;
