@@ -54,12 +54,12 @@
 
 //Video
 #include "video_gen.h"
-#include "video_in.h"
+#include "hdl/include/video_in.h"
 #include "video_out.h"
 #include "display.h"
 
 // SystemC main
-int sc_main(int argc, char *argv[])
+int _main(int argc, char *argv[])
 {
   using namespace sc_core;
   using namespace soclib::caba;
@@ -103,6 +103,10 @@ int sc_main(int argc, char *argv[])
   soclib::caba::WbSignal<wb_param> signal_wb_slave("signal_wb_slave");
   soclib::caba::WbSignal<wb_param> signal_wb_vin  ("signal_wb_vin");
   soclib::caba::WbSignal<wb_param> signal_wb_vout  ("signal_wb_vout");
+
+  // WB slave data
+  sc_signal<sc_uint<32> > wb_data_0;
+  sc_signal<sc_uint<32> > wb_data_1;
 
   /**********************************************
 	* IRQ
@@ -184,6 +188,8 @@ int sc_main(int argc, char *argv[])
   simple_slave.p_clk(system_clk);
   simple_slave.p_resetn(signal_resetn);
   simple_slave.p_wb(signal_wb_slave);
+  simple_slave.wb_data_0(wb_data_0);
+  simple_salve.wb_data_1(wb_data_1);
 
   ////////////////////////////////////////////////////////////
   ///////////////////Video modules ///////////////////////////
@@ -196,7 +202,7 @@ int sc_main(int argc, char *argv[])
   my_videogen.frame_valid(frame_valid_in);
   my_videogen.pixel_out(pixel_in);
 
-  Video_in<wb_param> my_video_in ("video_in", simple_slave.data_tab);
+  sc_foreign_module::video_in<wb_param> my_video_in ("video_in");
 
   my_video_in.clk (system_clk);
   my_video_in.clk_in (signal_clk);
@@ -204,10 +210,18 @@ int sc_main(int argc, char *argv[])
   my_video_in.line_valid(line_valid_in);
   my_video_in.frame_valid(frame_valid_in);
   my_video_in.pixel_in(pixel_in);
-  my_video_in.p_clk   (signal_clk);
-  my_video_in.p_resetn(signal_resetn);
-  my_video_in.p_wb    (signal_wb_vin);
+  //signaux wishbone
+  my_video_in.p_wb_STB_O(signal_wb_vin.STB_O);
+  my_video_in.p_wb_CYC_O (signal_wb_vin.CYC_O);
+  my_video_in.p_wb_LOCK_O(signal_wb_vin.LOCK_O);
+  my_video_in.p_wb_SEL_O(signal_wb_vin.SEL_O);
+  my_video_in.p_wb_ADR_O(signal_wb_vin.ADR_O);
+  my_video_in.p_wb_ACK_O (signal_wb_vin.ACK_O);
+  my_video_in.p_wb_DAT_O (signal_wb_vin.DAT_O);
+  my_video_in.p_wb_ERR_I (signal_wb_vin.ERR_I);
   my_video_in.p_interrupt    (signal_video_in_irq);
+  my_video_in.wb_reg_ctr (wb_data_0);
+  my_video_in.wb_reg_data (wb_data_1);
 
   VideoOut<wb_param> my_video_out ("video_out", simple_slave.data_tab);
 
@@ -323,5 +337,19 @@ int sc_main(int argc, char *argv[])
   //sc_close_vcd_trace_file(TRACEFILE);
 
   return EXIT_SUCCESS;
+}
+
+// fake sc_man to catch exceptions
+int sc_main(int argc, char *argv[])
+{
+    try {
+        return _main(argc, argv);
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+    } catch (...) {
+        std::cout << "Unknown exception occured" << std::endl;
+        throw;
+    }
+    return 1;
 }
 

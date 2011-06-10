@@ -21,6 +21,7 @@ namespace soclib { namespace caba {
 		SC_METHOD(genMealy);
 		sensitive << p_clk.neg();
 		sensitive << p_wb;
+
 	}
 
 
@@ -61,6 +62,9 @@ namespace soclib { namespace caba {
 						<< std::endl;
 				}
 			}
+			//Signaux = contenu du tableau
+			wb_data_0 = data_tab[0];
+			wb_data_1 = data_tab[1];
 		}
 
 	// Synchronoue methode

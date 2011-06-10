@@ -16,13 +16,22 @@ namespace soclib { namespace caba {
                 sc_core::sc_in<bool>               p_resetn;
                 WbSlave <wb_param>    p_wb;
 
-				uint32_t * data_tab;
+				//Les données reçues du processeur
+				//Pour les modules SystemC
+				uint32_t * data_tab;	
+
+				//Pour les modules Verilog (pour l'instant
+				//uniquement Video_in
+				sc_core::sc_out<sc_core::sc_signal::sc_uint<32> > wb_data_0;
+				sc_core::sc_out<sc_core::sc_signal::sc_uint<32> > wb_data_1;
+				
 
                 // constructor
                 WbSimpleSlave (sc_core::sc_module_name insname, uint32_t slave_addr, uint32_t size);
 
                 void transition();
                 void genMealy();
+				void tab_to_sign();
                 //void genMoore();
             private:
                 uint32_t cycle;
