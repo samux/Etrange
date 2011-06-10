@@ -9,7 +9,7 @@
 void video_in_handler()
 {
 
-   if (nb_image_in - nb_image_processed < 2)
+  if (nb_image_in - nb_image_processed < 2)
    {
      printf(" Coucou de VIN handler \n");
      nb_image_in++;

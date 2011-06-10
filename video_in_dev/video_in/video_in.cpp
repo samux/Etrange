@@ -218,13 +218,12 @@ namespace soclib { namespace caba {
               //           << pixel_stored_l
               //           << " ADRESSE LIGNE "
               //           << deb_im + p_WIDTH * pixel_stored_l + pixel_stored_c
-              //           << std::endl;
+              //           << std::Fendl;
 
 ;              if (pixel_stored_l == p_HEIGHT)
               {
                 p_interrupt = 1;
-                for(int i = 0; i < 100; i++)
-                  wait();
+                wait();
                 wait();
                 wait();
                 p_interrupt = 0;
