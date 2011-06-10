@@ -14,7 +14,6 @@ module video_in_read (
 	input wire frame_valid,
 	input wire pixel_in,
 	output reg w_e,
-	output reg pixel_out
 	);
 
 //Pour situer la position courante au sein de l'image
@@ -32,8 +31,6 @@ union packed { logic [31:0] pack,
 				}
 } pixels;
 
-
-assign pixel_out = pixel_in;
 
 //Processus de lecture
 always @(posedge clk or negedge nRST)
@@ -55,28 +52,28 @@ begin
 		begin
 			case (pixel_c%4)
 				0:
-					pixels.pixel_0 = pixel_in;
+					pixels.pixel_0 <= pixel_in;
 				1:
-					pixels.pixel_1 = pixel_in;
+					pixels.pixel_1 <= pixel_in;
 				2:
-					pixels.pixel_2 = pixel_in;
+					pixels.pixel_2 <= pixel_in;
 				3:
 				begin
-					pixels.pixel_3 = pixel_in;
+					pixels.pixel_3 <= pixel_in;
 					w_e <= 1;
 				end
 			endcase
 			pixel_c <= pixel_c + 1;
 		end
-		else if (frame_valid && !line_valid && pixel_c == p_WIDTH)
+		else if (frame_valid && !line_valid && pixel_c == (p_WIDTH-1))
 		begin
-			pixel_c =  0;
-			pixel_l = pixel_l + 1;
+			pixel_c <=  0;
+			pixel_l <= pixel_l + 1;
 		end
 		else if (!frame_valid && pixel_c == p_WIDTH && pixel_l == (p_HEIGHT -1))
 		begin
-			pixel_c = 0;
-			pixel_l = 0;
+			pixel_c <= 0;
+			pixel_l <= 0;
 		end
 		//pragma translate_off
 		else

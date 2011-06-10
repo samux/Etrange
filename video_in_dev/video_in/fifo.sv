@@ -10,8 +10,6 @@ module fifo (
 	input wire w_e,
 	input wire r_ack,
 	output reg [DATA_SIZE-1:0] data_out,
-	output reg full,
-	output reg empty,
 	output reg nb_pack_available
 	);
 

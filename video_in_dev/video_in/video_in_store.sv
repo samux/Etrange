@@ -24,7 +24,6 @@ module video_in_store (
 		input wire p_wb_ERR_I,
 		//Rmque il n'y a pas p_wb_RTY, je sais 
 		//pas à quoi ça sert
-
 		);
 
 assign p_wb_SEL_O = 0xf;
