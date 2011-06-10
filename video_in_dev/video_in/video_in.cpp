@@ -229,7 +229,7 @@ namespace soclib { namespace caba {
                 wait();
                 p_interrupt = 0;
                 stockage_ok = false;
-                std::cout << " VIN STORE_PIXELS: INTERRUPTION SENT " << std::endl;
+                std::cout << " VIN STORE_PIXEL: INTERRUPTION SENT " << std::endl;
               }
             }
           }

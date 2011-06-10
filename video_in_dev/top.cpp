@@ -59,7 +59,7 @@
 #include "display.h"
 
 // SystemC main
-int sc_main(int argc, char *argv[])
+int _main(int argc, char *argv[])
 {
   using namespace sc_core;
   using namespace soclib::caba;
@@ -330,10 +330,15 @@ int sc_main(int argc, char *argv[])
 #ifdef MTI_SYSTEMC
   sc_start();
 #else
-  sc_start(sc_time(200000, SC_US));
+  sc_start(sc_time(600000, SC_US));
 #endif
 
   // sc_close_vcd_trace_file(TRACEFILE);
 
   return EXIT_SUCCESS;
+}
+
+int sc_main(int argc, char *argv[])
+{
+	return (_main(argc, argv));
 }
