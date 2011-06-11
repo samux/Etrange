@@ -20,6 +20,11 @@ void video_in_handler()
    VIN = (uint32_t) RAM_FIRST_IMAGE + (nb_image_in % NB_MAX_IMAGES) * 640 * 480;
    VIN_CRL = 1;
 
+	////////////////////////////////////////////
+	//Si l'on veut désactiver le copro, 
+	//on commente le premier if et on 
+	//décommente le deuxième
+	///////////////////////////////////////////
    if (first_image)
    {
      first_image = 0;
@@ -28,6 +33,12 @@ void video_in_handler()
      VCALC_OUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED;
      VCALC_OUT_CRL = 1;
    }
+	if(first_image)
+	{
+	  first_image = 0;
+	  VOUT = (uint32_t) RAM_FIRST_IMAGE;
+	  VOUT_CRL = 1;
+	}
 
 }
 
@@ -68,13 +79,13 @@ void video_out_handler()
   printf("on entre dans vout_handler\n");
   printf("nb_image_out : %d nb_image_processed : %d\n",(int)nb_image_out, (int)nb_image_processed);
 
-  if((nb_image_processed > nb_image_out) && (nb_image_processed - nb_image_out < 3))
+  if(nb_image_out < nb_image_processed - 1)
   {
     printf(" Coucou de VOUT handler : %ld \n", (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_out % NB_MAX_IMAGES) * 640 * 480);
     nb_image_out++;
   }
 
-  /* VOUT = (uint32_t) RAM_FIRST_IMAGE + nb_image_out * 640 * 480; */
+  //VOUT = (uint32_t) RAM_FIRST_IMAGE + (nb_image_out % NB_MAX_IMAGES) * 640 * 480;
 
   VOUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_out % NB_MAX_IMAGES) * 640 * 480;
   VOUT_CRL = 1;

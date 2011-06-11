@@ -71,8 +71,8 @@ namespace soclib { namespace caba {
           while (fifo.num_available() == 0)
             wait();
 
-          for(int i=0; i<( p_HEIGHT + p_FRAME_SYNC ); i++)
-            for(int j=0; j<( p_WIDTH + p_LINE_SYNC ); j++)
+          for(unsigned int i=0; i<( p_HEIGHT + p_FRAME_SYNC ); i++)
+            for(unsigned int j=0; j<( p_WIDTH + p_LINE_SYNC ); j++)
             {
               // Si on est dans la fenêtre active, on sort le pixel courant
               // Rappel : une trame video fait ( p_WIDTH + p_LINE_SYNC )*( p_HEIGHT + p_FRAME_SYNC ),
@@ -107,7 +107,10 @@ namespace soclib { namespace caba {
             }
           p_interrupt = 1;
           std::cout << " VOUT GEN_SORTIES: INTERRUPTION SENT " << std::endl;
+			 wait();
+			 wait();
           wait();
+			 p_interrupt = 0;
         }
       }
     }
@@ -143,7 +146,7 @@ namespace soclib { namespace caba {
         wait();
         std::cout << " VOUT READ_IMAGE: NOUVELLE ADRESSE " << wb_tab[2] << std::endl;
 
-        for (int i = 0; i < (p_HEIGHT * p_WIDTH) / (VOUT_PACK * 4); i++)
+        for (unsigned int i = 0; i < (p_HEIGHT * p_WIDTH) / (VOUT_PACK * 4); i++)
         {
           //std::cout << " VOUT READ_IMAGE: LECTURE DE" << VOUT_PACK << "mots en " << im_addr+i*VOUT_PACK << std::endl;
 

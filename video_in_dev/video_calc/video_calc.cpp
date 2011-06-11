@@ -101,7 +101,6 @@ namespace soclib { namespace caba {
 		  }
 		}
 
-
 		std::cout << "VCALC a finit de lire une image" << std::endl;
 	 }
   }
@@ -170,6 +169,8 @@ namespace soclib { namespace caba {
 		  addr = deb_im_out + (nb_line_stocked%T_H)*p_WIDTH + (nb_tile%(p_WIDTH/T_W))*T_W + (nb_tile/(p_WIDTH/T_W))*T_H*p_WIDTH;
 		  master1.wb_write_blk(addr, mask, to_store, 4);
 		}
+		else
+		  std::cout << "VCALC bloque sur FIFO" << std::endl;
 		nb_line_stocked++;
 		nb_tile += ((nb_line_stocked % 16) ? 0 : 1);
 
