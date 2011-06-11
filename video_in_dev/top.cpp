@@ -333,7 +333,7 @@ int _main(int argc, char *argv[])
   sc_start(sc_time(600000, SC_US));
 #endif
 
-  // sc_close_vcd_trace_file(TRACEFILE);
+  //sc_close_vcd_trace_file(TRACEFILE);
 
   return EXIT_SUCCESS;
 }

@@ -69,11 +69,13 @@ namespace soclib { namespace caba {
       sc_fifo<unsigned char> fifo;
 
       // variable contenant l'adresse des images
-      uint32_t img_adr_in;
-      uint32_t img_adr_out;
+      uint32_t deb_im_in;
+      uint32_t deb_im_out;
 
       // Adresse de lecture et ecriture en RAM
       uint32_t * wb_tab;
+
+		uint32_t * buffer_img_in;
 
       bool get_tile_end;
 

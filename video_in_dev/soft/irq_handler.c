@@ -9,9 +9,11 @@
 void video_in_handler()
 {
 
+  printf("on entre dans vin_handler\n");
+  printf("nb_img_in : %d nb_image_processed : %d\n",(int)nb_image_in,(int)nb_image_processed); 
   if (nb_image_in - nb_image_processed < 2)
    {
-     printf(" Coucou de VIN handler \n");
+     printf(" Coucou de VIN handler : %ld\n", (uint32_t) RAM_FIRST_IMAGE + (nb_image_in % NB_MAX_IMAGES) * 640 * 480);
      nb_image_in++;
    }
 
@@ -37,8 +39,8 @@ void video_in_handler()
  */
 void video_calc_handler()
 {
-  printf(" Coucou de VCALC handler \n");
   nb_image_processed++;
+  printf(" Coucou de VCALC handler : %ld \n",(uint32_t) RAM_FIRST_IMAGE + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480 );
 
   //We send the address of the new image to be read
   VCALC_IN = (uint32_t) RAM_FIRST_IMAGE + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480;
@@ -63,10 +65,12 @@ void video_calc_handler()
  */
 void video_out_handler()
 {
+  printf("on entre dans vout_handler\n");
+  printf("nb_image_out : %d nb_image_processed : %d\n",(int)nb_image_out, (int)nb_image_processed);
 
   if((nb_image_processed > nb_image_out) && (nb_image_processed - nb_image_out < 3))
   {
-    printf(" Coucou de VOUT handler \n");
+    printf(" Coucou de VOUT handler : %ld \n", (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_out % NB_MAX_IMAGES) * 640 * 480);
     nb_image_out++;
   }
 

@@ -12,7 +12,7 @@
 #define VIDEO_OUT_H
 
 #define VOUT_OFFSET 1
-#define VOUT_PACK 16
+#define VOUT_PACK 64
 
 #include <systemc>
 #include "wb_master_module.h"

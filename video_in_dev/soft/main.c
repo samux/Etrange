@@ -72,8 +72,8 @@ int main(void)
   first_image = 1;
   first_image_processed = 1;
 
-  RAM_FIRST_IMAGE = (uint32_t *) malloc( 5 * sizeof(uint32_t) * 640 * 480 / 4);
-  RAM_FIRST_IMAGE_PROCESSED = (uint32_t *) malloc(5 * sizeof(uint32_t) * 640 * 480 / 4);
+  RAM_FIRST_IMAGE = (uint32_t *) malloc( 10 * sizeof(uint32_t) * 640 * 480 / 4);
+  RAM_FIRST_IMAGE_PROCESSED = (uint32_t *) malloc(10 * sizeof(uint32_t) * 640 * 480 / 4);
 
   //First address to store the image
   VIN = (uint32_t) RAM_FIRST_IMAGE;
