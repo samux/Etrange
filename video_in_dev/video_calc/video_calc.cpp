@@ -89,8 +89,8 @@ namespace soclib { namespace caba {
 		  {
 			 addr = deb_im_in + j*p_WIDTH + (i % (p_WIDTH/T_W))*T_W + (i/(p_WIDTH/T_W))*T_H*p_WIDTH;
 			 //std::cout << addr << std::endl;
-			 master0.wb_read_blk(addr, 4, buffer_img_in);
-			 for (int l = 0; l < 4; l++)
+			 master0.wb_read_blk(addr, T_W/4, buffer_img_in);
+			 for (int l = 0; l < T_W/4; l++)
 			 {
 				for (int k = 3; k>=0; k--)
 				{
@@ -115,14 +115,14 @@ namespace soclib { namespace caba {
 
   tmpl(void)::store_tile()
   {
-	 uint32_t to_store[4];
-	 uint8_t mask[4];
+	 uint32_t to_store[T_W/4];
+	 uint8_t mask[T_W/4];
 	 bool stock_ok = false;
 	 int nb_line_stocked = 0;
 	 int nb_tile = 0;
 	 uint32_t addr;
 
-	 for (int i = 0; i < 4; i++)
+	 for (int i = 0; i < T_W/4; i++)
 		mask[i] = 0xf;
 
 	 while(1)
@@ -155,9 +155,9 @@ namespace soclib { namespace caba {
 		  std::cout << " VCALC STORE_PIXEL: NOUVELLE ADRESSE: " << deb_im_out << std::endl;
 		}
 
-		if ((unsigned int) fifo.num_available() > 16)
+		if ((unsigned int) fifo.num_available() > T_W)
 		{
-		  for (unsigned int i = 0; i< 4; i++)
+		  for (unsigned int i = 0; i< T_W/4; i++)
 		  {
 			 to_store[i] = 0;
 			 for (unsigned int j = 0; j < 4; j++)
@@ -167,12 +167,12 @@ namespace soclib { namespace caba {
 			 }
 		  }
 		  addr = deb_im_out + (nb_line_stocked%T_H)*p_WIDTH + (nb_tile%(p_WIDTH/T_W))*T_W + (nb_tile/(p_WIDTH/T_W))*T_H*p_WIDTH;
-		  master1.wb_write_blk(addr, mask, to_store, 4);
+		  master1.wb_write_blk(addr, mask, to_store, T_W/4);
 		}
 		else
 		  std::cout << "VCALC bloque sur FIFO" << std::endl;
 		nb_line_stocked++;
-		nb_tile += ((nb_line_stocked % 16) ? 0 : 1);
+		nb_tile += ((nb_line_stocked % T_W) ? 0 : 1);
 
 		/**********************
 		 * INTERRUPT GENERATION
