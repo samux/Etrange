@@ -45,7 +45,6 @@ namespace soclib { namespace caba {
 	 SC_THREAD(store_tile);
 	 sensitive << clk.pos();
 
-	 buffer_img_in = (uint32_t *)malloc((sizeof(uint32_t)*4));
 	 std::cout <<  name()
 		<< " was created successfully " << std::endl;
   }
@@ -56,7 +55,10 @@ namespace soclib { namespace caba {
 
   tmpl(void)::get_tile()
   {
+	 uint32_t buffer_img_in[T_W/4];
 	 uint32_t addr;
+	 uint32_t color = 128;
+	 uint32_t nb_frame = 0;
 	 while(1)
 	 {
 		/****************
@@ -89,17 +91,20 @@ namespace soclib { namespace caba {
 		  {
 			 addr = deb_im_in + j*p_WIDTH + (i % (p_WIDTH/T_W))*T_W + (i/(p_WIDTH/T_W))*T_H*p_WIDTH;
 			 //std::cout << addr << std::endl;
-			 master0.wb_read_blk(addr, T_W/4, buffer_img_in);
+			 //master0.wb_read_blk(addr, T_W/4, buffer_img_in);
 			 for (int l = 0; l < T_W/4; l++)
 			 {
 				for (int k = 3; k>=0; k--)
 				{
-				  fifo.write(buffer_img_in[l] >> 8 * k);
+				  //fifo.write(buffer_img_in[l] >> 8 * k);
+				  fifo.write(color);
 				  buffer_img_in[l] = buffer_img_in[l] - ((buffer_img_in[l] >> 8 * k) << 8 * k);
 				}
 			 }
 		  }
 		}
+		nb_frame++;
+		color = (nb_frame % 2) ? 128 : 255;
 
 		std::cout << "VCALC a finit de lire une image" << std::endl;
 	 }

@@ -6,9 +6,9 @@
 #include "../segmentation.h"
 
 // Largeur tuile traitée
-# define T_W 16
+# define T_W 32
 // Hauteur tuile traitée
-# define T_H 16
+# define T_H 32
 // Taille FIFO en nb de tuiles
 # define F_SIZE 4
 // Nb tuiles de sortie
@@ -74,8 +74,6 @@ namespace soclib { namespace caba {
 
       // Adresse de lecture et ecriture en RAM
       uint32_t * wb_tab;
-
-		uint32_t * buffer_img_in;
 
       bool get_tile_end;
 
