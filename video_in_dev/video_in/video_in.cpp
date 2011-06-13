@@ -6,7 +6,6 @@
  ***********************************************************/
 
 #include "video_in.h"
-#define DEBUG_VIN 0
 
 #define tmpl(x) template<typename wb_param> x Video_in<wb_param>
 namespace soclib { namespace caba {
@@ -27,7 +26,7 @@ namespace soclib { namespace caba {
                p_clk("p_clk"),
                p_resetn("p_resetn"),
                master0(p_clk,p_resetn, p_wb),
-               fifo(10048)
+               fifo(500000)
     {
 
       // Lecture des pixels entrants
@@ -104,12 +103,12 @@ namespace soclib { namespace caba {
               else if (pixel_c != 0)
               {
                 std::cout << name()
-                     << " VIN PIXEL_READS: TOO MUCH PIXELS!!"
-                     << " lines : "
-                     << pixel_l
-                     << "col :"
-                     << pixel_c
-                     << std::endl;
+                          << " VIN PIXEL_READS: TOO MUCH PIXELS!!"
+                          << " lines : "
+                          << pixel_l
+                          << "col :"
+                          << pixel_c
+                          << std::endl;
               }
             }
             // Synchro verticale
@@ -166,10 +165,16 @@ namespace soclib { namespace caba {
           p_interrupt = 0;
           first_interrupt = false;
           std::cout << " VIN STORE_PIXEL: RESET " << std::endl;
+          while(fifo.read());
+        }
+
+        while (!wb_tab[1] && !stockage_ok)
+        {
+          //std::cout << "J'attends une nouvelle addr" << std::endl;
           wait();
         }
 
-        if (wb_tab[1] != 0 && !stockage_ok)
+        if (!stockage_ok)
         {
           pixel_stored_c = 0;
           pixel_stored_l = 0;
@@ -178,64 +183,61 @@ namespace soclib { namespace caba {
           stockage_ok = true;
           if(!first_interrupt)
             first_interrupt = true;
-
           std::cout << " VIN STORE_PIXEL: NOUVELLE ADRESSE: " << deb_im << std::endl;
-          wait();
         }
 
-        if (stockage_ok)
+        if ((unsigned int) fifo.num_available() > (p_NB_PACK))
         {
 
-          if ((unsigned int) fifo.num_available() > (p_NB_PACK))
+          for (unsigned int i = 0; i< p_NB_PACK/4; i++)
           {
-
-            for (unsigned int i = 0; i< p_NB_PACK/4; i++)
+            to_store[i] = 0;
+            for (unsigned int j = 0; j < 4; j++)
             {
-              to_store[i] = 0;
-              for (unsigned int j = 0; j < 4; j++)
-              {
-                to_store[i] = to_store[i] << 8;
-                to_store[i] += fifo.read();
-              }
-            }
-
-            master0.wb_write_blk(deb_im + (p_WIDTH * pixel_stored_l + pixel_stored_c), mask, to_store, p_NB_PACK/4);
-
-            // std::cout << " VIN STORE_PIXELS: "
-            //           << pixel_stored_c
-            //           << " ADRESSE PIXEL "
-            //           << deb_im + p_WIDTH * pixel_stored_l + pixel_stored_c
-            //           << std::endl;
-
-            pixel_stored_c = pixel_stored_c + p_NB_PACK;
-            if (pixel_stored_c == p_WIDTH)
-            {
-
-              pixel_stored_c = 0;
-              pixel_stored_l++;
-
-              // std::cout << " VIN STORE_PIXELS: NOUVELLE LIGNE "
-              //           << pixel_stored_l
-              //           << " ADRESSE LIGNE "
-              //           << deb_im + p_WIDTH * pixel_stored_l + pixel_stored_c
-              //           << std::Fendl;
-
-;              if (pixel_stored_l == p_HEIGHT)
-              {
-                p_interrupt = 1;
-                wait();
-                wait();
-                wait();
-                p_interrupt = 0;
-                stockage_ok = false;
-                std::cout << " VIN STORE_PIXEL: INTERRUPTION SENT " << std::endl;
-              }
+              to_store[i] = to_store[i] << 8;
+              to_store[i] += fifo.read();
             }
           }
+
+          master0.wb_write_blk(deb_im + (p_WIDTH * pixel_stored_l + pixel_stored_c), mask, to_store, p_NB_PACK/4);
+
+          // std::cout << " VIN STORE_PIXELS: "
+          //           << pixel_stored_c
+          //           << " ADRESSE PIXEL "
+          //           << deb_im + p_WIDTH * pixel_stored_l + pixel_stored_c
+          //           << std::endl;
+
+          pixel_stored_c = pixel_stored_c + p_NB_PACK;
+          if (pixel_stored_c == p_WIDTH)
+          {
+
+            pixel_stored_c = 0;
+            pixel_stored_l++;
+
+            // std::cout << " VIN STORE_PIXELS: NOUVELLE LIGNE "
+            //           << pixel_stored_l
+            //           << " ADRESSE LIGNE "
+            //           << deb_im + p_WIDTH * pixel_stored_l + pixel_stored_c
+            //           << std::Fendl;
+
+          }
         }
-        wait();
+        else
+          wait();
+
+        if (pixel_stored_l == p_HEIGHT)
+        {
+          stockage_ok = false;
+          wb_tab[1] = 0;
+          std::cout << " VIN STORE_PIXEL: INTERRUPTION SENT " << std::endl;
+          p_interrupt = 1;
+          wait();
+          wait();
+          wait();
+          p_interrupt = 0;
+        }
       }
     }
 
-  }
-}
+  }}
+

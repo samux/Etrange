@@ -91,13 +91,12 @@ namespace soclib { namespace caba {
 		  {
 			 addr = deb_im_in + j*p_WIDTH + (i % (p_WIDTH/T_W))*T_W + (i/(p_WIDTH/T_W))*T_H*p_WIDTH;
 			 //std::cout << addr << std::endl;
-			 //master0.wb_read_blk(addr, T_W/4, buffer_img_in);
+			 master0.wb_read_blk(addr, T_W/4, buffer_img_in);
 			 for (int l = 0; l < T_W/4; l++)
 			 {
 				for (int k = 3; k>=0; k--)
 				{
-				  //fifo.write(buffer_img_in[l] >> 8 * k);
-				  fifo.write(color);
+				  fifo.nb_write(buffer_img_in[l] >> 8 * k);
 				  buffer_img_in[l] = buffer_img_in[l] - ((buffer_img_in[l] >> 8 * k) << 8 * k);
 				}
 			 }
@@ -126,6 +125,7 @@ namespace soclib { namespace caba {
 	 int nb_line_stocked = 0;
 	 int nb_tile = 0;
 	 uint32_t addr;
+         uint8_t pixel_temp;
 
 	 for (int i = 0; i < T_W/4; i++)
 		mask[i] = 0xf;
@@ -168,22 +168,32 @@ namespace soclib { namespace caba {
 			 for (unsigned int j = 0; j < 4; j++)
 			 {
 				to_store[i] = to_store[i] << 8;
-				to_store[i] += fifo.read();
+                                if (!fifo.nb_read(pixel_temp))
+                                  std::cout << "VCALC bloque sur FIFO" << std::endl;
+                                else
+                                  to_store[i] += pixel_temp;
 			 }
 		  }
 		  addr = deb_im_out + (nb_line_stocked%T_H)*p_WIDTH + (nb_tile%(p_WIDTH/T_W))*T_W + (nb_tile/(p_WIDTH/T_W))*T_H*p_WIDTH;
 		  master1.wb_write_blk(addr, mask, to_store, T_W/4);
+
+                  nb_line_stocked++;
+                  nb_tile += ((nb_line_stocked % T_W) ? 0 : 1);
 		}
 		else
-		  std::cout << "VCALC bloque sur FIFO" << std::endl;
-		nb_line_stocked++;
-		nb_tile += ((nb_line_stocked % T_W) ? 0 : 1);
+                {
+                  wait();
+		  std::cout << "VCALC FIFO VIDE" << std::endl;
+                }
 
 		/**********************
 		 * INTERRUPT GENERATION
 		 *********************/
 		if((unsigned int)nb_line_stocked == (T_NB*T_H))
 		{
+		  stock_ok = false;
+                  wb_tab[7] = 0;
+		  std::cout << " VCALC STORE_PIXEL: INTERRUPTION SENT " << std::endl;
 		  nb_line_stocked = 0;
 		  nb_tile = 0;
 		  p_interrupt = 1;
@@ -191,8 +201,7 @@ namespace soclib { namespace caba {
 		  wait();
 		  wait();
 		  p_interrupt = 0;
-		  stock_ok = false;
-		  std::cout << " VCALC STORE_PIXEL: INTERRUPTION SENT " << std::endl;
+
 		}
 
 	 }

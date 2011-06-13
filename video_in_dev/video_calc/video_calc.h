@@ -10,7 +10,7 @@
 // Hauteur tuile traitée
 # define T_H 32
 // Taille FIFO en nb de tuiles
-# define F_SIZE 4
+# define F_SIZE 400000
 // Nb tuiles de sortie
 # define T_NB (p_WIDTH * p_HEIGHT) / (T_W * T_H)
 // Nb tuiles de sortie par ligne
