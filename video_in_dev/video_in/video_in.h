@@ -17,22 +17,15 @@ namespace soclib { namespace caba {
     {
       public:
 
-      // IO PORTS
-      sc_in_clk           clk;
-      sc_in_clk	          clk_in;
-      sc_in<bool>         reset_n;
-
-      sc_in <bool>        line_valid;
-      sc_in <bool>        frame_valid;
-
-      sc_in<unsigned char> pixel_in;
-
-      // Interrupt
-      sc_out<bool> p_interrupt;
-
-      // Wishbone
       sc_core::sc_in<bool>             p_clk;
       sc_core::sc_in<bool>             p_resetn;
+      sc_core::sc_out<bool>            p_interrupt;
+
+      sc_core::sc_in<bool>             pixel_clk;
+      sc_core::sc_in<unsigned char>    pixel_in;
+      sc_core::sc_in <bool>            line_valid;
+      sc_core::sc_in <bool>            frame_valid;
+
       soclib::caba::WbMaster<wb_param> p_wb;
 
       ////////////////////////////////////////////////////

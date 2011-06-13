@@ -28,22 +28,17 @@ namespace soclib { namespace caba {
       :sc_module {
 
       public:
-      // IO PORTS
-      sc_in_clk           clk;
-      sc_in_clk           clk_out;
-      sc_in<bool>         reset_n;
 
-      sc_out<bool>        line_valid;
-      sc_out<bool>        frame_valid;
+      sc_core::sc_in<bool>              p_clk;
+      sc_core::sc_in<bool>              p_resetn;
+      sc_core::sc_out<bool>             p_interrupt;
 
-      sc_out<unsigned char> pixel_out;
+      sc_core::sc_in<bool>              pixel_clk;
+      sc_core::sc_out<unsigned char>    pixel_out;
+      sc_core::sc_out<bool>             line_valid;
+      sc_core::sc_out<bool>             frame_valid;
 
-      sc_out<bool> p_interrupt;
-
-      //Wishbone
-      sc_core::sc_in<bool> p_clk;
-      sc_core::sc_in<bool> p_resetn;
-      WbMaster<wb_param>   p_wb;
+      WbMaster<wb_param>                p_wb;
 
       ////////////////////////////////////////////////////
       //	constructor

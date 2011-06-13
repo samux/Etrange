@@ -199,37 +199,31 @@ int _main(int argc, char *argv[])
   my_videogen.pixel_out(pixel_in);
 
   Video_in<wb_param> my_video_in ("video_in", simple_slave.data_tab);
-  my_video_in.clk (system_clk);
-  my_video_in.clk_in (signal_clk);
-  my_video_in.reset_n(signal_resetn);
+  my_video_in.p_clk (system_clk);
+  my_video_in.p_resetn(signal_resetn);
+  my_video_in.p_interrupt    (signal_video_in_irq);
+  my_video_in.pixel_clk (signal_clk);
+  my_video_in.pixel_in(pixel_in);
   my_video_in.line_valid(line_valid_in);
   my_video_in.frame_valid(frame_valid_in);
-  my_video_in.pixel_in(pixel_in);
-  my_video_in.p_clk   (system_clk);
-  my_video_in.p_resetn(signal_resetn);
   my_video_in.p_wb    (signal_wb_vin);
-  my_video_in.p_interrupt    (signal_video_in_irq);
 
   VideoOut<wb_param> my_video_out ("video_out", simple_slave.data_tab);
-  my_video_out.clk (system_clk);
-  my_video_out.p_clk   (system_clk);
-  my_video_out.clk_out (signal_clk);
-  my_video_out.reset_n(signal_resetn);
+  my_video_out.p_clk (system_clk);
+  my_video_out.p_resetn(signal_resetn);
+  my_video_out.p_interrupt    (signal_video_out_irq);
+  my_video_out.pixel_clk (signal_clk);
+  my_video_out.pixel_out(pixel_out);
   my_video_out.line_valid(line_valid_out);
   my_video_out.frame_valid(frame_valid_out);
-  my_video_out.pixel_out(pixel_out);
-  my_video_out.p_resetn(signal_resetn);
   my_video_out.p_wb    (signal_wb_vout);
-  my_video_out.p_interrupt    (signal_video_out_irq);
 
   VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
-  my_video_calc.clk (system_clk);
   my_video_calc.p_clk   (system_clk);
   my_video_calc.p_resetn(signal_resetn);
-  my_video_calc.reset_n(signal_resetn);
+  my_video_calc.p_interrupt    (signal_video_calc_irq);
   my_video_calc.p_wb_read    (signal_wb_vcalc_read);
   my_video_calc.p_wb_write   (signal_wb_vcalc_write);
-  my_video_calc.p_interrupt    (signal_video_calc_irq);
 
   Display my_display ("My_display");
   my_display.clk (signal_clk);

@@ -10,7 +10,7 @@
 // Hauteur tuile traitée
 # define T_H 16
 // Taille FIFO en nb de tuiles
-# define F_SIZE 400000
+# define F_SIZE 2
 // Nb tuiles de sortie
 # define T_NB (p_WIDTH * p_HEIGHT) / (T_W * T_H)
 // Nb tuiles de sortie par ligne
@@ -29,19 +29,13 @@ namespace soclib { namespace caba {
       class VideoCalc:sc_module
     {
       public:
-      // Ports E/S
 
-      sc_in_clk	clk;
-      sc_in<bool> reset_n;
-
-      //Wishbone
       sc_core::sc_in<bool> p_clk;
       sc_core::sc_in<bool> p_resetn;
+      sc_out<bool> p_interrupt;
+
       soclib::caba::WbMaster<wb_param> p_wb_read;
       soclib::caba::WbMaster<wb_param> p_wb_write;
-
-      //Interruptions de fin d'écriture d'une image
-      sc_out<bool> p_interrupt;
 
       /////////////////////////////////////
       // Constructeur

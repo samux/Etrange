@@ -31,19 +31,17 @@ namespace soclib { namespace caba {
 	 master1(p_clk,p_resetn,p_wb_write)
   {
 
-
-
 	 // Module de remplissage du buffer
 	 // * Bufferise les tuiles d'entrée
 	 // * TO DO (Bufferise les coeffs)
 	 SC_THREAD(get_tile);
-	 sensitive << clk.pos();
+	 sensitive << p_clk.pos();
 
 	 // Module de calcul incrémental
 	 // * Effectue le calcul incrémental
 	 // * Pose les tuiles calculées dans la fifo
 	 SC_THREAD(store_tile);
-	 sensitive << clk.pos();
+	 sensitive << p_clk.pos();
 
 	 std::cout <<  name()
 		<< " was created successfully " << std::endl;
@@ -62,7 +60,7 @@ namespace soclib { namespace caba {
 		/****************
 		 * RESET
 		 * *************/
-		if (reset_n == false)
+		if (p_resetn == false)
 		{
 		  std::cout << " VCALC STORE_PIXEL: RESET " << std::endl;
 		  wait();
@@ -132,7 +130,7 @@ namespace soclib { namespace caba {
 		/**********
 		 * RESET
 		 *********/
-		if (reset_n == false)
+		if (p_resetn == false)
 		{
 		  nb_line_stocked = 0;
 		  p_interrupt = 0;

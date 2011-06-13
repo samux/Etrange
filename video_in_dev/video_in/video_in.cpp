@@ -26,19 +26,19 @@ namespace soclib { namespace caba {
                p_clk("p_clk"),
                p_resetn("p_resetn"),
                master0(p_clk,p_resetn, p_wb),
-               fifo(500000)
+               fifo(10000)
     {
 
       // Lecture des pixels entrants
       // Et stockage dans la fifo
       SC_THREAD(read_pixels);
-      sensitive << clk_in.pos();
+      sensitive << pixel_clk.pos();
       dont_initialize();
 
       //Récupération des pixels de la fifo
       //et mise en RAM
       SC_THREAD(store_pixels);
-      sensitive << clk.pos();
+      sensitive << p_clk.pos();
 
       // debut de l'image
       pixel_c = 0;
@@ -58,7 +58,7 @@ namespace soclib { namespace caba {
       for(;;)
       {
 
-        if(reset_n == false)
+        if(p_resetn == false)
         {
           reset:
           pixel_c = 0;
@@ -125,7 +125,7 @@ namespace soclib { namespace caba {
           }
           wait();
 
-          if(reset_n == false)
+          if(p_resetn == false)
             goto reset;
         }
       }
@@ -157,7 +157,7 @@ namespace soclib { namespace caba {
       for (;;)
       {
 
-        if (reset_n == false)
+        if (p_resetn == false)
         {
           stockage_ok = false;
           pixel_stored_c = 0;

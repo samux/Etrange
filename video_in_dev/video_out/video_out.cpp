@@ -27,16 +27,16 @@ namespace soclib { namespace caba {
 		p_clk("p_clk"),
 		p_resetn("p_resetn"),
 		master0(p_clk,p_resetn, p_wb),
-		fifo(500000)
+		fifo(10000)
 	{
 		// Lecture des pixels en RAM
 		SC_THREAD(read_image);
-		sensitive << clk.pos();
+		sensitive << p_clk.pos();
 		dont_initialize();
 
 		// Génération de la sortie vidéo
 		SC_THREAD(gen_sorties);
-		sensitive << clk_out.pos();
+		sensitive << pixel_clk.pos();
 		dont_initialize();
 
 		std::cout << name()
@@ -54,7 +54,7 @@ namespace soclib { namespace caba {
 		for(;;)
 		{
 
-			if(reset_n == false)
+			if(p_resetn == false)
 			{
 reset:
 				// On met les sorties à zero
@@ -100,7 +100,7 @@ reset:
 
 						// Si on est reveillé par un reset, on revient à la case départ
 						// (les goto sont dans ce genre de cas bien pratique...)
-						if(reset_n == false)
+						if(p_resetn == false)
 							goto reset;
 					}
 
@@ -129,7 +129,7 @@ reset:
 
 		for (;;) {
 
-			if (reset_n == false)
+			if (p_resetn == false)
 			{
                           im_addr = 0;
                           wb_tab[3] = 0;
