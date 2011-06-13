@@ -170,4 +170,4 @@ reset:
 	}
 
 }}
->>>>>>> vcalc fonctionne sur 5 images, on commence le traitement.
+

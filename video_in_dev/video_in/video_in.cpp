@@ -228,7 +228,6 @@ namespace soclib { namespace caba {
         if (pixel_stored_l == p_HEIGHT)
         {
           stockage_ok = false;
-          wb_tab[1] = 0;
           std::cout << " VIN STORE_PIXEL: INTERRUPTION SENT " << std::endl;
           p_interrupt = 1;
           wait();

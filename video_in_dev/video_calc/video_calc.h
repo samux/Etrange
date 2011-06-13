@@ -6,9 +6,9 @@
 #include "../segmentation.h"
 
 // Largeur tuile traitée
-# define T_W 32
+# define T_W 16
 // Hauteur tuile traitée
-# define T_H 32
+# define T_H 16
 // Taille FIFO en nb de tuiles
 # define F_SIZE 400000
 // Nb tuiles de sortie

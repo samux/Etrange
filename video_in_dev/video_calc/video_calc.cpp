@@ -57,9 +57,7 @@ namespace soclib { namespace caba {
   {
 	 uint32_t buffer_img_in[T_W/4];
 	 uint32_t addr;
-	 uint32_t color = 128;
-	 uint32_t nb_frame = 0;
-	 while(1)
+         for(;;)
 	 {
 		/****************
 		 * RESET
@@ -101,11 +99,10 @@ namespace soclib { namespace caba {
 				}
 			 }
 		  }
+                  //std::cout << " VCALC GET_TILE: TILE NUMBER " << i + 1 << std::endl;
 		}
-		nb_frame++;
-		color = (nb_frame % 2) ? 128 : 255;
 
-		std::cout << "VCALC a finit de lire une image" << std::endl;
+		std::cout << " VCALC GET_TILE: LECTURE TERMINEE " << std::endl;
 	 }
   }
 
@@ -139,9 +136,8 @@ namespace soclib { namespace caba {
 		{
 		  nb_line_stocked = 0;
 		  p_interrupt = 0;
-		  std::cout << " VCALC STORE_PIXEL: RESET " << std::endl;
-		  wait();
-		}
+		  std::cout << " VCALC STORE_TILE: RESET " << std::endl;
+                }
 
 		/**********
 		 * On attend une nouvelle addresse ou l'on va stocker l'image
@@ -157,10 +153,10 @@ namespace soclib { namespace caba {
 		  stock_ok = true;
 		  deb_im_out = wb_tab[6];
 		  wb_tab[7] = 0;
-		  std::cout << " VCALC STORE_PIXEL: NOUVELLE ADRESSE: " << deb_im_out << std::endl;
+		  std::cout << " VCALC STORE_TILE: NOUVELLE ADRESSE: " << deb_im_out << std::endl;
 		}
 
-		if ((unsigned int) fifo.num_available() > T_W)
+		if ((unsigned int) fifo.num_available() >= T_W)
 		{
 		  for (unsigned int i = 0; i< T_W/4; i++)
 		  {
@@ -169,41 +165,43 @@ namespace soclib { namespace caba {
 			 {
 				to_store[i] = to_store[i] << 8;
                                 if (!fifo.nb_read(pixel_temp))
-                                  std::cout << "VCALC bloque sur FIFO" << std::endl;
+                                  std::cout << " VCALC STORE_TILE: bloque sur FIFO " << std::endl;
                                 else
                                   to_store[i] += pixel_temp;
 			 }
 		  }
-		  addr = deb_im_out + (nb_line_stocked%T_H)*p_WIDTH + (nb_tile%(p_WIDTH/T_W))*T_W + (nb_tile/(p_WIDTH/T_W))*T_H*p_WIDTH;
+
+		  addr = deb_im_out + (nb_line_stocked % T_H) * p_WIDTH + (nb_tile % (p_WIDTH/T_W)) * T_W + (nb_tile/(p_WIDTH/T_W)) * T_H * p_WIDTH;
 		  master1.wb_write_blk(addr, mask, to_store, T_W/4);
 
                   nb_line_stocked++;
-                  nb_tile += ((nb_line_stocked % T_W) ? 0 : 1);
+                  if (nb_line_stocked == T_H)
+                  {
+                    nb_line_stocked = 0;
+                    nb_tile++;
+                    //std::cout << " VCALC STORE_TILE: TILE NUMBER " << nb_tile << std::endl;
+                  }
+
+                  /**********************
+                   * INTERRUPT GENERATION
+                   *********************/
+
+                  if((unsigned int)nb_tile == T_NB)
+                  {
+                    stock_ok = false;
+                    std::cout << " VCALC STORE_TILE: INTERRUPTION SENT " << std::endl;
+                    nb_line_stocked = 0;
+                    nb_tile = 0;
+                    p_interrupt = 1;
+                    wait();
+                    wait();
+                    wait();
+                    p_interrupt = 0;
+                  }
+
 		}
 		else
-                {
                   wait();
-		  std::cout << "VCALC FIFO VIDE" << std::endl;
-                }
-
-		/**********************
-		 * INTERRUPT GENERATION
-		 *********************/
-		if((unsigned int)nb_line_stocked == (T_NB*T_H))
-		{
-		  stock_ok = false;
-                  wb_tab[7] = 0;
-		  std::cout << " VCALC STORE_PIXEL: INTERRUPTION SENT " << std::endl;
-		  nb_line_stocked = 0;
-		  nb_tile = 0;
-		  p_interrupt = 1;
-		  wait();
-		  wait();
-		  wait();
-		  p_interrupt = 0;
-
-		}
-
 	 }
   }
 }}
