@@ -9,6 +9,10 @@
 # define T_W 16
 // Hauteur tuile traitée
 # define T_H 16
+// Largeur du cache
+# define C_W 16
+// Hauteur du cache
+# define C_H 16
 // Taille FIFO en nb de tuiles
 # define F_SIZE 2
 // Nb tuiles de sortie
@@ -51,6 +55,7 @@ namespace soclib { namespace caba {
       // Methodes et parametres internes
       /////////////////////////////////////
       void get_tile();
+      void process_tile();
       void store_tile();
 
       private:
@@ -60,7 +65,8 @@ namespace soclib { namespace caba {
       const uint32_t p_HEIGHT ;
 
       // Fifo de tuile à stocker en RAM
-      sc_fifo<unsigned char> fifo;
+      sc_fifo<uint8_t> fifo_in;
+      sc_fifo<uint8_t> fifo_out;
 
       // variable contenant l'adresse des images
       uint32_t deb_im_in;
@@ -69,7 +75,8 @@ namespace soclib { namespace caba {
       // Adresse de lecture et ecriture en RAM
       uint32_t * wb_tab;
 
-      bool get_tile_end;
+      // Cache
+      uint8_t cache[C_H][C_W];
 
       // Maître wishbone pour la lecture en RAM
       WbMasterModule<wb_param> master0;

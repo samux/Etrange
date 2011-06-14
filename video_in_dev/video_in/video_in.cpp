@@ -39,6 +39,7 @@ namespace soclib { namespace caba {
       //et mise en RAM
       SC_THREAD(store_pixels);
       sensitive << p_clk.pos();
+      dont_initialize();
 
       // debut de l'image
       pixel_c = 0;

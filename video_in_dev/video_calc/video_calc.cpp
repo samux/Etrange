@@ -25,7 +25,8 @@ namespace soclib { namespace caba {
 	 p_resetn("p_resetn"),
 	 p_WIDTH(w),
 	 p_HEIGHT(h),
-	 fifo(F_SIZE * T_W * T_H),
+	 fifo_in(F_SIZE * T_W * T_H),
+         fifo_out(F_SIZE * T_W * T_H),
 	 wb_tab(tab),
 	 master0(p_clk,p_resetn,p_wb_read),
 	 master1(p_clk,p_resetn,p_wb_write)
@@ -36,12 +37,19 @@ namespace soclib { namespace caba {
 	 // * TO DO (Bufferise les coeffs)
 	 SC_THREAD(get_tile);
 	 sensitive << p_clk.pos();
+         dont_initialize();
 
-	 // Module de calcul incrémental
+         // Module de calcul incrémental
 	 // * Effectue le calcul incrémental
+         SC_THREAD(process_tile);
+         sensitive << p_clk.pos();
+         dont_initialize();
+
+	 // Module d'écriture en RAM
 	 // * Pose les tuiles calculées dans la fifo
 	 SC_THREAD(store_tile);
 	 sensitive << p_clk.pos();
+         dont_initialize();
 
 	 std::cout <<  name()
 		<< " was created successfully " << std::endl;
@@ -55,6 +63,9 @@ namespace soclib { namespace caba {
   {
 	 uint32_t buffer_img_in[T_W/4];
 	 uint32_t addr;
+
+         std::cout << " VCALC GET_TILE: START: "  << std::endl;
+
          for(;;)
 	 {
 		/****************
@@ -92,7 +103,7 @@ namespace soclib { namespace caba {
 			 {
 				for (int k = 3; k>=0; k--)
 				{
-				  fifo.nb_write(buffer_img_in[l] >> 8 * k);
+				  fifo_in.nb_write(buffer_img_in[l] >> 8 * k);
 				  buffer_img_in[l] = buffer_img_in[l] - ((buffer_img_in[l] >> 8 * k) << 8 * k);
 				}
 			 }
@@ -103,6 +114,43 @@ namespace soclib { namespace caba {
 		std::cout << " VCALC GET_TILE: LECTURE TERMINEE " << std::endl;
 	 }
   }
+
+  /////////////////////////////
+  // Process_tile
+  /////////////////////////////
+
+    tmpl(void)::process_tile()
+    {
+      uint8_t pixel_temp;
+      bool cache_ok = false;
+
+      std::cout << " VCALC PROCESS_TILE: START "  << std::endl;
+
+      for(;;)
+      {
+
+        if (cache_ok)
+        {
+          for (unsigned int i = 0; i< T_H; i++)
+            for (unsigned int j = 0; j < T_W; j++)
+              fifo_out.write(cache[i][j]);
+          cache_ok = false;
+        }
+
+
+	if ((unsigned int) fifo_in.num_available() >= (T_W * T_H) && !cache_ok)
+          for (unsigned int i = 0; i< T_H; i++)
+            for (unsigned int j = 0; j < T_W; j++)
+            {
+              cache[i][j] = fifo_in.read();
+              cache_ok = true;
+            }
+        else
+          wait();
+
+      }
+    }
+
 
   /////////////////////////////
   // Store_tile
@@ -125,7 +173,9 @@ namespace soclib { namespace caba {
 	 for (int i = 0; i < T_W/4; i++)
 		mask[i] = 0xf;
 
-	 while(1)
+         std::cout << " VCALC STORE_TILE: START "  << std::endl;
+
+	 for(;;)
 	 {
 		/**********
 		 * RESET
@@ -154,7 +204,7 @@ namespace soclib { namespace caba {
 		  std::cout << " VCALC STORE_TILE: NOUVELLE ADRESSE: " << deb_im_out << std::endl;
 		}
 
-		if ((unsigned int) fifo.num_available() >= T_W)
+		if ((unsigned int) fifo_out.num_available() >= T_W)
 		{
 		  for (unsigned int i = 0; i< T_W/4; i++)
 		  {
@@ -162,8 +212,8 @@ namespace soclib { namespace caba {
 			 for (unsigned int j = 0; j < 4; j++)
 			 {
 				to_store[i] = to_store[i] << 8;
-                                if (!fifo.nb_read(pixel_temp))
-                                  std::cout << " VCALC STORE_TILE: bloque sur FIFO " << std::endl;
+                                if (!fifo_out.nb_read(pixel_temp))
+                                  std::cout << " VCALC STORE_TILE: bloque sur FIFO_OUT " << std::endl;
                                 else
                                   to_store[i] += pixel_temp;
 			 }
@@ -202,5 +252,6 @@ namespace soclib { namespace caba {
                   wait();
 	 }
   }
+
 }}
 
