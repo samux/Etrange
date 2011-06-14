@@ -1,15 +1,15 @@
 module video_in (
 	input wire clk, //horloge interne
 	input wire clk_in, //horloge entrée à 25MHz
-	input wire nRST,
+	input wire reset_n,
 	input wire line_valid,
 	input wire frame_valid,
-	input wire pixel_in,
+	input wire [7:0] pixel_in,
 	output wire interrupt,
 	//Connexion avec le 
 	//module wishbone slave
 	input wire [31:0] wb_reg_data,
-	input wire wb_reg_ctr,
+	input wire [31:0] wb_reg_ctr,
 	//Signaux wisbone master
 	output wire p_wb_STB_O,
 	output wire p_wb_CYC_O,
@@ -38,7 +38,7 @@ wire nb_pack_available;
 video_in_read video_in_read (	
 	//Signaux directement reliés aux signaux d'entrée
 	.clk(clk_in),
-	.nRST(nRST),
+	.nRST(reset_n),
 	.line_valid(line_valid),
 	.frame_valid(frame_valid),
 	.pixel_in(pixel_in),
@@ -51,7 +51,7 @@ video_in_read video_in_read (
 
 fifo fifo(
 	.clk(clk),
-	.nRST(nRST),
+	.nRST(reset_n),
 	.data_in(pixels_fifo_in),
 	.w_e(w_e),
 	//TO DO data_out n'est relié à rien pour l'instant. Il faut 
@@ -63,7 +63,7 @@ fifo fifo(
 //et les stocke en RAM par wishbone
 video_in_store video_in_store (
 	.clk(clk),
-	.nRST(nRST),
+	.nRST(reset_n),
 
 	//Interruption processeur
 	.interrupt(interrupt),

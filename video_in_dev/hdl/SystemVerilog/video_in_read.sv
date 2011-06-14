@@ -12,7 +12,7 @@ module video_in_read (
 	input wire nRST,
 	input wire line_valid,
 	input wire frame_valid,
-	input wire pixel_in,
+	input [7:0] pixel_in,
 	output reg w_e
 	);
 

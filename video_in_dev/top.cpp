@@ -1,11 +1,4 @@
-/*
- *
- * SOCLIB_LGPL_HEADER_BEGIN
- *
- * This file is part of SoCLib, GNU LGPLv2.1.
- *
- * SoCLib is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
+ /* under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; version 2.1 of the License.
  *
  * SoCLib is distributed in the hope that it will be useful, but
@@ -49,12 +42,12 @@
 // locals
 #include "segmentation.h"
 
+#include "hdl/include/video_in.h"
 //wb_slave
 #include "wb_simple_slave.h"
 
 //Video
 #include "video_gen.h"
-#include "hdl/include/video_in.h"
 #include "video_out.h"
 #include "display.h"
 
@@ -62,7 +55,7 @@
 int _main(int argc, char *argv[])
 {
   using namespace sc_core;
-  using namespace soclib::caba;
+  //using namespace soclib::caba;
 
   // Avoid repeating these everywhere
   using soclib::common::IntTab;
@@ -83,8 +76,8 @@ int _main(int argc, char *argv[])
   maptab.add(Segment("wb_slave"  , WBS_BASE  , WBS_SIZE  , IntTab(3), false));
 
   // Global signals
-  sc_time     clk_periode_pixel(40, SC_NS); // clk period 25 MHz
-  sc_time		clk_periode_system(10, SC_NS); // clk period 100 MHz
+  sc_time   clk_periode_pixel(40, SC_NS); // clk period 25 MHz
+  sc_time	clk_periode_system(10, SC_NS); // clk period 100 MHz
   sc_clock	signal_clk("signal_clk",clk_periode_pixel);
   sc_clock	system_clk("system_clk",clk_periode_system);
 
@@ -105,8 +98,8 @@ int _main(int argc, char *argv[])
   soclib::caba::WbSignal<wb_param> signal_wb_vout  ("signal_wb_vout");
 
   // WB slave data
-  sc_signal<sc_uint<32> > wb_data_0;
-  sc_signal<sc_uint<32> > wb_data_1;
+  sc_signal<sc_uint<32> > wb_data_0("wb_data_0");
+  sc_signal<sc_uint<32> > wb_data_1("wb_data_1");
 
   /**********************************************
 	* IRQ
@@ -124,7 +117,7 @@ int _main(int argc, char *argv[])
   sc_signal<bool>        line_valid_in("line_val_in");
   sc_signal<bool>        frame_valid_in("frame_val_in");
 
-  sc_signal<unsigned char> pixel_in("pixel_val_in");
+  sc_signal<sc_uint<8> > pixel_in("pixel_val_in");
 
   sc_signal<bool>        line_valid_out("line_val_out");
   sc_signal<bool>        frame_valid_out("frame_val_out");
@@ -189,12 +182,12 @@ int _main(int argc, char *argv[])
   simple_slave.p_resetn(signal_resetn);
   simple_slave.p_wb(signal_wb_slave);
   simple_slave.wb_data_0(wb_data_0);
-  simple_salve.wb_data_1(wb_data_1);
+  simple_slave.wb_data_1(wb_data_1);
 
   ////////////////////////////////////////////////////////////
   ///////////////////Video modules ///////////////////////////
   ////////////////////////////////////////////////////////////
-  VideoGen my_videogen ("video_gen");
+  soclib::caba::VideoGen my_videogen ("video_gen");
 
   my_videogen.clk (signal_clk);
   my_videogen.reset_n(signal_resetn);
@@ -202,28 +195,28 @@ int _main(int argc, char *argv[])
   my_videogen.frame_valid(frame_valid_in);
   my_videogen.pixel_out(pixel_in);
 
-  sc_foreign_module::video_in<wb_param> my_video_in ("video_in");
+  video_in my_video_in ("video_in","video_in");
 
-  my_video_in.clk (system_clk);
-  my_video_in.clk_in (signal_clk);
+  my_video_in.clk(system_clk);
+  my_video_in.clk_in(signal_clk);
   my_video_in.reset_n(signal_resetn);
   my_video_in.line_valid(line_valid_in);
   my_video_in.frame_valid(frame_valid_in);
   my_video_in.pixel_in(pixel_in);
   //signaux wishbone
-  my_video_in.p_wb_STB_O(signal_wb_vin.STB_O);
-  my_video_in.p_wb_CYC_O (signal_wb_vin.CYC_O);
-  my_video_in.p_wb_LOCK_O(signal_wb_vin.LOCK_O);
-  my_video_in.p_wb_SEL_O(signal_wb_vin.SEL_O);
-  my_video_in.p_wb_ADR_O(signal_wb_vin.ADR_O);
-  my_video_in.p_wb_ACK_O (signal_wb_vin.ACK_O);
-  my_video_in.p_wb_DAT_O (signal_wb_vin.DAT_O);
-  my_video_in.p_wb_ERR_I (signal_wb_vin.ERR_I);
-  my_video_in.p_interrupt    (signal_video_in_irq);
+  my_video_in.p_wb_STB_O(signal_wb_vin.STB);
+  my_video_in.p_wb_CYC_O (signal_wb_vin.CYC);
+  my_video_in.p_wb_LOCK_O(signal_wb_vin.LOCK);
+  my_video_in.p_wb_SEL_O(signal_wb_vin.SEL);
+  my_video_in.p_wb_ADR_O(signal_wb_vin.ADR);
+  my_video_in.p_wb_ACK_I (signal_wb_vin.ACK);
+  my_video_in.p_wb_DAT_O (signal_wb_vin.MWDAT);
+  my_video_in.p_wb_ERR_I (signal_wb_vin.ERR);
+  my_video_in.interrupt(signal_video_in_irq);
   my_video_in.wb_reg_ctr (wb_data_0);
   my_video_in.wb_reg_data (wb_data_1);
 
-  VideoOut<wb_param> my_video_out ("video_out", simple_slave.data_tab);
+  soclib::caba::VideoOut<wb_param> my_video_out ("video_out", simple_slave.data_tab);
 
   my_video_out.clk (system_clk);
   my_video_out.p_clk   (signal_clk);
@@ -236,7 +229,7 @@ int _main(int argc, char *argv[])
   my_video_out.p_wb    (signal_wb_vout);
   my_video_out.p_interrupt    (signal_video_out_irq);
 
-  Display my_display ("My_display");
+  soclib::caba::Display my_display ("My_display");
 
   my_display.clk (signal_clk);
   my_display.reset_n(signal_resetn);

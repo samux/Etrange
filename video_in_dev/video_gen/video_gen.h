@@ -11,7 +11,7 @@
 #ifndef VIDEO_GEN_H
 #define VIDEO_GEN_H
 
-#include <systemc>
+#include <systemc.h>
 
 // Une image est un tableau de pixels (unsigned char, pour une image en niveaux de gris)
 // On ne définit pas sa taille à l'avance, cela permettra de faire des 
@@ -39,7 +39,7 @@ namespace soclib { namespace caba {
                 sc_out<bool>        line_valid;
                 sc_out<bool>        frame_valid;
 
-                sc_out<unsigned char> pixel_out;
+                sc_out<sc_uint<8> > pixel_out;
 
 
                 ////////////////////////////////////////////////////

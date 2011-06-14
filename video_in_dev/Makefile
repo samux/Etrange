@@ -1,7 +1,7 @@
 SOFT       = soft/soft.elf
 
 PLATFORM_DESC    =  platform_desc
-SOCLIB_INCLUDES  =  -I. -I./display -I./wb_slave -I./video_gen -I./wb_master_module -I./dummy_wb_master -I./video_out
+SOCLIB_INCLUDES  =  -I. -I./display -I./wb_slave -I./video_gen -I./wb_master_module -I./dummy_wb_master -I./video_out -I./hdl/include
 
 SOCLIB_CC_ARGS   = -j4  $(SOCLIB_INCLUDES) -t sccom
 

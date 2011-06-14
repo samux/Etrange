@@ -10,7 +10,7 @@ parameter NB_PACK = 16; //TODO À définir correctement
 module video_in_store (
 		input wire clk,
 		input wire nRST,
-		input wire  wb_reg_ctr,
+		input wire [31:0] wb_reg_ctr,
 		input wire [31:0] wb_reg_data,
 		input wire nb_pack_available,
 		output reg data_fifo,
@@ -51,14 +51,14 @@ reg [9:0] pixel_l;
 //en RAM ATTENTION à la taille du compteur
 reg [7:0] counter_pack;
 
-reg old_wb_reg_ctr;
+reg old_wb_reg_ctr_0;
 
 //Détection d'un front montant de wb_reg[1] ie, le processeur
 //a écrit une nouvelle adresse dans wb_reg[0]
-assign new_addr = (~old_wb_reg_ctr && wb_reg_ctr);
+assign new_addr = (~old_wb_reg_ctr_0 && wb_reg_ctr[0]);
 
 always_ff @(posedge clk)
-	old_wb_reg_ctr <= wb_reg_ctr;
+	old_wb_reg_ctr_0 <= wb_reg_ctr[0];
 
 
 
