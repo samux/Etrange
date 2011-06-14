@@ -19,6 +19,20 @@
 # define T_NB (p_WIDTH * p_HEIGHT) / (T_W * T_H)
 // Nb tuiles de sortie par ligne
 # define T_L_NB p_WIDTH / T_W
+// Pixel Blanc
+# define PIXEL_BLANC 255
+// Pixel Noir
+# define PIXEL_NOIR 0
+
+union u_coeff
+{
+  int raw[26];
+  struct
+  {
+    int Px[4], Qx[4], Rx[3], Sx[2];
+    int Py[4], Qy[4], Ry[3], Sy[2];
+  } reg;
+};
 
 #define tmpl(x) template<typename wb_param> x VideoCalc<wb_param>
 
@@ -58,6 +72,8 @@ namespace soclib { namespace caba {
       void process_tile();
       void store_tile();
 
+      void fill_cache(uint32_t deb_im_in);
+
       private:
 
       // paramètres de l'image
@@ -65,8 +81,7 @@ namespace soclib { namespace caba {
       const uint32_t p_HEIGHT ;
 
       // Fifo de tuile à stocker en RAM
-      sc_fifo<uint8_t> fifo_in;
-      sc_fifo<uint8_t> fifo_out;
+      sc_fifo<uint8_t> fifo;
 
       // variable contenant l'adresse des images
       uint32_t deb_im_in;
@@ -77,6 +92,21 @@ namespace soclib { namespace caba {
 
       // Cache
       uint8_t cache[C_H][C_W];
+
+      // Coordonnées du coin supérieur gauche
+      // de la tuile en traitement
+      int32_t cache_x;
+      int32_t cache_y;
+
+      // Process_tile demande à Get_tile de
+      // remplir le cache
+      bool ask_cache;
+
+      // Get_tile indique à Process_tile que
+      // le cache est remplit
+      bool cache_rdy;
+
+      union u_coeff coeff;
 
       // Maître wishbone pour la lecture en RAM
       WbMasterModule<wb_param> master0;
