@@ -16,7 +16,7 @@
 // Taille FIFO en nb de tuiles
 # define F_SIZE 2
 // Nb tuiles de sortie
-# define T_NB (p_WIDTH * p_HEIGHT) / (T_W * T_H)
+# define T_NB (640 * 480) / (16 * 16)
 // Nb tuiles de sortie par ligne
 # define T_L_NB p_WIDTH / T_W
 // Pixel Blanc
@@ -24,17 +24,17 @@
 // Pixel Noir
 # define PIXEL_NOIR 0
 
-union u_coeff
-{
-  int raw[26];
-  struct
-  {
-    int Px[4], Qx[4], Rx[3], Sx[2];
-    int Py[4], Qy[4], Ry[3], Sy[2];
-  } reg;
-};
-
 #define tmpl(x) template<typename wb_param> x VideoCalc<wb_param>
+
+union cic_u
+{
+    float raw[26];
+    struct
+    {
+        float Px[4], Qx[4], Rx[3], Sx[2];
+        float Py[4], Qy[4], Ry[3], Sy[2];
+    } reg;
+};
 
 using namespace sc_core;
 using namespace std;
@@ -106,7 +106,9 @@ namespace soclib { namespace caba {
       // le cache est remplit
       bool cache_rdy;
 
-      union u_coeff coeff;
+      // Tableau contenant les coeffs de chaque
+      // tuile
+      union cic_u coeff[T_NB];
 
       // Maître wishbone pour la lecture en RAM
       WbMasterModule<wb_param> master0;

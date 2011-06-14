@@ -61,10 +61,60 @@ namespace soclib { namespace caba {
     tmpl(void)::get_tile()
     {
       bool get_ok = false;
+      int tile_nb = 0;
 
-      std::cout << " VCALC GET_TILE: START: "  << std::endl;
+      std::cout << " VCALC GET_TILE: START "  << std::endl;
 
       cache_rdy = false;
+
+      // Initialisation des coeffs pour chaque tuile
+      // (temporaire)
+      for (int i = 0; i < T_NB; i++)
+      {
+        coeff[i].reg.Px[3] = 0.5;
+        coeff[i].reg.Px[2] = 0;
+        coeff[i].reg.Px[1] = 0;
+        coeff[i].reg.Px[0] = 0;
+
+        coeff[i].reg.Py[3] = 0.5;
+        coeff[i].reg.Py[2] = 0;
+        coeff[i].reg.Py[1] = 0;
+        coeff[i].reg.Py[0] = 0;
+
+        coeff[i].reg.Qx[3] = 0.5;
+        coeff[i].reg.Qx[2] = 0;
+        coeff[i].reg.Qx[1] = 0;
+        coeff[i].reg.Qx[0] = 0;
+
+        coeff[i].reg.Qy[3] = 0.5;
+        coeff[i].reg.Qy[2] = 0;
+        coeff[i].reg.Qy[1] = 0;
+        coeff[i].reg.Qy[0] = 0;
+
+        coeff[i].reg.Rx[2] = 0;
+        coeff[i].reg.Rx[1] = 0;
+        coeff[i].reg.Rx[0] = 0;
+
+        coeff[i].reg.Ry[2] = 0;
+        coeff[i].reg.Ry[1] = 0;
+        coeff[i].reg.Ry[0] = 0;
+
+        coeff[i].reg.Sx[1] = 0;
+        coeff[i].reg.Sx[0] = 0;
+
+        coeff[i].reg.Sy[1] = 0;
+        coeff[i].reg.Sy[0] = 0;
+      }
+
+      std::cout << " VCALC GET_TILE: INITIALISATION DES COEFFS OK "
+                << coeff[0].reg.Px[3]
+                << " "
+                << coeff[0].reg.Qx[3]
+                << " "
+                << coeff[0].reg.Rx[3]
+                << " "
+                << coeff[0].reg.Sx[3]
+                << std::endl;
 
       for(;;)
       {
@@ -73,8 +123,9 @@ namespace soclib { namespace caba {
          * *************/
         if (!p_resetn)
         {
-          std::cout << " VCALC GET_TILE: RESET " << std::endl;
+          tile_nb = 0;
           cache_rdy = false;
+          std::cout << " VCALC GET_TILE: RESET " << std::endl;
         }
 
         /**********
@@ -91,19 +142,33 @@ namespace soclib { namespace caba {
           std::cout << " VCALC GET_TILE: NOUVELLE ADRESSE: " << deb_im_in << std::endl;
         }
 
-        /**********
-         * On attend de pouvoir remplir le cache
-         **********/
-        while(!ask_cache)
-          wait();
+        if (get_ok)
+        {
+          /**********
+           * On attend de pouvoir remplir le cache
+           **********/
+          std::cout << " VCALC GET_TILE: ATTENTE ASK CACHE" << std::endl;
+          while(!ask_cache)
+            wait();
 
-        /**********
-         * On remplit le cache
-         **********/
-        fill_cache(deb_im_in);
+          /**********
+           * On remplit le cache
+           **********/
+          fill_cache(deb_im_in);
+          std::cout << " VCALC GET_TILE: CACHE REMPLI " << std::endl;
 
-        cache_rdy = true;
-        ask_cache = false;
+          cache_rdy = true;
+          ask_cache = false;
+
+          tile_nb++;
+          if (tile_nb == T_NB)
+          {
+            tile_nb = 0;
+            get_ok = false;
+          }
+          else
+            wait();
+        }
       }
     }
 
@@ -125,6 +190,8 @@ namespace soclib { namespace caba {
       float dx;
       float dy;
 
+      int tile_nb = 0;
+
       uint32_t I[2][2];
 
       float intensity;
@@ -142,20 +209,22 @@ namespace soclib { namespace caba {
         if (!p_resetn)
         {
           std::cout << " VCALC PROCESS_TILE: RESET " << std::endl;
+          tile_nb = 0;
           ask_cache = false;
         }
 
         /**********
          * On met à jour le coin gauche de la tuile
          **********/
-        cache_x = (int32_t) coeff.reg.Px[3];
-        cache_y = (int32_t) coeff.reg.Py[3];
+        cache_x = (int32_t) coeff[tile_nb].reg.Px[3];
+        cache_y = (int32_t) coeff[tile_nb].reg.Py[3];
 
         ask_cache = true;
 
         /**********
          * On attend que le cache soit remplit
          **********/
+        std::cout << " VCALC PROCESS_TILE: ATTENTE CACHE RDY " << std::endl;
         while(!cache_rdy)
           wait();
 
@@ -165,12 +234,12 @@ namespace soclib { namespace caba {
         {
           for(int j = 0; j < T_W; j++)
           {
-            pixel_x = coeff.reg.Px[3];
-            pixel_y = coeff.reg.Py[3];
+            pixel_x = coeff[tile_nb].reg.Px[3];
+            pixel_y = coeff[tile_nb].reg.Py[3];
 
             if (((int32_t) pixel_x < cache_x) || ((int32_t) pixel_x > (cache_x + C_W)) ||
                 ((int32_t) pixel_y < cache_y) || ((int32_t) pixel_y > (cache_y + C_H)))
-              fifo.write(PIXEL_BLANC);
+              fifo.write(150);
             else
             {
               coord_x_i = ((uint32_t) pixel_x) - cache_x;
@@ -202,41 +271,51 @@ namespace soclib { namespace caba {
                 dx * dy * I[1][1];
 
               if ((uint8_t) intensity > PIXEL_BLANC)
-                fifo.write(PIXEL_BLANC);
+              {
+                fifo.write(150);
+              }
               else
-                fifo.write((uint8_t) intensity);
+              {
+                //fifo.write((uint8_t) intensity);
+                fifo.write(150);
+              }
             }
 
             for (int k = 3; k > 0; k--)
             {
-              coeff.reg.Px[k] += coeff.reg.Px[k-1];
-              coeff.reg.Py[k] += coeff.reg.Py[k-1];
+              coeff[tile_nb].reg.Px[k] += coeff[tile_nb].reg.Px[k-1];
+              coeff[tile_nb].reg.Py[k] += coeff[tile_nb].reg.Py[k-1];
             }
+
           }
 
           for(int k = 3; k > 0; k--)
           {
-            coeff.reg.Qx[k] += coeff.reg.Qx[k-1];
-            coeff.reg.Qy[k] += coeff.reg.Qy[k-1];
+            coeff[tile_nb].reg.Qx[k] += coeff[tile_nb].reg.Qx[k-1];
+            coeff[tile_nb].reg.Qy[k] += coeff[tile_nb].reg.Qy[k-1];
           }
 
           for(int k = 2; k > 0; k--)
           {
-            coeff.reg.Rx[k] += coeff.reg.Rx[k-1];
-            coeff.reg.Ry[k] += coeff.reg.Ry[k-1];
+            coeff[tile_nb].reg.Rx[k] += coeff[tile_nb].reg.Rx[k-1];
+            coeff[tile_nb].reg.Ry[k] += coeff[tile_nb].reg.Ry[k-1];
           }
 
-          coeff.reg.Sx[1] += coeff.reg.Sx[0];
-          coeff.reg.Sy[1] += coeff.reg.Sy[0];
+          coeff[tile_nb].reg.Sx[1] += coeff[tile_nb].reg.Sx[0];
+          coeff[tile_nb].reg.Sy[1] += coeff[tile_nb].reg.Sy[0];
 
-          coeff.reg.Px[3] = coeff.reg.Qx[3];
-          coeff.reg.Py[3] = coeff.reg.Qy[3];
-          coeff.reg.Px[2] = coeff.reg.Rx[2];
-          coeff.reg.Py[2] = coeff.reg.Ry[2];
-          coeff.reg.Px[1] = coeff.reg.Sx[1];
-          coeff.reg.Py[1] = coeff.reg.Sy[1];
-
+          coeff[tile_nb].reg.Px[3] = coeff[tile_nb].reg.Qx[3];
+          coeff[tile_nb].reg.Py[3] = coeff[tile_nb].reg.Qy[3];
+          coeff[tile_nb].reg.Px[2] = coeff[tile_nb].reg.Rx[2];
+          coeff[tile_nb].reg.Py[2] = coeff[tile_nb].reg.Ry[2];
+          coeff[tile_nb].reg.Px[1] = coeff[tile_nb].reg.Sx[1];
+          coeff[tile_nb].reg.Py[1] = coeff[tile_nb].reg.Sy[1];
         }
+        tile_nb++;
+        std::cout << " VCALC PROCESS_TILE: TILE NUMBER " << tile_nb  <<std::endl;
+
+        if (tile_nb == T_NB)
+          tile_nb = 0;
 
       }
     }
@@ -317,7 +396,7 @@ namespace soclib { namespace caba {
           {
             nb_line_stored = 0;
             nb_tile++;
-            //std::cout << " VCALC STORE_TILE: TILE NUMBER " << nb_tile << std::endl;
+            std::cout << " VCALC STORE_TILE: TILE NUMBER " << nb_tile << std::endl;
           }
 
           /**********************
