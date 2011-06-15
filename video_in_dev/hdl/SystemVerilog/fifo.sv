@@ -1,4 +1,4 @@
-parameter ADDR_SIZE = 4;
+parameter ADDR_SIZE = 6;
 parameter DATA_SIZE = 32;
 parameter NB_PACK = 16;//TODO remplir et voir comment
 					// Faire des modules verilog paramêtrables
@@ -10,16 +10,15 @@ module fifo (
 	input wire w_e,
 	input wire r_ack,
 	output reg [DATA_SIZE-1:0] data_out,
-	output reg nb_pack_available
+	output wire nb_pack_available
 	);
 
 reg [ADDR_SIZE-1:0] addr_first;
 reg [ADDR_SIZE-1:0] addr_last;
-wire [ADDR_SIZE-1:0] addr_first_next;
-wire [ADDR_SIZE-1:0] addr_last_next;
+reg [ADDR_SIZE:0] fifo_cnt; //Pas addr_size -1 car fifo_cnt peut valoir 2**ADDR_SIZE
 
-reg full;
-reg empty;
+wire full;
+wire empty;
 
 //////////////////////////////////
 //	RAM
@@ -34,35 +33,31 @@ ram ram (
 	.w_e_A(w_e & ~full)
 	);
 
-assign addr_last_next = (w_e & ~full)?addr_last + 1:addr_last;
-assign addr_first_next = (r_ack & ~empty)?addr_first + 1:addr_first;
-//TODO Check this
-assign nb_pack_available = (addr_first - addr_last > NB_PACK || addr_last - addr_last > NB_PACK);
+assign nb_pack_available = (fifo_cnt > NB_PACK);
+assign empty = (fifo_cnt == 0);
+assign full = (fifo_cnt == 2**ADDR_SIZE);
 
 /////////////////////////////////
 // Calcul des addresses
-///////////////////////////////
+/////////////////////////////////
 always_ff@(posedge clk or negedge nRST)
 if (~nRST)
 	begin
 	addr_last <= 0;
 	addr_first <= 0;
-	full <= 0;
-	empty <= 1;
+	fifo_cnt = 0;
 	end
 else
 	begin
-	addr_last <= addr_last_next;
-	addr_first <= addr_first_next;
-	if (w_e)
+	if (w_e & ~full)
 		begin
-			full <= ( addr_last_next == addr_first_next);
-			empty <= 0;
+			addr_last <=  addr_last + 1;	
+			fifo_cnt = fifo_cnt + 1;
 		end
-		else if (r_ack)
+	if (r_ack)
 		begin
-			empty <= (addr_last_next==addr_first_next);
-			full <= 0;
+			addr_first <= addr_first + 1;
+			fifo_cnt = fifo_cnt - 1;
 		end
 	end
 

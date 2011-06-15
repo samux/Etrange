@@ -15,6 +15,7 @@ module video_in (
 	output wire p_wb_CYC_O,
 	output wire p_wb_LOCK_O,
 	output wire [3:0] p_wb_SEL_O,
+	output wire p_wb_WE_O,
 	output wire [31:0] p_wb_ADR_O,
 	input wire p_wb_ACK_I,
 	output wire [31:0] p_wb_DAT_O,
@@ -25,6 +26,7 @@ module video_in (
 wire w_e;
 wire r_ack;
 wire [31:0] pixels_fifo_in;
+wire [31:0] pixels_fifo_out;
 wire nb_pack_available;
 //Rmque : Si la fifo est pleine, on ne peut rien y faire
 //Le module video_in_read ne peut pas attendre et ne vérifie
@@ -53,6 +55,7 @@ fifo fifo(
 	.clk(clk),
 	.nRST(reset_n),
 	.data_in(pixels_fifo_in),
+	.data_out(pixels_fifo_out),
 	.w_e(w_e),
 	.r_ack(r_ack),
 	//TO DO data_out n'est relié à rien pour l'instant. Il faut 
@@ -72,6 +75,7 @@ video_in_store video_in_store (
 	//Connexion avec la fifo
 	.r_ack(r_ack),
 	.data_fifo(data_fifo_out),
+	.nb_pack_available(nb_pack_available),
 	
 
 	//Connexion avec le 
@@ -82,6 +86,7 @@ video_in_store video_in_store (
 	.p_wb_STB_O(p_wb_STB_O),
 	.p_wb_CYC_O(p_wb_CYC_O),
 	.p_wb_LOCK_O(p_wb_LOCK_O),
+	.p_wb_WE_O(p_wb_WE_O),
 	.p_wb_SEL_O(p_wb_SEL_O),
 	.p_wb_ADR_O(p_wb_ADR_O),
 	.p_wb_ACK_I(p_wb_ACK_I),

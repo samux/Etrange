@@ -23,7 +23,6 @@ module video_in_store (
 		output wire [3:0] p_wb_SEL_O,
 		output reg p_wb_WE_O,
 		output reg [31:0] p_wb_ADR_O,
-		input wire [31:0] p_wb_ADR_I,
 		input wire p_wb_ACK_I,
 		output reg [31:0] p_wb_DAT_O,
 		input wire p_wb_ERR_I

@@ -1,4 +1,4 @@
-parameter ADDR_SIZE = 4;
+parameter ADDR_SIZE = 6;
 parameter DATA_SIZE = 32;
 
 module ram (

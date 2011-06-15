@@ -207,6 +207,7 @@ int _main(int argc, char *argv[])
   my_video_in.p_wb_STB_O(signal_wb_vin.STB);
   my_video_in.p_wb_CYC_O (signal_wb_vin.CYC);
   my_video_in.p_wb_LOCK_O(signal_wb_vin.LOCK);
+  my_video_in.p_wb_WE_O(signal_wb_vin.WE);
   my_video_in.p_wb_SEL_O(signal_wb_vin.SEL);
   my_video_in.p_wb_ADR_O(signal_wb_vin.ADR);
   my_video_in.p_wb_ACK_I (signal_wb_vin.ACK);
