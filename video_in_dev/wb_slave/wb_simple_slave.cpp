@@ -28,6 +28,8 @@ namespace soclib { namespace caba {
 	// Synchronoue methode
 	template <typename wb_param> \
 		void WbSimpleSlave<wb_param>::transition() {
+			//On force wb_data_1 à 0
+			data_tab[1] = 0;
 
 			if (p_resetn == false) {
 				// reset cycle couter
