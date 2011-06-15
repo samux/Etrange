@@ -36,7 +36,8 @@ wire nb_pack_available;
 //pose dans la fifo
 video_in_read video_in_read (	
 	//Signaux directement reliés aux signaux d'entrée
-	.clk(clk_in),
+	.clk_in(clk_in), //clk pour les signaux d'entree
+	.clk(clk), //clk du system
 	.nRST(reset_n),
 	.line_valid(line_valid),
 	.frame_valid(frame_valid),
@@ -53,6 +54,7 @@ fifo fifo(
 	.nRST(reset_n),
 	.data_in(pixels_fifo_in),
 	.w_e(w_e),
+	.r_ack(r_ack),
 	//TO DO data_out n'est relié à rien pour l'instant. Il faut 
 	//changer ça
 	.nb_pack_available(nb_pack_available)

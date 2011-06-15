@@ -9,6 +9,7 @@ parameter p_FSYNC = 40;
 
 module video_in_read (
 	input wire clk,
+	input wire clk_in,
 	input wire nRST,
 	input wire line_valid,
 	input wire frame_valid,
@@ -20,6 +21,8 @@ module video_in_read (
 //Pour situer la position courante au sein de l'image
 reg [9:0] pixel_c;
 reg [9:0] pixel_l;
+
+reg problem; //TODO enlever !
 
 
 //On va grouper les pixels par paquets de 4 avant
@@ -35,11 +38,39 @@ union packed { logic [31:0] pack;
 
 assign pixels_out = data.pack;
 
-//Processus de lecture
+reg write_fifo_slow;
+
+//Processus de stockage dans la fifo à 100 MHz
+reg old_write_fifo_slow;
+wire write_fifo_posedge;
+
+assign write_fifo_posedge = (~old_write_fifo_slow & write_fifo_slow);
+
 always @(posedge clk or negedge nRST)
+if (~nRST)
+	old_write_fifo_slow<= 0;
+else
+	old_write_fifo_slow <= write_fifo_slow;
+	
+
+
+always @(posedge clk or negedge nRST)
+if (~nRST)
+	w_e <= 0;
+else
+begin
+	if (write_fifo_posedge)
+		w_e <= 1;
+	else 
+		w_e <= 0;
+end
+
+//Processus de lecture à 25 Mhz
+always @(posedge clk_in or negedge nRST)
 begin
 	//w_e vaut 0 sauf si le contraire est précisé
-	w_e <= 0;
+	write_fifo_slow <= 0;
+	problem <= 0;
 	if (nRST == 0)
 	begin
 		pixel_c <= 0;
@@ -53,6 +84,8 @@ begin
 		//seul type de message d'erreur.
 		if (line_valid && frame_valid && pixel_c <p_WIDTH && pixel_l < p_HEIGHT)
 		begin
+			if (pixel_c < p_WIDTH && pixel_l < p_HEIGHT)
+			begin
 			case (pixel_c%4)
 				0:
 					data.pixels.pixel_0 <= pixel_in;
@@ -63,25 +96,55 @@ begin
 				3:
 				begin
 					data.pixels.pixel_3 <= pixel_in;
-					w_e <= 1;
+					write_fifo_slow <= 1;
 				end
 			endcase
 			pixel_c <= pixel_c + 1;
+			end
+			else
+			begin
+				//pragma translate_off
+				$display("Ligne trop grande ! \n");
+				$stop();
+				problem <= 1;
+				//pragma translate_on
+			end
 		end
-		else if (frame_valid && !line_valid && pixel_c == (p_WIDTH-1))
-		begin
-			pixel_c <=  0;
-			pixel_l <= pixel_l + 1;
-		end
-		else if (!frame_valid && pixel_c == p_WIDTH && pixel_l == (p_HEIGHT -1))
+
+		else if (frame_valid && !line_valid)
+			if (pixel_c == p_WIDTH)
+				begin
+					pixel_c <=  0;
+					pixel_l <= pixel_l + 1;
+				end
+			else if (pixel_c != 0)
+				begin
+					//pragma translate_off
+					$display("Ligne trop grande ! \n");
+					$stop();
+					problem <= 1;
+					//pragma translate_on
+				end
+				
+		else if (!frame_valid && pixel_c == p_WIDTH && pixel_l == p_HEIGHT)
+			if (pixel_l == p_HEIGHT)
+			begin
+				pixel_c <= 0;
+				pixel_l <= 0;
+			end
+			else if (pixel_l != 0)
+			begin
+				//pragma translate_off
+				$display("Image trop grande !\n");
+				$stop();
+				problem <= 1;
+				//pragma translate_on
+			end
+		else if (!frame_valid && !line_valid)
 		begin
 			pixel_c <= 0;
 			pixel_l <= 0;
 		end
-		//pragma translate_off
-		else
-			$display("Probleme lors de l'acquisition des pixels video_in\n");
-		//pragma translate_on
 	end
 end
 
