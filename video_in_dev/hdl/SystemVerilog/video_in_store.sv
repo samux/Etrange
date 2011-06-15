@@ -14,7 +14,7 @@ module video_in_store (
 		input wire [31:0] wb_reg_data,
 		input wire nb_pack_available,
 		output reg data_fifo,
-		output reg w_e,
+		output reg r_ack,
 		output reg interrupt,
 		//Signaux wishbone
 		output reg p_wb_STB_O,
@@ -37,6 +37,7 @@ assign p_wb_SEL_O = 4'hf;
 //Indique si l'on attend une adresse 
 //du processeur ou si on l'a déjà
 reg stockage_ok;
+
 
 
 //Adresse en Ram du début de l'image
@@ -100,6 +101,8 @@ enum logic [2:0] {WAIT_ADDR, WAIT_PACK_AVB, WAIT_ACK, STORE, IMAGE_PROCESSED} st
 
 //Calcul combinatoire de l'état suivant
 //en fonction de l'état courant et des entrées
+
+//TODO 3 coups d'horloge au mois pour l'interruption
 always_comb
 begin
 	next_state <= state; 
@@ -148,9 +151,11 @@ if (~nRST)
 		p_wb_CYC_O <= 0;
 		p_wb_LOCK_O <= 0;
 		p_wb_WE_O <= 0;
+		r_ack <= 0;
 	end
 else
 	begin
+	r_ack <= 0;
 	case (state)
 		//On ne sort rien sur le wishbone
 		//On met à jour l'adresse
@@ -180,6 +185,7 @@ else
 		//pour écrire cette valeur en RAM
 		STORE:
 			begin
+				r_ack <= 1;
 				p_wb_DAT_O <= data_fifo;
 				p_wb_ADR_O <= deb_im + pixel_l *p_WIDTH + pixel_c;
 				p_wb_STB_O <= 1;

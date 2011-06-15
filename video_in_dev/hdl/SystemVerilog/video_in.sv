@@ -31,7 +31,6 @@ wire nb_pack_available;
 //Donc pas le signal full de la fifo
 
 
-
 //Lit le flux video entrant, regroupe
 //les pixels par paquet de 32 bits et les
 //pose dans la fifo
@@ -45,7 +44,7 @@ video_in_read video_in_read (
 
 	//Signaux reliés à la fifo
 	.w_e(w_e),
-	.pixel_out(pixels_fifo_in)
+	.pixels_out(pixels_fifo_in)
 );
 
 

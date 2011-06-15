@@ -13,12 +13,14 @@ module video_in_read (
 	input wire line_valid,
 	input wire frame_valid,
 	input [7:0] pixel_in,
-	output reg w_e
+	output reg w_e,
+	output wire [31:0] pixels_out
 	);
 
 //Pour situer la position courante au sein de l'image
 reg [9:0] pixel_c;
 reg [9:0] pixel_l;
+
 
 //On va grouper les pixels par paquets de 4 avant
 //de les stocker dans la fifo
@@ -31,6 +33,7 @@ union packed { logic [31:0] pack;
 				} pixels;
 } data;
 
+assign pixels_out = data.pack;
 
 //Processus de lecture
 always @(posedge clk or negedge nRST)
