@@ -9,6 +9,7 @@ extern int coeff_x[4][4];
 extern int coeff_y[4][4];
 
 void init_poly();
+void ante(int X_, int Y_, int * X_ante, int * Y_ante);
 
 
 

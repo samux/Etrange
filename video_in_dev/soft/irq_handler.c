@@ -3,65 +3,35 @@
 #include "stdio.h"
 
 /**
- * When we receive an interruption from video_in, we send
- * the address where will be stored the next image
+ * When we receive an interruption from video_in, we send:
+ * 	- the address where will be stored the next image for VIN
+ * 	- knowing that VCALC is very fast, we send also VCALC_IN and VCALC_OUT
  */
 void video_in_handler()
 {
 
-  printf("on entre dans vin_handler\n");
-  printf("nb_img_in : %d nb_image_processed : %d RAM_FIRST_IMAGE : %d\n",(int)nb_image_in,(int)nb_image_processed, (int) RAM_FIRST_IMAGE);
-  // if (nb_image_in - nb_image_processed < 2)
-  // {
-  nb_image_in++;
-  printf(" Coucou de VIN handler : %ld\n", (uint32_t) RAM_FIRST_IMAGE + (nb_image_in % NB_MAX_IMAGES) * 640 * 480);
-  // }
+  if (nb_image_in - nb_image_out < 2)
+  {
+	 nb_image_in++;
+	 printf(" Coucou de VIN handler : %ld\n", (uint32_t) RAM_FIRST_IMAGE + (nb_image_in % NB_MAX_IMAGES) * 640 * 480);
+  }
 
   VIN = (uint32_t) RAM_FIRST_IMAGE + (nb_image_in % NB_MAX_IMAGES) * 640 * 480;
   VIN_CRL = 1;
 
-  ////////////////////////////////////////////
-  //Si l'on veut désactiver le copro,
-  //on commente le premier if et on
-  //décommente le deuxième
-  ///////////////////////////////////////////
-
-  // if (first_image)
-  // {
-  //   first_image = 0;
   VCALC_IN = (uint32_t) RAM_FIRST_IMAGE + ((nb_image_in-1) % NB_MAX_IMAGES) * 640 * 480;
   VCALC_IN_CRL = 1;
   VCALC_OUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED +((nb_image_in-1) % NB_MAX_IMAGES) * 640 * 480;
   VCALC_OUT_CRL = 1;
-  // }
-
-  /* if(first_image) */
-  /* { */
-  /* first_image = 0; */
-  /* VOUT = (uint32_t) RAM_FIRST_IMAGE; */
-  /* VOUT_CRL = 1; */
-  /* } */
+  VCALC_POLY = (uint32_t) &coeff_incr_array;
 }
 
 /**
  * When we receive an interruption from video_calc,
- * we send the address where :
- *   - is stored the image to read
- *   - will be stored the image processed
+ * 	It's only an handler to initialize VOUT for the first image
  */
 void video_calc_handler()
 {
-  /* nb_image_processed++; */
-  /* printf(" Coucou de VCALC handler : %ld \n",(uint32_t) RAM_FIRST_IMAGE + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480 ); */
-
-  /* //We send the address of the new image to be read */
-  /* VCALC_IN = (uint32_t) RAM_FIRST_IMAGE + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480; */
-  /* VCALC_IN_CRL = 1; */
-
-  /* //We send the address of the new image to be stored */
-  /* VCALC_OUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_processed % NB_MAX_IMAGES) * 640 * 480; */
-  /* VCALC_OUT_CRL = 1; */
-
   if(first_image_processed)
   {
     first_image_processed = 0;
@@ -72,19 +42,16 @@ void video_calc_handler()
 }
 
 /**
- * When we receive an interruption from video_out, we send
- * the address of a new image processed
+ * When we receive an interruption from video_out, we send:
+ * 	- the address of a new image processed
  */
 void video_out_handler()
 {
-  printf("on entre dans vout_handler\n");
-  printf("nb_image_out : %d nb_image_processed : %d\n",(int)nb_image_out, (int)nb_image_processed);
-
-  //  if(nb_image_out < nb_image_processed - 1)
-  // {
-  printf(" Coucou de VOUT handler : %ld \n", (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_out % NB_MAX_IMAGES) * 640 * 480);
-  nb_image_out++;
-  //}
+  if(nb_image_out < nb_image_in - 1)
+  {
+	 printf(" Coucou de VOUT handler : %ld \n", (uint32_t) RAM_FIRST_IMAGE_PROCESSED + (nb_image_out % NB_MAX_IMAGES) * 640 * 480);
+	 nb_image_out++;
+  }
 
   //VOUT = (uint32_t) RAM_FIRST_IMAGE + (nb_image_out % NB_MAX_IMAGES) * 640 * 480;
 

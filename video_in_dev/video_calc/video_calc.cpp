@@ -333,7 +333,7 @@ namespace soclib { namespace caba {
         }
 
       tile_nb++;
-      std::cout << " VCALC PROCESS_TILE: TILE NUMBER " << tile_nb  <<std::endl;
+      //std::cout << " VCALC PROCESS_TILE: TILE NUMBER " << tile_nb  <<std::endl;
 
       }
     }
@@ -542,11 +542,11 @@ namespace soclib { namespace caba {
         adr = deb_im_in + (cache_y + line) * p_WIDTH + cache_x;
         master0.wb_read_blk(adr, cache_w / 4, buffer_line);
 
-        std::cout << " VCALC PROCESS_TILE: adr TILE NUMBER "
+        /*std::cout << " VCALC PROCESS_TILE: adr TILE NUMBER "
                   << tile_nb
                   << " adr : "
                   << adr
-                  << std::endl;
+                  << std::endl;*/
 
 
          int k = 0;
@@ -555,13 +555,13 @@ namespace soclib { namespace caba {
           for (int j = 3; j >= 0; j--)
           {
 
-            std::cout << " VCALC PROCESS_TILE: position cache TILE NUMBER "
+            /*std::cout << " VCALC PROCESS_TILE: position cache TILE NUMBER "
                       << tile_nb
                       << " line "
                       << decalage_h + line
                       << " col "
                       << decalage_w + k + j
-                      << std::endl;
+                      << std::endl;*/
 
             cache[decalage_h + line][decalage_w + k + (3-j)] = buffer_line[i] >> 8 * j;
             buffer_line[i] = buffer_line[i] - ((buffer_line[i] >> 8 * j) << 8 * j);
