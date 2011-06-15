@@ -13,6 +13,8 @@
 #define VCALC_IN_CRL *((volatile uint32_t *)(WBS_BASE + 20))
 #define VCALC_OUT *((volatile uint32_t *)(WBS_BASE + 24))
 #define VCALC_OUT_CRL *((volatile uint32_t *)(WBS_BASE + 28))
+#define VCALC_POLY *((volatile uint32_t *)(WBS_BASE + 32))
+
 
 extern char inbyte();
 
@@ -24,6 +26,7 @@ extern uint8_t first_image_processed;
 
 extern uint32_t * RAM_FIRST_IMAGE;
 extern uint32_t * RAM_FIRST_IMAGE_PROCESSED;
+extern COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
 void video_in_handler();
 void video_calc_handler();
