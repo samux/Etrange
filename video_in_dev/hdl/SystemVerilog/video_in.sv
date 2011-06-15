@@ -74,7 +74,7 @@ video_in_store video_in_store (
 
 	//Connexion avec la fifo
 	.r_ack(r_ack),
-	.data_fifo(data_fifo_out),
+	.data_fifo(pixels_fifo_out),
 	.nb_pack_available(nb_pack_available),
 	
 

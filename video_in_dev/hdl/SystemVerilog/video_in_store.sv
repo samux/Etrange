@@ -13,7 +13,7 @@ module video_in_store (
 		input wire [31:0] wb_reg_ctr,
 		input wire [31:0] wb_reg_data,
 		input wire nb_pack_available,
-		output reg data_fifo,
+		input wire [31:0] data_fifo,
 		output reg r_ack,
 		output reg interrupt,
 		//Signaux wishbone
