@@ -32,6 +32,10 @@ wire nb_pack_available;
 //Le module video_in_read ne peut pas attendre et ne vérifie
 //Donc pas le signal full de la fifo
 
+//Reset de video_in_read et fifo
+wire new_addr;
+wire nRST_im;
+assign nRST_im = ~(new_addr || ~reset_n);
 
 //Lit le flux video entrant, regroupe
 //les pixels par paquet de 32 bits et les
@@ -40,7 +44,7 @@ video_in_read video_in_read (
 	//Signaux directement reliés aux signaux d'entrée
 	.clk_in(clk_in), //clk pour les signaux d'entree
 	.clk(clk), //clk du system
-	.nRST(reset_n),
+	.nRST(nRST_im),
 	.line_valid(line_valid),
 	.frame_valid(frame_valid),
 	.pixel_in(pixel_in),
@@ -53,7 +57,7 @@ video_in_read video_in_read (
 
 fifo fifo(
 	.clk(clk),
-	.nRST(reset_n),
+	.nRST(nRST_im),
 	.data_in(pixels_fifo_in),
 	.data_out(pixels_fifo_out),
 	.w_e(w_e),
@@ -68,6 +72,7 @@ fifo fifo(
 video_in_store video_in_store (
 	.clk(clk),
 	.nRST(reset_n),
+	.new_addr(new_addr),
 
 	//Interruption processeur
 	.interrupt(interrupt),

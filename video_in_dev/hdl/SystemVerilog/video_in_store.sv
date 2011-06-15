@@ -16,6 +16,10 @@ module video_in_store (
 		input wire [31:0] data_fifo,
 		output reg r_ack,
 		output reg interrupt,
+		//new_addr vaut 1 pendant un cycle d'horloge lorsqu'une 
+		//nouvelle addresse a été fournie par le processeur
+		//Ce signal déclenche un reset des autres modules
+		output wire new_addr, 
 		//Signaux wishbone
 		output reg p_wb_STB_O,
 		output reg p_wb_CYC_O,

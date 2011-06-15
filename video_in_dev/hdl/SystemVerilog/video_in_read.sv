@@ -22,9 +22,6 @@ module video_in_read (
 reg [9:0] pixel_c;
 reg [9:0] pixel_l;
 
-reg problem; //TODO enlever !
-
-
 //On va grouper les pixels par paquets de 4 avant
 //de les stocker dans la fifo
 union packed { logic [31:0] pack;
@@ -35,6 +32,13 @@ union packed { logic [31:0] pack;
 					logic [7:0] pixel_3;
 				} pixels;
 } data;
+
+//Si le reset a lieu en plein milieu d'une
+//image il faut attendre le début d'une nouvelle
+//image pour commencer à stocker.
+//Lors d'un reset, on met ready à 0. Ready passe
+//à 1 au début d'une nouvelle image.
+reg ready;
 
 assign pixels_out = data.pack;
 
@@ -70,11 +74,11 @@ always @(posedge clk_in or negedge nRST)
 begin
 	//w_e vaut 0 sauf si le contraire est précisé
 	write_fifo_slow <= 0;
-	problem <= 0;
 	if (nRST == 0)
 	begin
 		pixel_c <= 0;
 		pixel_l <= 0;
+		ready <= 0;
 	end
 	else
 	begin
@@ -96,7 +100,7 @@ begin
 					3:
 					begin
 						data.pixels.pixel_3 <= pixel_in;
-						write_fifo_slow <= 1;
+						if (ready) write_fifo_slow <= 1;
 					end
 				endcase
 				pixel_c <= pixel_c + 1;
@@ -108,35 +112,30 @@ begin
 						pixel_l <= 0;
 				end
 			end
-			else
+			else if (ready)
 			begin
 				//pragma translate_off
 				$display("Ligne trop grande 41! \n");
 				$stop();
-				problem <= 1;
 				//pragma translate_on
 			end
 		end
 
-		else if (frame_valid && !line_valid)
-			if (pixel_c != 0 )
+		if (frame_valid && !line_valid)
+			if (pixel_c != 0 && ready )
 				begin
 					//pragma translate_off
 					$display("Ligne trop grande 2! \n");
 					$stop();
-					problem <= 1;
 					//pragma translate_on
 				end
 				
-		else if (!frame_valid && !line_valid)
-			if (pixel_l != 0 || pixel_c !=0)
-				begin
-					//pragma translate_off
-					$display("Image trop grande !\n");
-					$stop();
-					problem <= 1;
-					//pragma translate_on
-				end
+		if (!frame_valid && !line_valid)
+			begin
+			ready <= 1;
+			pixel_c <= 0;
+			pixel_l <= 0;
+			end
 	end
 end
 
