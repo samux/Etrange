@@ -10,9 +10,9 @@
 // Hauteur tuile traitée
 # define T_H 16
 // Largeur du cache
-# define C_W 16
+# define C_W 32
 // Hauteur du cache
-# define C_H 16
+# define C_H 32
 // Taille FIFO en nb de tuiles
 # define F_SIZE 2
 // Nb tuiles de sortie
@@ -106,9 +106,12 @@ namespace soclib { namespace caba {
       // le cache est remplit
       bool cache_rdy;
 
+      bool init_ok;
+
       // Tableau contenant les coeffs de chaque
       // tuile
       union cic_u coeff[T_NB];
+      union cic_u coeff_image[T_NB];
 
       // Maître wishbone pour la lecture en RAM
       WbMasterModule<wb_param> master0;
