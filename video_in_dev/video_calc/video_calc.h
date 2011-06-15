@@ -72,7 +72,7 @@ namespace soclib { namespace caba {
       void process_tile();
       void store_tile();
 
-      void fill_cache(uint32_t deb_im_in);
+      void fill_cache(uint32_t deb_im_in, int tile_nb);
 
       private:
 

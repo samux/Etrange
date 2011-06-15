@@ -73,12 +73,12 @@ namespace soclib { namespace caba {
       // (temporaire)
       for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
       {
-        coeff_image[tile_nb].reg.Px[3] = 0.5 * (tile_nb % (p_WIDTH / T_W)) * T_W;
-        coeff_image[tile_nb].reg.Px[2] = 0.5;
+        coeff_image[tile_nb].reg.Px[3] = 2 * (tile_nb % (p_WIDTH / T_W)) * T_W;
+        coeff_image[tile_nb].reg.Px[2] = 2;
         coeff_image[tile_nb].reg.Px[1] = 0;
         coeff_image[tile_nb].reg.Px[0] = 0;
 
-        coeff_image[tile_nb].reg.Py[3] = 0.5 * (tile_nb / (p_WIDTH / T_W)) * T_H;
+        coeff_image[tile_nb].reg.Py[3] = 2 *(tile_nb / (p_WIDTH / T_W)) * T_H;
         coeff_image[tile_nb].reg.Py[2] = 0;
         coeff_image[tile_nb].reg.Py[1] = 0;
         coeff_image[tile_nb].reg.Py[0] = 0;
@@ -89,7 +89,7 @@ namespace soclib { namespace caba {
         coeff_image[tile_nb].reg.Qx[0] = 0;
 
         coeff_image[tile_nb].reg.Qy[3] = coeff_image[tile_nb].reg.Py[3];
-        coeff_image[tile_nb].reg.Qy[2] = 0.5;
+        coeff_image[tile_nb].reg.Qy[2] = 2;
         coeff_image[tile_nb].reg.Qy[1] = 0;
         coeff_image[tile_nb].reg.Qy[0] = 0;
 
@@ -106,29 +106,6 @@ namespace soclib { namespace caba {
 
         coeff_image[tile_nb].reg.Sy[1] = coeff_image[tile_nb].reg.Py[1];
         coeff_image[tile_nb].reg.Sy[0] = 0;
-
-        // std::cout << " VCALC GET_TILE: INITIALISATION DES COEFFS OK: tile_nb = "
-        //           << tile_nb
-        //           << " Px[3] = "
-        //           << coeff[tile_nb].reg.Px[3]
-        //           << " Qx[3] = "
-        //           << coeff[tile_nb].reg.Qx[3]
-        //           << " Rx[3] = "
-        //           << coeff[tile_nb].reg.Rx[3]
-        //           << " Sx[3] = "
-        //           << coeff[tile_nb].reg.Sx[3]
-        //           << std::endl;
-        // std::cout << " VCALC GET_TILE: INITIALISATION DES COEFFS OK: tile_nb = "
-        //           << tile_nb
-        //           << " Py[3] = "
-        //           << coeff[tile_nb].reg.Py[3]
-        //           << " Qy[3] = "
-        //           << coeff[tile_nb].reg.Qy[3]
-        //           << " Ry[3] = "
-        //           << coeff[tile_nb].reg.Ry[3]
-        //           << " Sy[3] = "
-        //           << coeff[tile_nb].reg.Sy[3]
-        //           << std::endl;
       }
       init_ok = true;
 
@@ -170,7 +147,7 @@ namespace soclib { namespace caba {
           /**********
            * On remplit le cache
            **********/
-          fill_cache(deb_im_in);
+          fill_cache(deb_im_in, tile_nb);
           std::cout << " VCALC GET_TILE: CACHE REMPLI " << std::endl;
 
           cache_rdy = true;
@@ -268,13 +245,13 @@ namespace soclib { namespace caba {
             pixel_x = coeff[tile_nb].reg.Px[3];
             pixel_y = coeff[tile_nb].reg.Py[3];
 
-            std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
-                      << tile_nb
-                      << " antecedent_y : "
-                      << pixel_y
-                      << " antecedent_x : "
-                      << pixel_x
-                      << std::endl;
+            // std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
+            //           << tile_nb
+            //           << " antecedent_y : "
+            //           << pixel_y
+            //           << " antecedent_x : "
+            //           << pixel_x
+            //           << std::endl;
 
             if (((int32_t) pixel_x < cache_x) || ((int32_t) pixel_x > (cache_x + C_W)) ||
                 ((int32_t) pixel_y < cache_y) || ((int32_t) pixel_y > (cache_y + C_H)))
@@ -318,7 +295,7 @@ namespace soclib { namespace caba {
             if (count_pix == 3)
             {
               count_pix = 0;
-              for (int k = 3; k >= 0; k--)
+              for (int k = 0; k < 4; k++)
                 fifo.write(intensity_tab[k]);
             }
             else
@@ -469,7 +446,7 @@ namespace soclib { namespace caba {
     // fill_cache
     /////////////////////////////
 
-    tmpl(void)::fill_cache(uint32_t deb_im_in)
+    tmpl(void)::fill_cache(uint32_t deb_im_in, int tile_nb)
     {
       // Taille de la zone du cache qui est dans l'image
       uint32_t cache_w;
@@ -501,6 +478,18 @@ namespace soclib { namespace caba {
       cache_w = C_W;
       cache_h = C_H;
 
+      // std::cout << " VCALC PROCESS_TILE: BEFORE TILE NUMBER "
+      //           << tile_nb
+      //           << " cache_y : "
+      //           << cache_y
+      //           << " cache_x : "
+      //           << cache_x
+      //           << " cache_h : "
+      //           << cache_h
+      //           << " cache_w : "
+      //           << cache_w
+      //           << std::endl;
+
       // Dépassement à gauche
       if (cache_x < 0)
       {
@@ -527,6 +516,18 @@ namespace soclib { namespace caba {
         }
       }
 
+      // std::cout << " VCALC PROCESS_TILE: AFTER TILE NUMBER "
+      //           << tile_nb
+      //           << " cache_y : "
+      //           << cache_y
+      //           << " cache_x : "
+      //           << cache_x
+      //           << " cache_h : "
+      //           << cache_h
+      //           << " cache_w : "
+      //           << cache_w
+      //           << std::endl;
+
       // Dépassement à droite
       if ((cache_x + C_W) > (uint32_t) p_WIDTH)
         cache_w -= (cache_x + C_W - p_WIDTH);
@@ -541,15 +542,31 @@ namespace soclib { namespace caba {
         adr = deb_im_in + (cache_y + line) * p_WIDTH + cache_x;
         master0.wb_read_blk(adr, cache_w / 4, buffer_line);
 
-        int k = 0;
+        std::cout << " VCALC PROCESS_TILE: adr TILE NUMBER "
+                  << tile_nb
+                  << " adr : "
+                  << adr
+                  << std::endl;
+
+
+         int k = 0;
         for (int i = 0; i < (cache_w / 4); i++)
         {
           for (int j = 3; j >= 0; j--)
           {
-            cache[decalage_h + line][decalage_w + k + j] = buffer_line[i] >> 8 * j;
+
+            std::cout << " VCALC PROCESS_TILE: position cache TILE NUMBER "
+                      << tile_nb
+                      << " line "
+                      << decalage_h + line
+                      << " col "
+                      << decalage_w + k + j
+                      << std::endl;
+
+            cache[decalage_h + line][decalage_w + k + (3-j)] = buffer_line[i] >> 8 * j;
             buffer_line[i] = buffer_line[i] - ((buffer_line[i] >> 8 * j) << 8 * j);
           }
-          k +=4;
+           k +=4;
         }
 
       }
