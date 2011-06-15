@@ -214,8 +214,8 @@ int _main(int argc, char *argv[])
   my_video_in.p_wb_DAT_O (signal_wb_vin.MWDAT);
   my_video_in.p_wb_ERR_I (signal_wb_vin.ERR);
   my_video_in.interrupt(signal_video_in_irq);
-  my_video_in.wb_reg_ctr (wb_data_0);
-  my_video_in.wb_reg_data (wb_data_1);
+  my_video_in.wb_reg_ctr (wb_data_1);
+  my_video_in.wb_reg_data (wb_data_0);
 
   soclib::caba::VideoOut<wb_param> my_video_out ("video_out", simple_slave.data_tab);
 

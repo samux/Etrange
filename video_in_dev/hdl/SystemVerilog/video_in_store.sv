@@ -44,8 +44,7 @@ reg [31:0] deb_im;
 
 //Compteurs pour la position 
 //dans l'image
-reg [9:0] pixel_c;
-reg [9:0] pixel_l;
+reg [19:0] pixel_count;
 
 //Compteur pour les pixels qu'il faut aller stocker
 //en RAM ATTENTION à la taille du compteur
@@ -84,6 +83,7 @@ always_ff @(posedge clk)
 enum logic [2:0] {WAIT_ADDR, WAIT_PACK_AVB, WAIT_ACK, STORE, IMAGE_PROCESSED} state, next_state;
 
 
+
 //On va défnir une fonction CleanWb pour nettoyer
 //le wishbone
 
@@ -101,7 +101,9 @@ enum logic [2:0] {WAIT_ADDR, WAIT_PACK_AVB, WAIT_ACK, STORE, IMAGE_PROCESSED} st
 //Calcul combinatoire de l'état suivant
 //en fonction de l'état courant et des entrées
 
-//TODO 3 coups d'horloge au mois pour l'interruption
+//3 coups d'horloge au moins pour l'interruption
+reg [1:0] int_cnt;
+
 always_comb
 begin
 	next_state <= state; 
@@ -116,15 +118,16 @@ begin
 			if (p_wb_ACK_I) 
 				begin
 				//Cas de fin d'image
-				if (pixel_c == p_WIDTH && pixel_l == p_HEIGHT)
-					next_state <= WAIT_ADDR;
+				if (pixel_count == p_WIDTH * p_HEIGHT)
+					next_state <= IMAGE_PROCESSED;
 				//Cas de fin d'un paquet mais pas d'une image
 				else if (counter_pack == 0)
 					next_state <= WAIT_PACK_AVB;
 				else next_state <= STORE;
 				end
 		IMAGE_PROCESSED:
-			next_state <= WAIT_ADDR;
+			if (int_cnt == 3)
+				next_state <= WAIT_ADDR;
 			
 	endcase
 end
@@ -143,14 +146,14 @@ if (~nRST)
 	begin
 		interrupt <= 0;
 		deb_im <= wb_reg_data;
-		pixel_c <= 0;
-		pixel_l <= 0;
+		pixel_count <= 0;
 		counter_pack <= NB_PACK/4;
 		p_wb_STB_O <= 0;
 		p_wb_CYC_O <= 0;
 		p_wb_LOCK_O <= 0;
 		p_wb_WE_O <= 0;
 		r_ack <= 0;
+		int_cnt <= 0;
 	end
 else
 	begin
@@ -186,12 +189,12 @@ else
 			begin
 				r_ack <= 1;
 				p_wb_DAT_O <= data_fifo;
-				p_wb_ADR_O <= deb_im + pixel_l *p_WIDTH + pixel_c;
+				p_wb_ADR_O <= deb_im + pixel_count;
 				p_wb_STB_O <= 1;
 				p_wb_CYC_O <= 1;
 				p_wb_WE_O <= 1;
 				counter_pack <= counter_pack - 1;
-				pixel_c <= pixel_c + 4;
+				pixel_count <= pixel_count + 4;
 			end
 		//On reste dans cet état où il
 		//ne se passe rien de nouveau jusqu'à réception
@@ -202,6 +205,7 @@ else
 		IMAGE_PROCESSED:
 			begin
 				interrupt <= 1;
+				int_cnt <= int_cnt + 1;
 			end
 
 		endcase
@@ -229,7 +233,7 @@ else
 	begin
 		//Cas où on attend l'adresse venue
 		//du processeur
-		if (pixel_l == 0 && pixel_c == 0)
+		if (pixel_count == 0)
 			//Lecture de l'adresse
 			if (new_addr != 0 )
 				begin

@@ -82,29 +82,36 @@ begin
 		//Attention, contrairement au module systemC, les
 		//différents types d'erreurs ne génèrent qu'un
 		//seul type de message d'erreur.
-		if (line_valid && frame_valid && pixel_c <p_WIDTH && pixel_l < p_HEIGHT)
+		if (line_valid && frame_valid)
 		begin
 			if (pixel_c < p_WIDTH && pixel_l < p_HEIGHT)
 			begin
-			case (pixel_c%4)
-				0:
-					data.pixels.pixel_0 <= pixel_in;
-				1:
-					data.pixels.pixel_1 <= pixel_in;
-				2:
-					data.pixels.pixel_2 <= pixel_in;
-				3:
+				case (pixel_c%4)
+					0:
+						data.pixels.pixel_0 <= pixel_in;
+					1:
+						data.pixels.pixel_1 <= pixel_in;
+					2:
+						data.pixels.pixel_2 <= pixel_in;
+					3:
+					begin
+						data.pixels.pixel_3 <= pixel_in;
+						write_fifo_slow <= 1;
+					end
+				endcase
+				pixel_c <= pixel_c + 1;
+				if (pixel_c == p_WIDTH-1)
 				begin
-					data.pixels.pixel_3 <= pixel_in;
-					write_fifo_slow <= 1;
+					pixel_c <= 0;
+					pixel_l <= pixel_l + 1;
+					if (pixel_l == p_HEIGHT-1)
+						pixel_l <= 0;
 				end
-			endcase
-			pixel_c <= pixel_c + 1;
 			end
 			else
 			begin
 				//pragma translate_off
-				$display("Ligne trop grande ! \n");
+				$display("Ligne trop grande 41! \n");
 				$stop();
 				problem <= 1;
 				//pragma translate_on
@@ -112,39 +119,24 @@ begin
 		end
 
 		else if (frame_valid && !line_valid)
-			if (pixel_c == p_WIDTH)
-				begin
-					pixel_c <=  0;
-					pixel_l <= pixel_l + 1;
-				end
-			else if (pixel_c != 0)
+			if (pixel_c != 0 )
 				begin
 					//pragma translate_off
-					$display("Ligne trop grande ! \n");
+					$display("Ligne trop grande 2! \n");
 					$stop();
 					problem <= 1;
 					//pragma translate_on
 				end
 				
-		else if (!frame_valid && pixel_c == p_WIDTH && pixel_l == p_HEIGHT)
-			if (pixel_l == p_HEIGHT)
-			begin
-				pixel_c <= 0;
-				pixel_l <= 0;
-			end
-			else if (pixel_l != 0)
-			begin
-				//pragma translate_off
-				$display("Image trop grande !\n");
-				$stop();
-				problem <= 1;
-				//pragma translate_on
-			end
 		else if (!frame_valid && !line_valid)
-		begin
-			pixel_c <= 0;
-			pixel_l <= 0;
-		end
+			if (pixel_l != 0 || pixel_c !=0)
+				begin
+					//pragma translate_off
+					$display("Image trop grande !\n");
+					$stop();
+					problem <= 1;
+					//pragma translate_on
+				end
 	end
 end
 
