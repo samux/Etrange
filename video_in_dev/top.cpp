@@ -220,7 +220,7 @@ int _main(int argc, char *argv[])
   soclib::caba::VideoOut<wb_param> my_video_out ("video_out", simple_slave.data_tab);
 
   my_video_out.clk (system_clk);
-  my_video_out.p_clk   (signal_clk);
+  my_video_out.p_clk   (system_clk);
   my_video_out.clk_out (signal_clk);
   my_video_out.reset_n(signal_resetn);
   my_video_out.line_valid(line_valid_out);
@@ -242,7 +242,7 @@ int _main(int argc, char *argv[])
   ///////////////////// WB Net List //////////////////////////
   ////////////////////////////////////////////////////////////
 
-  wbinterco.p_clk(signal_clk);
+  wbinterco.p_clk(system_clk);
   wbinterco.p_resetn(signal_resetn);
 
   wbinterco.p_from_master[0](signal_wb_lm32);
@@ -255,7 +255,7 @@ int _main(int argc, char *argv[])
   wbinterco.p_to_slave[3](signal_wb_slave);
 
   // lm32
-  lm32.p_clk(signal_clk);
+  lm32.p_clk(system_clk);
   lm32.p_resetn(signal_resetn);
   lm32.p_wb(signal_wb_lm32);
   // !! the real LM32 irq are active low
@@ -272,17 +272,17 @@ int _main(int argc, char *argv[])
   ////////////////////////////////////////////////////////////
 
   // rom
-  rom.p_clk(signal_clk);
+  rom.p_clk(system_clk);
   rom.p_resetn(signal_resetn);
   rom.p_vci(signal_vci_rom);
 
   // ram
-  ram.p_clk(signal_clk);
+  ram.p_clk(system_clk);
   ram.p_resetn(signal_resetn);
   ram.p_vci(signal_vci_ram);
 
   // uart
-  vcitty.p_clk(signal_clk);
+  vcitty.p_clk(system_clk);
   vcitty.p_resetn(signal_resetn);
   vcitty.p_vci(signal_vci_tty);
   vcitty.p_irq[0](signal_tty_irq);
