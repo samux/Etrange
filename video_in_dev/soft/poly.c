@@ -239,34 +239,44 @@ void init_poly()
 
 void print_poly()
 {
-  //Pour x
-  printf("P[0].x = %d,%d\n", coeff_incr_array[0][0][0].P0.h, coeff_incr_array[0][0][0].P0.l);
-  printf("P[1].x = %d,%d\n", coeff_incr_array[0][0][0].P1.h, coeff_incr_array[0][0][0].P1.l);
-  printf("P[2].x = %d,%d\n", coeff_incr_array[0][0][0].P2.h, coeff_incr_array[0][0][0].P2.l);
-  printf("P[3].x = %d,%d\n", coeff_incr_array[0][NB_TILE_HEIGHT - 1][NB_TILE_WIDTH - 1].P3.h, coeff_incr_array[0][NB_TILE_HEIGHT - 1][NB_TILE_WIDTH - 1].P3.l);
+  int i, j;
+  for( i = 0; i < 5; i++)
+  {
+	 for( j = 0; j < 5; j++)
+	 {
+		printf("------------------TUILE (%d,%d) ----------------------\n", j, i);
+		printf("Pour X\n");
+		//Pour x
+		printf("P[0].x = %d,%d\n", coeff_incr_array[0][i][j].P0.h, coeff_incr_array[0][i][j].P0.l);
+		printf("P[1].x = %d,%d\n", coeff_incr_array[0][i][j].P1.h, coeff_incr_array[0][i][j].P1.l);
+		printf("P[2].x = %d,%d\n", coeff_incr_array[0][i][j].P2.h, coeff_incr_array[0][i][j].P2.l);
+		printf("P[3].x = %d,%d\n", coeff_incr_array[0][i][j].P3.h, coeff_incr_array[0][i][j].P3.l);
 
-  printf("Q[0].x = %d,%d\n", coeff_incr_array[0][0][0].Q0.h, coeff_incr_array[0][0][0].Q0.l);
-  printf("Q[1].x = %d,%d\n", coeff_incr_array[0][0][0].Q1.h, coeff_incr_array[0][0][0].Q1.l);
-  printf("Q[2].x = %d,%d\n", coeff_incr_array[0][0][0].Q2.h, coeff_incr_array[0][0][0].Q2.l);
- 
-  printf("R[0].x = %d,%d\n", coeff_incr_array[0][0][0].R0.h, coeff_incr_array[0][0][0].R0.l);
-  printf("R[1].x = %d,%d\n", coeff_incr_array[0][0][0].R1.h, coeff_incr_array[0][0][0].R1.l);
+		printf("Q[0].x = %d,%d\n", coeff_incr_array[0][i][j].Q0.h, coeff_incr_array[0][i][j].Q0.l);
+		printf("Q[1].x = %d,%d\n", coeff_incr_array[0][i][j].Q1.h, coeff_incr_array[0][i][j].Q1.l);
+		printf("Q[2].x = %d,%d\n", coeff_incr_array[0][i][j].Q2.h, coeff_incr_array[0][i][j].Q2.l);
 
-  printf("S[0].x = %d,%d\n", coeff_incr_array[0][0][0].S0.h, coeff_incr_array[0][0][0].S0.l);
+		printf("R[0].x = %d,%d\n", coeff_incr_array[0][i][j].R0.h, coeff_incr_array[0][i][j].R0.l);
+		printf("R[1].x = %d,%d\n", coeff_incr_array[0][i][j].R1.h, coeff_incr_array[0][i][j].R1.l);
 
-  //Pour y
-  printf("P[1].y = %d,%d\n", coeff_incr_array[0][0][0].P0.h, coeff_incr_array[1][0][0].P0.l);
-  printf("P[1].y = %d,%d\n", coeff_incr_array[1][0][0].P1.h, coeff_incr_array[1][0][0].P1.l);
-  printf("P[2].y = %d,%d\n", coeff_incr_array[1][0][0].P2.h, coeff_incr_array[1][0][0].P2.l);
-  printf("P[3].y = %d,%d\n", coeff_incr_array[1][0][0].P3.h, coeff_incr_array[1][0][0].P3.l);
+		printf("S[0].x = %d,%d\n", coeff_incr_array[0][i][j].S0.h, coeff_incr_array[0][i][j].S0.l);
 
-  printf("Q[1].y = %d,%d\n", coeff_incr_array[0][0][0].Q0.h, coeff_incr_array[1][0][0].Q0.l);
-  printf("Q[1].y = %d,%d\n", coeff_incr_array[1][0][0].Q1.h, coeff_incr_array[1][0][0].Q1.l);
-  printf("Q[2].y = %d,%d\n", coeff_incr_array[1][0][0].Q2.h, coeff_incr_array[1][0][0].Q2.l);
- 
-  printf("R[1].y = %d,%d\n", coeff_incr_array[0][0][0].R0.h, coeff_incr_array[1][0][0].R0.l);
-  printf("R[1].y = %d,%d\n", coeff_incr_array[1][0][0].R1.h, coeff_incr_array[1][0][0].R1.l);
+		printf("Pour Y\n");
+		//Pour y
+		printf("P[1].y = %d,%d\n", coeff_incr_array[0][i][j].P0.h, coeff_incr_array[1][i][j].P0.l);
+		printf("P[1].y = %d,%d\n", coeff_incr_array[1][i][j].P1.h, coeff_incr_array[1][i][j].P1.l);
+		printf("P[2].y = %d,%d\n", coeff_incr_array[1][i][j].P2.h, coeff_incr_array[1][i][j].P2.l);
+		printf("P[3].y = %d,%d\n", coeff_incr_array[1][i][j].P3.h, coeff_incr_array[1][i][j].P3.l);
 
-  printf("S[1].y = %d,%d\n", coeff_incr_array[1][0][0].S0.h, coeff_incr_array[1][0][0].S0.l);
+		printf("Q[1].y = %d,%d\n", coeff_incr_array[0][i][j].Q0.h, coeff_incr_array[1][i][j].Q0.l);
+		printf("Q[1].y = %d,%d\n", coeff_incr_array[1][i][j].Q1.h, coeff_incr_array[1][i][j].Q1.l);
+		printf("Q[2].y = %d,%d\n", coeff_incr_array[1][i][j].Q2.h, coeff_incr_array[1][i][j].Q2.l);
+
+		printf("R[1].y = %d,%d\n", coeff_incr_array[0][i][j].R0.h, coeff_incr_array[1][i][j].R0.l);
+		printf("R[1].y = %d,%d\n", coeff_incr_array[1][i][j].R1.h, coeff_incr_array[1][i][j].R1.l);
+
+		printf("S[1].y = %d,%d\n", coeff_incr_array[1][i][j].S0.h, coeff_incr_array[1][i][j].S0.l);
+	 }
+  }
 
 }
