@@ -5,11 +5,16 @@
 
 extern COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
-extern int coeff_x[4][4];
-extern int coeff_y[4][4];
+extern mfixed coeff_x[4][4];
+extern mfixed coeff_y[4][4];
 
 void init_poly();
-void ante(int X_, int Y_, int * X_ante, int * Y_ante);
+void ante(int X_, int Y_, mfixed * X_ante, mfixed * Y_ante);
+
+/************
+ * Pour le debug
+ * *********/
+void print_poly();
 
 
 

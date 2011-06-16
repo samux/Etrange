@@ -43,8 +43,16 @@ uint8_t first_image_processed;
 
 COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
-int coeff_x[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
-int coeff_y[4][4] = { {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1} };
+mfixed coeff_x[4][4] = { 	{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
+  									{(mfixed)(1<<16), (mfixed)0, (mfixed)0, (mfixed)0}, 
+									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
+									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0} 
+};
+mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)(1<<16), (mfixed)0, (mfixed)0}, 
+  									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
+									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
+									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0} 
+};
 
 uint32_t * RAM_FIRST_IMAGE;
 uint32_t * RAM_FIRST_IMAGE_PROCESSED;
@@ -52,11 +60,10 @@ uint32_t * RAM_FIRST_IMAGE_PROCESSED;
 int main(void)
 {
 
-  char c;
-
   printf("Bonjour du LM32\n");
-  //init_poly();
-  //printf("Coeff OK\n");
+  init_poly();
+  print_poly();
+  printf("Coeff OK\n");
 
   irq_enable();
 
@@ -80,26 +87,6 @@ int main(void)
   VIN_CRL = 1;
 
   while(1);
-  {
-	 printf("test getchar\n");
-	 switch(c = inbyte())
-	 {
-		case '/':
-		  break;
-		case '*':
-		  break;
-		case '+':
-		  break;
-		case '-':
-		  break;
-		default:
-		  break;
-	 }
-  }
-
-
-  while(1);
-
-
+ 
   return 0;
 }

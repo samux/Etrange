@@ -2,6 +2,7 @@
 #define _UTILS_H_
 
 #include <stdint.h>
+#include "mfixed.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -15,19 +16,19 @@
 #define NB_TILE NB_TILE_WIDTH*NB_TILE_HEIGHT
 
 typedef struct coeff_incr_t {
-  float P0;
-  float P1;
-  float P2;
-  float P3;
-  float Q0;
-  float Q1;
-  float Q2;
-  float Q3;
-  float R0;
-  float R1;
-  float R2;
-  float S0;
-  float S1;
+  mfixed P0;
+  mfixed P1;
+  mfixed P2;
+  mfixed P3;
+  mfixed Q0;
+  mfixed Q1;
+  mfixed Q2;
+  mfixed Q3;
+  mfixed R0;
+  mfixed R1;
+  mfixed R2;
+  mfixed S0;
+  mfixed S1;
 } COEFF_INCR;
 
 
