@@ -33,7 +33,7 @@ ram ram (
 	.w_e_A(w_e & ~full)
 	);
 
-assign nb_pack_available = (fifo_cnt > NB_PACK);
+assign nb_pack_available = (fifo_cnt >= NB_PACK);
 assign empty = (fifo_cnt == 0);
 assign full = (fifo_cnt == 2**ADDR_SIZE);
 

@@ -215,6 +215,7 @@ else
 			begin
 				interrupt <= 1;
 				int_cnt <= int_cnt + 1;
+				pixel_count <= 0;
 			end
 
 		endcase
