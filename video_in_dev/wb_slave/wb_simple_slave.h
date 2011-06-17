@@ -24,6 +24,8 @@ namespace soclib { namespace caba {
 				//uniquement Video_in
 				sc_core::sc_out<sc_uint<32> > wb_data_0;
 				sc_core::sc_out<sc_uint<32> > wb_data_1;
+				sc_core::sc_out<sc_uint<32> > wb_data_2;
+				sc_core::sc_out<sc_uint<32> > wb_data_3;
 				
 
                 // constructor

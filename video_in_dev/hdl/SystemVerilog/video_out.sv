@@ -9,15 +9,15 @@ module video_out (
 		input wire [31:0] wb_reg_ctr,
 
 		//Interruption de video_out 
-		output reg interrupt
+		output reg interrupt,
 
-		//TODO A DECOMMENTER 
+		//TODO REMPLACER LES WIRE par REG
 		//Signaux video
-		/*
-		   output reg line_valid,
-		   output reg frame_valid,
-		   output reg [7:0] pixel_out,
-		 */
+		
+		output wire line_valid,
+		output wire frame_valid,
+		output wire [7:0] pixel_out,
+		
 
 		//Signaux wishbone master pour
 		//la lecture en RAM
@@ -28,13 +28,12 @@ module video_out (
 		output wire p_wb_WE_O,
 		output wire [31:0] p_wb_ADR_O,
 		input wire p_wb_ACK_I,
-		input wire [31:0] p_wb_DAT_I,
+		input wire [31:0] p_wb_DAT_I
 		);
 
 //Signaux video_out_read <-> fifo
 wire full;
 wire w_e;
-wire [7:0] pixel_out;
 
 //Ce module va lire une image en RAM
 //et la place dans la fifo
@@ -64,7 +63,7 @@ video_out_read video_out_read (
 fifo fifo_out (
 	.clk(clk),
 	.nRST(nRST),
-	.data_in(data_in),
+	.data_in(data_in)
 	 );
 
 defparam fifo_out.DATA_SIZE = 8;

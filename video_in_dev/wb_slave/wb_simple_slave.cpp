@@ -30,6 +30,7 @@ namespace soclib { namespace caba {
 		void WbSimpleSlave<wb_param>::transition() {
 			//On force wb_data_1 à 0
 			data_tab[1] = 0;
+			data_tab[3] = 0;
 
 			if (p_resetn == false) {
 				// reset cycle couter
@@ -67,6 +68,8 @@ namespace soclib { namespace caba {
 			//Signaux = contenu du tableau
 			wb_data_0 = data_tab[0];
 			wb_data_1 = data_tab[1];
+			wb_data_2 = data_tab[2];
+			wb_data_3 = data_tab[3];
 		}
 
 	// Synchronoue methode

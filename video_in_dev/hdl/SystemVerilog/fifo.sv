@@ -18,7 +18,6 @@ reg [ADDR_SIZE-1:0] addr_first;
 reg [ADDR_SIZE-1:0] addr_last;
 reg [ADDR_SIZE:0] fifo_cnt; //Pas addr_size -1 car fifo_cnt peut valoir 2**ADDR_SIZE
 
-wire full;
 wire empty;
 
 //////////////////////////////////

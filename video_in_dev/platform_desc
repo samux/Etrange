@@ -4,7 +4,7 @@ todo = Platform('caba', 'top.cpp',
         uses = [
         Uses('caba:video_gen'),
 		#Uses('caba:video_in'),
-		Uses('caba:video_out'),
+		#Uses('caba:video_out'),
         Uses('caba:display'),
         Uses('caba:wb_xcache_wrapper',
             iss_t = 'common:iss2_simhelper',

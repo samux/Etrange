@@ -1,6 +1,6 @@
-NBPACK = 16; //Par paquet de 32 bits
-p_WIDTH = 640;
-p_HEIGHT = 480;
+parameter NBPACK = 16; //Par paquet de 32 bits
+parameter p_WIDTH = 640;
+parameter p_HEIGHT = 480;
 
 
 //Ce module lit les pixels une image en RAM
@@ -21,12 +21,12 @@ module video_out_read (
 	output reg p_wb_LOCK_O,
 	output reg [3:0] p_wb_SEL_O,
 	output reg p_wb_WE_O,
-	output reg [31:0] p_wb_ADR_O
+	output reg [31:0] p_wb_ADR_O,
 
 	//Pour écrire dans la fifo
 	input wire full,
 	output reg w_e,
-	output reg pixel_out,
+	output reg pixel_out
 	);
 
 assign p_wb_LOCK_O = 0;
@@ -41,7 +41,7 @@ reg old_reg_ctr_0;
 always_ff @(posedge clk)
 	old_reg_ctr_0 <= wb_reg_ctr[0];
 
-new_addr = (~old_reg_ctr_0 & ~wb_reg_ctr[0]);
+assign new_addr = (~old_reg_ctr_0 & ~wb_reg_ctr[0]);
 
 
 //WAIT_ADDR : attend que le processeur fournisse une
@@ -72,9 +72,9 @@ reg [1:0] int_cnt;
 
 always_ff @(posedge clk or negedge nRST)
 if (~nRST)
-	next_state <= WAIT_ADDR;
+	state <= WAIT_ADDR;
 else
-	next_state <= state;
+	state <= next_state;
 
 //Calcul combinatoire de l'état suivant
 always_comb
@@ -90,7 +90,7 @@ case (state)
 		if (p_wb_ACK_I) next_state <= BREAK;
 	BREAK:
 		if (pack_count != NBPACK) 
-			next_state <= READ;
+			next_state <= READ_RAM;
 		//Cas de la fin d'un paquet
 		else
 		begin
@@ -99,7 +99,6 @@ case (state)
 			else
 				next_state <= WAIT_FIFO;
 		end
-		next_state <= READ_RAM;
 
 
 	//Si fin de l'écriture d'un paquet, on passe au paquet

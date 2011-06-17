@@ -11,7 +11,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <systemc>
+#include <systemc.h>
 #include <SDL.h>
 
 using namespace sc_core;
@@ -31,7 +31,7 @@ namespace soclib { namespace caba {
                 sc_in <bool>        line_valid;
                 sc_in <bool>        frame_valid;
 
-                sc_in<unsigned char> pixel_in;
+                sc_in<sc_uint<8> > pixel_in;
 
 
                 ////////////////////////////////////////////////////

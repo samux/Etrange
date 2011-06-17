@@ -1,5 +1,5 @@
-//parameter p_WIDTH = 640;
-//parameter p_HEIGHT = 480;
+parameter p_WIDTH = 640;
+parameter p_HEIGHT = 480;
 parameter NB_PACK_STORE = 16; //TODO À définir correctement
 
 //TODO ATTENTION A BIEN SYNCHRONISER LA FIFO

@@ -48,7 +48,7 @@
 
 //Video
 #include "video_gen.h"
-#include "video_out.h"
+#include "hdl/include/video_out.h"
 #include "display.h"
 
 // SystemC main
@@ -100,6 +100,8 @@ int _main(int argc, char *argv[])
   // WB slave data
   sc_signal<sc_uint<32> > wb_data_0("wb_data_0");
   sc_signal<sc_uint<32> > wb_data_1("wb_data_1");
+  sc_signal<sc_uint<32> > wb_data_2("wb_data_2");
+  sc_signal<sc_uint<32> > wb_data_3("wb_data_3");
 
   /**********************************************
 	* IRQ
@@ -122,7 +124,7 @@ int _main(int argc, char *argv[])
   sc_signal<bool>        line_valid_out("line_val_out");
   sc_signal<bool>        frame_valid_out("frame_val_out");
 
-  sc_signal<unsigned char> pixel_out("pixel_val_out");
+  sc_signal<sc_uint<8> > pixel_out("pixel_val_out");
 
   // Components
   // lm32 real cache configuration can be:
@@ -183,6 +185,8 @@ int _main(int argc, char *argv[])
   simple_slave.p_wb(signal_wb_slave);
   simple_slave.wb_data_0(wb_data_0);
   simple_slave.wb_data_1(wb_data_1);
+  simple_slave.wb_data_2(wb_data_2);
+  simple_slave.wb_data_3(wb_data_3);
 
   ////////////////////////////////////////////////////////////
   ///////////////////Video modules ///////////////////////////
@@ -195,7 +199,7 @@ int _main(int argc, char *argv[])
   my_videogen.frame_valid(frame_valid_in);
   my_videogen.pixel_out(pixel_in);
 
-  video_in my_video_in ("video_in","video_in");
+  video_in my_video_in ("Video_in","video_in");
 
   my_video_in.clk(system_clk);
   my_video_in.clk_in(signal_clk);
@@ -212,23 +216,32 @@ int _main(int argc, char *argv[])
   my_video_in.p_wb_ADR_O(signal_wb_vin.ADR);
   my_video_in.p_wb_ACK_I (signal_wb_vin.ACK);
   my_video_in.p_wb_DAT_O (signal_wb_vin.MWDAT);
-  my_video_in.p_wb_ERR_I (signal_wb_vin.ERR);
   my_video_in.interrupt(signal_video_in_irq);
   my_video_in.wb_reg_ctr (wb_data_1);
   my_video_in.wb_reg_data (wb_data_0);
 
-  soclib::caba::VideoOut<wb_param> my_video_out ("video_out", simple_slave.data_tab);
+  video_out my_video_out ("Video_out", "video_out");
 
   my_video_out.clk (system_clk);
-  my_video_out.p_clk   (system_clk);
-  my_video_out.clk_out (signal_clk);
-  my_video_out.reset_n(signal_resetn);
+  my_video_out.clk_in   (system_clk);
+  my_video_out.nRST (signal_resetn);
+
+  my_video_out.wb_reg_data(wb_data_2);
+  my_video_out.wb_reg_ctr(wb_data_3);
+
   my_video_out.line_valid(line_valid_out);
   my_video_out.frame_valid(frame_valid_out);
   my_video_out.pixel_out(pixel_out);
-  my_video_out.p_resetn(signal_resetn);
-  my_video_out.p_wb    (signal_wb_vout);
-  my_video_out.p_interrupt    (signal_video_out_irq);
+
+  my_video_out.p_wb_STB_O    (signal_wb_vout.STB);
+  my_video_out.p_wb_CYC_O    (signal_wb_vout.CYC);
+  my_video_out.p_wb_LOCK_O    (signal_wb_vout.LOCK);
+  my_video_out.p_wb_SEL_O    (signal_wb_vout.SEL);
+  my_video_out.p_wb_WE_O    (signal_wb_vout.WE);
+  my_video_out.p_wb_ADR_O	(signal_wb_vout.ADR);
+  my_video_out.p_wb_ACK_I    (signal_wb_vout.ACK);
+  my_video_out.p_wb_DAT_I    (signal_wb_vout.MRDAT);
+  my_video_out.interrupt    (signal_video_out_irq);
 
   soclib::caba::Display my_display ("My_display");
 

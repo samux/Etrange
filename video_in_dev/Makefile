@@ -12,8 +12,8 @@ export SOCLIB
 
 #Verilog compilation
 VLOG = vlog +acc
-VLOG_TOP = video_in.sv
-VLOG_IN = video_in_read.sv video_in_store.sv fifo.sv ram.sv video_in.sv
+VLOG_TOP = video_in.sv video_out.sv
+VLOG_IN = video_in_read.sv video_in_store.sv fifo.sv ram.sv video_in.sv video_out_read.sv
 VLOG_SRC = $(VLOG_IN) $(VLOG_TOP)
 VLOG_DAT = $(patsubst %.sv,work/%/_primary.dat,$(VLOG_SRC))
 
