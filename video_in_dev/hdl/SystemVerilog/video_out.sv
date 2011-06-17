@@ -1,6 +1,6 @@
 module video_out (
 		input wire clk, //horloge système à 100MHz
-		input wire clk_in, //horloge pour les sorties à 25MHz
+		input wire clk_out, //horloge pour les sorties à 25MHz
 		input wire nRST,
 
 		//Connexion avec le module wishbone
@@ -35,7 +35,11 @@ module video_out (
 wire full;
 wire w_e;
 wire [7:0] pixel_fifo_in;
+
+//Signaux video_out_gen <-> fifo
+wire nb_pack_available;
 wire r_ack = 0;
+wire [7:0] pixel_fifo_out;
 
 //Ce module va lire une image en RAM
 //et la place dans la fifo
@@ -62,10 +66,32 @@ video_out_read video_out_read (
 		.pixel_out(pixel_fifo_in)
 		);
 
+//Ce module prend les pixels dans la
+//fifo et génère line_valid / frame_valid
+// et pixel_out
+video_out_gen video_out_gen (
+	.clk(clk),
+	.clk_out(clk_out),
+	.nRST(nRST),
+
+	//Communication avec la fifo
+	.r_ack(r_ack),
+	.nb_pack_available(nb_pack_available),
+	.pixel_in(pixel_fifo_out),
+
+	//Signaux de sortie
+	.pixel_out(pixel_out),
+	.frame_valid(frame_valid),
+	.line_valid(line_valid)
+
+
+	);
+
 fifo fifo_out (
 	.clk(clk),
 	.nRST(nRST),
 	.data_in(pixel_fifo_in),
+	.data_out(pixel_fifo_out),
 	.full(full),
 	.w_e(w_e),
 	.r_ack(r_ack)

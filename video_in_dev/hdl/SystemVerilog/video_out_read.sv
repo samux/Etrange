@@ -41,7 +41,7 @@ reg old_reg_ctr_0;
 always_ff @(posedge clk)
 	old_reg_ctr_0 <= wb_reg_ctr[0];
 
-assign new_addr = (~old_reg_ctr_0 & ~wb_reg_ctr[0]);
+assign new_addr = (~old_reg_ctr_0 & wb_reg_ctr[0]);
 
 
 //WAIT_ADDR : attend que le processeur fournisse une
