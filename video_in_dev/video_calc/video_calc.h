@@ -23,18 +23,20 @@
 # define PIXEL_BLANC 255
 // Pixel Noir
 # define PIXEL_NOIR 0
+// Nb Coeffs
+# define NB_COEFF 26
 
 #define tmpl(x) template<typename wb_param> x VideoCalc<wb_param>
 
-union cic_u
+typedef union
 {
-    float raw[26];
-    struct
-    {
-        float Px[4], Qx[4], Rx[3], Sx[2];
-        float Py[4], Qy[4], Ry[3], Sy[2];
-    } reg;
-};
+  int32_t raw[NB_COEFF];
+  struct
+  {
+    int32_t Px[4], Qx[4], Rx[3], Sx[2];
+    int32_t Py[4], Qy[4], Ry[3], Sy[2];
+  } reg;
+} cic_u;
 
 using namespace sc_core;
 using namespace std;
@@ -73,6 +75,7 @@ namespace soclib { namespace caba {
       void store_tile();
 
       void fill_cache(uint32_t deb_im_in, int tile_nb);
+      void init_coeff();
 
       private:
 
@@ -106,12 +109,10 @@ namespace soclib { namespace caba {
       // le cache est remplit
       bool cache_rdy;
 
-      bool init_ok;
-
       // Tableau contenant les coeffs de chaque
       // tuile
-      union cic_u coeff[T_NB];
-      union cic_u coeff_image[T_NB];
+      cic_u coeff[T_NB];
+      cic_u coeff_image[T_NB];
 
       // Maître wishbone pour la lecture en RAM
       WbMasterModule<wb_param> master0;
