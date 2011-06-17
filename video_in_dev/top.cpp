@@ -223,7 +223,7 @@ int _main(int argc, char *argv[])
   video_out my_video_out ("Video_out", "video_out");
 
   my_video_out.clk (system_clk);
-  my_video_out.clk_out   (system_clk);
+  my_video_out.clk_out   (signal_clk);
   my_video_out.nRST (signal_resetn);
 
   my_video_out.wb_reg_data(wb_data_2);

@@ -92,6 +92,7 @@ fifo fifo_out (
 	.nRST(nRST),
 	.data_in(pixel_fifo_in),
 	.data_out(pixel_fifo_out),
+	.nb_pack_available(nb_pack_available),
 	.full(full),
 	.w_e(w_e),
 	.r_ack(r_ack)

@@ -1,9 +1,5 @@
 //Ce module lit les signaux envoyes par display et place
 //les pixels dans la fifo
-parameter p_WIDTH = 640;
-parameter p_HEIGHT = 480;
-parameter p_LSYNC = 160;
-parameter p_FSYNC = 40;
 
 
 
@@ -17,6 +13,11 @@ module video_in_read (
 	output reg w_e,
 	output wire [31:0] pixels_out
 	);
+
+parameter p_WIDTH = 640;
+parameter p_HEIGHT = 480;
+parameter p_LSYNC = 160;
+parameter p_FSYNC = 40;
 
 //Pour situer la position courante au sein de l'image
 reg [9:0] pixel_c;
