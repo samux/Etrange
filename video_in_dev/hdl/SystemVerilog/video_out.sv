@@ -34,6 +34,8 @@ module video_out (
 //Signaux video_out_read <-> fifo
 wire full;
 wire w_e;
+wire [7:0] pixel_fifo_in;
+wire r_ack = 0;
 
 //Ce module va lire une image en RAM
 //et la place dans la fifo
@@ -48,7 +50,7 @@ video_out_read video_out_read (
 		.p_wb_STB_O(p_wb_STB_O),
 		.p_wb_CYC_O(p_wb_CYC_O),
 		.p_wb_LOCK_O(p_wb_LOCK_O),
-		.p_wb_SEL_O(p_wb_SEL),
+		.p_wb_SEL_O(p_wb_SEL_O),
 		.p_wb_WE_O(p_wb_WE_O),
 		.p_wb_ADR_O(p_wb_ADR_O),
 		.p_wb_ACK_I(p_wb_ACK_I),
@@ -63,10 +65,11 @@ video_out_read video_out_read (
 fifo fifo_out (
 	.clk(clk),
 	.nRST(nRST),
-	.data_in(data_in)
+	.data_in(pixel_fifo_in),
+	.full(full),
+	.w_e(w_e),
+	.r_ack(r_ack)
 	 );
-
-defparam fifo_out.DATA_SIZE = 8;
 
 
 endmodule

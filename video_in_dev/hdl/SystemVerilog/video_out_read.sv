@@ -26,7 +26,7 @@ module video_out_read (
 	//Pour écrire dans la fifo
 	input wire full,
 	output reg w_e,
-	output reg pixel_out
+	output reg [7:0] pixel_out
 	);
 
 assign p_wb_LOCK_O = 0;
