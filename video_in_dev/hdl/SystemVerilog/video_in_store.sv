@@ -1,6 +1,6 @@
-parameter p_WIDTH = 640;
-parameter p_HEIGHT = 480;
-parameter NB_PACK = 16; //TODO À définir correctement
+//parameter p_WIDTH = 640;
+//parameter p_HEIGHT = 480;
+parameter NB_PACK_STORE = 16; //TODO À définir correctement
 
 //TODO ATTENTION A BIEN SYNCHRONISER LA FIFO
 //SUR les interruptions du processeur
@@ -151,7 +151,7 @@ if (~nRST)
 		interrupt <= 0;
 		deb_im <= wb_reg_data;
 		pixel_count <= 0;
-		counter_pack <= NB_PACK/4;
+		counter_pack <= NB_PACK_STORE/4;
 		p_wb_STB_O <= 0;
 		p_wb_CYC_O <= 0;
 		p_wb_LOCK_O <= 0;
@@ -184,7 +184,7 @@ else
 				p_wb_CYC_O <= 0;
 				p_wb_LOCK_O <= 0;
 				p_wb_WE_O <= 0;
-				counter_pack <= NB_PACK;
+				counter_pack <= NB_PACK_STORE;
 			end
 		//On lit une valeur dans la fifo
 		//et on positionne les sorties wishbone 

@@ -70,7 +70,7 @@ begin
 end
 
 //Processus de lecture à 25 Mhz
-always @(posedge clk_in or negedge nRST)
+always @(posedge clk_in)
 begin
 	//w_e vaut 0 sauf si le contraire est précisé
 	write_fifo_slow <= 0;

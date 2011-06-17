@@ -1,7 +1,6 @@
 parameter ADDR_SIZE = 6;
 parameter DATA_SIZE = 32;
-parameter NB_PACK = 16;//TODO remplir et voir comment
-					// Faire des modules verilog paramêtrables
+parameter NB_PACK = 16;
 
 module fifo (
 	input wire clk,
@@ -10,8 +9,10 @@ module fifo (
 	input wire w_e,
 	input wire r_ack,
 	output reg [DATA_SIZE-1:0] data_out,
-	output wire nb_pack_available
+	output wire nb_pack_available,
+	output wire full
 	);
+
 
 reg [ADDR_SIZE-1:0] addr_first;
 reg [ADDR_SIZE-1:0] addr_last;
