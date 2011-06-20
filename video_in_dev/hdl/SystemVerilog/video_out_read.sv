@@ -1,4 +1,9 @@
+//ATTENTION Ce code ne marche que pour NBPACK = 16
+//Pour d'autres valeurs il faut changer la taille du compteur
+//pack_count
+//TODO Changer ça
 parameter NBPACK = 16; //Par paquet de 32 bits
+
 parameter p_WIDTH = 640;
 parameter p_HEIGHT = 480;
 
@@ -72,8 +77,8 @@ reg [7:0] pack [NBPACK];
 reg [19:0] next_pixel_count;
 reg [19:0] pixel_count;
 //Compteur pour se situer dans le paquet de pixels
-reg [4:0] next_pack_count; 
-reg [4:0] pack_count; 
+reg [3:0] next_pack_count; 
+reg [3:0] pack_count; 
 
 assign pixel_out = pack[pack_count];
 
@@ -116,7 +121,7 @@ case (state)
 	WAIT_ACK:
 		if (p_wb_ACK_I) next_state <= BREAK;
 	BREAK:
-		if (pack_count != NBPACK) 
+		if (pack_count != NBPACK-4) 
 			next_state <= READ_RAM;
 		//Cas de la fin d'un paquet
 		else
@@ -133,7 +138,7 @@ case (state)
 	//Si fin de l'écriture d'un paquet et de l'image
 	//On passe dans l'état IMAGE_PROCESSED
 	WRITE_FIFO:
-		if (pack_count == 1)
+		if (pack_count == NBPACK-1)
 			begin
 			next_state <= READ_RAM;
 			if (pixel_count == p_WIDTH * p_HEIGHT)
@@ -159,13 +164,14 @@ endcase
 //Calcul combinatoire des sorties
 always_comb 
 	begin
+		//W_e vaut 0 presque partout
+		w_e <= 0;
 		case (state)
 			WAIT_ADDR:
 				begin
 					p_wb_STB_O <= 0;
 					p_wb_CYC_O <= 0;
 					interrupt <= 0;
-					w_e <= 0;
 					deb_im <= wb_reg_data;
 					next_int_cnt <= 0;
 					next_pack_count <= 0;
@@ -198,12 +204,12 @@ always_comb
 			WRITE_FIFO:
 				begin
 					w_e <= 1;
-					next_pack_count <= pack_count - 1;
+					next_pack_count <= pack_count + 1;
 				end
 
 			WAIT_FIFO:
-					w_e <= 0;
-
+				begin
+				end
 			IMAGE_PROCESSED:
 				begin
 					next_pixel_count <= 0;
