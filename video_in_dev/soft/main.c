@@ -35,12 +35,12 @@ COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
 /** Coefficients for the transformation in x-direction */
 mfixed coeff_x[4][4] = { 	{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
-  									{(mfixed)(1<<16), (mfixed)0, (mfixed)0, (mfixed)0}, 
+  									{(mfixed)(1<<17), (mfixed)0, (mfixed)0, (mfixed)0}, 
 									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
 									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0} 
 };
 /** Coefficients for the transformation in y-direction */
-mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)(1<<16), (mfixed)0, (mfixed)0}, 
+mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)(1<<17), (mfixed)0, (mfixed)0}, 
   									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
 									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
 									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0} 
@@ -56,7 +56,7 @@ int main(void)
 
   printf("Bonjour du LM32\n");
   init_poly();
-  print_poly();
+  //print_poly();
   printf("Coeff OK\n");
 
   irq_enable();

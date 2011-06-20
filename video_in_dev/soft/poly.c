@@ -314,17 +314,17 @@ void init_poly()
 		coeff_incr_array[1][Y][X].Q0 = Q_0(coeff_y);
 		coeff_incr_array[1][Y][X].Q1 = Q_1(X_p, Y_p, coeff_y); 
 		coeff_incr_array[1][Y][X].Q2 = Q_2(X_p, Y_p, coeff_y); 
-		coeff_incr_array[1][Y][X].Q3 = coeff_incr_array[0][Y][X].P3;
+		coeff_incr_array[1][Y][X].Q3 = coeff_incr_array[1][Y][X].P3;
 
 
 		//R
 		coeff_incr_array[1][Y][X].R0 = R_0(coeff_y);
 		coeff_incr_array[1][Y][X].R1 = R_1(X_p, Y_p, coeff_y);	
-		coeff_incr_array[1][Y][X].R2 = coeff_incr_array[0][Y][X].P2;
+		coeff_incr_array[1][Y][X].R2 = coeff_incr_array[1][Y][X].P2;
 
 		//S
 		coeff_incr_array[1][Y][X].S0 = S_0(coeff_y); 
-		coeff_incr_array[1][Y][X].S1 = coeff_incr_array[0][Y][X].P1;
+		coeff_incr_array[1][Y][X].S1 = coeff_incr_array[1][Y][X].P1;
 
 
 	 }
