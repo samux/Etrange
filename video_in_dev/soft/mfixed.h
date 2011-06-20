@@ -11,8 +11,14 @@
 #ifndef _MFIXED_H_
 #define _MFIXED_H_
 
-// fixed point taype definition
-// This works only for big endian
+/**
+ * \struct coeff_incr_t
+ * \brief Fixed point type definition
+ *
+ * Fixed point type definition: 16 bits for entire
+ * part and 16 bits for fractionnal part.
+ * Warning: This work only for big endian
+ */
 typedef union {
     struct {
         short h;
@@ -21,13 +27,17 @@ typedef union {
     int all;
 }mfixed;
 
-// fixed point multiplication
+/**
+ * \fn inline mfixed (mfixed A, mfixed B)
+ * \brief Compute the multiplication between two mfixed
+ */
 inline mfixed fx_mul  (mfixed A, mfixed B);
 
-// fixed point addition
+/**
+ * \fn inline mfixed (mfixed A, mfixed B)
+ * \brief Compute the addition between two mfixed
+ */
 inline mfixed fx_add (mfixed A, mfixed B);
-
-inline mfixed i2fx (int A);
 
 #endif
 

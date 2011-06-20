@@ -26,9 +26,3 @@ inline mfixed fx_add (mfixed A, mfixed B)
 {
     return (mfixed)(A.all + B.all);
 }
-
-inline mfixed i2fx (int A)
-{
-  return (mfixed) (A << 16);
-
-}

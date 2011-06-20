@@ -1,21 +1,118 @@
+/**
+ * \file poly.c
+ * \brief Contains all functions concerning polynomes and antecedents
+ * \author Samuel Mokrani
+ * \date 20/06/2011
+ *
+ */
 #include "poly.h"
 #include "stdio.h"
 #include "mfixed.h"
 
 
 
+/**
+ * \fn static mfixed P_0(mfixed coeff[4][4])
+ * \brief Compute P_0 coefficient according to coeff
+ *
+ * \return P_0 in mfixed representation
+ *
+ */
 static mfixed P_0(mfixed coeff[4][4]);
+
+/**
+ * \fn static mfixed P_1(int X, int Y, mfixed coeff[4][4])
+ * \brief Compute P_1 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \return P_1 in mfixed representation
+ *
+ */
 static mfixed P_1(int X, int Y, mfixed coeff[4][4]);
+/**
+ * \fn static mfixed P_2(int X, int Y, mfixed coeff[4][4])
+ * \brief Compute P_2 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \return P_2 in mfixed representation
+ *
+ */
 static mfixed P_2(int X, int Y, mfixed coeff[4][4]);
+
+/**
+ * \fn static mfixed P_3(int X, int Y, mfixed coeff[4][4])
+ * \brief Compute P_3 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \return P_3 in mfixed representation
+ *
+ */
 static mfixed P_3(int X, int Y, mfixed coeff[4][4]);
 
+
+
+
+
+/**
+ * \fn static mfixed Q_0(mfixed coeff[4][4])
+ * \brief Compute Q_0 coefficient according to coeff
+ *
+ * \return Q_0 in mfixed representation
+ *
+ */
 static mfixed Q_0(mfixed coeff[4][4]);
+
+/**
+ * \fn static mfixed Q_1(int X, int Y, mfixed coeff[4][4])
+ * \brief Compute Q_1 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \return Q_1 in mfixed representation
+ *
+ */
 static mfixed Q_1(int X, int Y, mfixed coeff[4][4]);
+
+/**
+ * \fn static mfixed Q_2(int X, int Y, mfixed coeff[4][4])
+ * \brief Compute Q_2 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \return Q_2 in mfixed representation
+ *
+ */
 static mfixed Q_2(int X, int Y, mfixed coeff[4][4]);
 
+
+
+
+
+
+
+/**
+ * \fn static mfixed R_0(mfixed coeff[4][4])
+ * \brief Compute R_0 coefficient according to coeff
+ *
+ * \return R_0 in mfixed representation
+ *
+ */
 static mfixed R_0(mfixed coeff[4][4]);
+
+/**
+ * \fn static mfixed R_1(int X, int Y, mfixed coeff[4][4])
+ * \brief Compute R_1 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \return R_1 in mfixed representation
+ *
+ */
 static mfixed R_1(int X, int Y, mfixed coeff[4][4]);
 
+
+
+
+
+
+/**
+ * \fn static mfixed S_0(mfixed coeff[4][4])
+ * \brief Compute S_0 coefficient according to coeff
+ *
+ * \return S_0 in mfixed representation
+ *
+ */
 static mfixed S_0(mfixed coeff[4][4]);
 
 /***********
@@ -278,6 +375,6 @@ void print_poly()
 		printf("S[1].y = %d,%d\n", coeff_incr_array[1][i][j].S0.h, coeff_incr_array[1][i][j].S0.l);
 	 }
   }
-  printf("ADR du tableau putain : %ld", &coeff_incr_array[0][0][0].P0.all);
+  printf("ADR du tableau putain : %ld", (uint32_t)&coeff_incr_array[0][0][0].P0.all);
 
 }

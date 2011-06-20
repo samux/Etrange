@@ -1,27 +1,14 @@
-/*
+/**
+ * \file main.c
+ * \brief Main procedure
+ * \author Samuel Mokrani
+ * \date 20/06/2011
  *
- * SOCLIB_GPL_HEADER_BEGIN
- *
- * This file is part of SoCLib, GNU GPLv2.
- *
- * SoCLib is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 2 of the License.
- *
- * SoCLib is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with SoCLib; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- *
- * SOCLIB_GPL_HEADER_END
+ * This file contains the main procedure: it computes all initialization coefficients for incremental computations.
+ * After this, it sends to V_IN the address where will be stored the first image. And that's all. After, there are just
+ * interrupt handlers which maintain the good functionning of the system.
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,27 +21,34 @@
 
 extern char inbyte();
 
+/** number of images stored by V_IN */
 volatile uint32_t nb_image_in;
-volatile uint32_t nb_image_processed;
+/** number of images read by V_OUT */
 volatile uint32_t nb_image_out;
 
-uint8_t first_image;
+/**  To indicate if we have already processed a picture coming from V_IN.
+ * 	Useful to send to V_OUT the signal that the first picture is ready*/
 uint8_t first_image_processed;
 
+/**  Contains all coefficients of each tile */
 COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
+/** Coefficients for the transformation in x-direction */
 mfixed coeff_x[4][4] = { 	{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
   									{(mfixed)(1<<16), (mfixed)0, (mfixed)0, (mfixed)0}, 
 									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
 									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0} 
 };
+/** Coefficients for the transformation in y-direction */
 mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)(1<<16), (mfixed)0, (mfixed)0}, 
   									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
 									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
 									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0} 
 };
 
+/** The address of the first image stored in RAM */
 uint32_t * RAM_FIRST_IMAGE;
+/** The address of the first image processed stored in RAM */
 uint32_t * RAM_FIRST_IMAGE_PROCESSED;
 
 int main(void)
@@ -62,7 +56,7 @@ int main(void)
 
   printf("Bonjour du LM32\n");
   init_poly();
-  print_poly();
+  //print_poly();
   printf("Coeff OK\n");
 
   irq_enable();
@@ -73,14 +67,12 @@ int main(void)
   RegisterIrqEntry(3, &video_calc_handler);
 
   nb_image_in = 0;
-  nb_image_processed = 0;
   nb_image_out = 0;
 
-  first_image = 1;
   first_image_processed = 1;
 
-  RAM_FIRST_IMAGE = (uint32_t *) malloc( 10 * sizeof(uint32_t) * 640 * 480 / 4);
-  RAM_FIRST_IMAGE_PROCESSED = (uint32_t *) malloc(10 * sizeof(uint32_t) * 640 * 480 / 4);
+  RAM_FIRST_IMAGE = (uint32_t *) malloc( 10 * sizeof(uint32_t) * WIDTH * HEIGHT / NB_BYTE_IN_A_WORD );
+  RAM_FIRST_IMAGE_PROCESSED = (uint32_t *) malloc(10 * sizeof(uint32_t) * WIDTH * HEIGHT / NB_BYTE_IN_A_WORD);
 
   //First address to store the image
   VIN = (uint32_t) RAM_FIRST_IMAGE;

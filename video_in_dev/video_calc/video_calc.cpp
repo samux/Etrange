@@ -217,13 +217,13 @@ namespace soclib { namespace caba {
             pixel_x = coeff[tile_nb].reg.Px[3] >> 16;
             pixel_y = coeff[tile_nb].reg.Py[3] >> 16;
 
-             // std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
-             //           << tile_nb
-             //           << " antecedent_y : "
-             //           << pixel_y
-             //           << " antecedent_x : "
-             //           << pixel_x
-             //           << std::endl;
+              std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
+                        << tile_nb
+                        << " antecedent_y : "
+                        << pixel_y
+                        << " antecedent_x : "
+                        << pixel_x
+                        << std::endl;
 
             if ((pixel_x < (uint16_t) cache_x) || (pixel_x > (uint16_t) (cache_x + C_W)) ||
                 (pixel_y < (uint16_t) cache_y) || (pixel_y > (uint16_t) (cache_y + C_H)))
@@ -266,10 +266,11 @@ namespace soclib { namespace caba {
               else
                 I[1][1] = I[0][0];
 
-              intensity = (1 - dx) * (1 - dy) * I[0][0] +
+              /*intensity = (1 - dx) * (1 - dy) * I[0][0] +
                 (1 - dx) * dy * I[0][1] +
                 dx * (1 - dy) * I[1][0] +
-                dx * dy * I[1][1];
+                dx * dy * I[1][1];*/
+				  intensity = I[0][0];
 
              // std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
              //           << tile_nb
