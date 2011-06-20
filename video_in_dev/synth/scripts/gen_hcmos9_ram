@@ -1,0 +1,1046 @@
+#!/usr/bin/perl -w
+# Générateur pour SPRAM, DPRAM et ROM, attention la consommation n'est pas modélisée (il faudrait passer à un model tabulé pour le Timing pour qu'un modèle de consomation soit inclus)
+# Qualité du modèle : SPRAM  ok , DPRAM et ROM seules les surfaces sont cohérentes, les timings sont ceux de la SPRAM
+#                       
+
+use strict ;
+my $VERSION = "1.0" ;
+my $DATE = localtime ;
+my $MESS = "TPT/COMELEC: Modèle générique Généré par gen_hcmos9_ram pour l'ue ELEC342 SOC  V$VERSION $DATE " ;
+my $words = $ARGV[0] ;
+my $rwords = $ARGV[0] ;
+my $bits = $ARGV[1] ;
+our $ram_type = "spram" ; # dpram spram rom
+my $col = $bits ;
+my $row = $words ;
+my $maxwords = 65536 ;
+my $minwords = 16 ;
+my $maxbits = 64 ;
+my $minbits = 4 ;
+my $maxff = 32 ;
+my $minff = 1/$maxff ;
+my $capmax = 1024*2048 ;
+my $Height = 0 ;
+my $Length = 0 ;
+my $CYCLE_TIME= 0 ;
+my $ACCESS_TIME= 0 ;
+my $area ;
+my $worst_derate = 1 ;
+my $best_derate = 0.7/1.3 ;
+my $lib_ram_type ;
+
+# Tables des variations de taille "rom" "spram" "dpram"
+our %tb_type_dep = (
+                      spram => 1.0 ,
+                      dpram => 1.414 , 
+                      rom => 0.44  ,  
+                      ) ;
+our %tb_lib_ram_type = (
+                      spram => "ram" ,
+                      dpram => "ram" , 
+                      rom => "rom"  ,  
+                      ) ;
+
+# Table de dépendances pour une vieille techno 0.18u
+# recuperations des paramètres technos
+
+our %table_dep = (
+   #                   const      row        col        bits       l2(row)    l2(col)     l2(bits)  row*col
+   MAX_TRANS_TIME  => [ 0.125e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   CK_MAX_TRAN     => [ 1.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   CK_HIGH_TIME    => [ 8.363e-01, 5.125e-04, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   CK_LOW_TIME     => [ 8.363e-01, 5.125e-04, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   CYCLE_TIME      => [ 2.363e+00, 1.298e-03, 0.000e+00, 4.118e-04, 1.562e-01, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   ACCESS_TIME     => [ 1.530e+00, 1.250e-03, 0.000e+00, 0.000e+00, 1.270e-01, 9.560e-02,-1.600e-02, 0.000e+00 ],
+   D_ACCESS_TIME   => [ 2.043e+01, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   AD_MAX_TRAN     => [ 1.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   AD_SETUP_TIME   => [ 4.263e-01, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 2.698e-03,-2.698e-03, 0.000e+00 ],
+   AD_HOLD_TIME    => [ 0.001e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   DI_MAX_TRAN     => [ 1.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   DI_SETUP_TIME   => [ 0.001e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   DI_HOLD_TIME    => [ 1.729e-01, 0.000e+00, 0.000e+00, 1.194e-03, 2.145e-04, 1.382e-03,-1.642e-03, 0.000e+00 ],
+   WRITE_MAX_TRAN    => [ 1.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   WRITE_SETUP_TIME  => [ 8.552e-02, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 2.422e-03, 2.422e-03, 0.000e+00 ],
+   WRITE_HOLD_TIME   => [ 1.557e-02, 0.000e+00, 0.000e+00, 1.051e-03, 0.000e+00, 1.972e-02,-1.133e-02, 0.000e+00 ],
+   C_AD            => [ 2.811e+00, 0.000e+00, 0.000e+00, 8.676e-03, 0.000e+00, 2.236e+00,-2.221e-01, 0.000e+00 ],
+   C_CK            => [ 1.903e+01, 0.000e+00, 0.000e+00, 4.819e-03, 0.000e+00, 1.551e+00,-8.679e-02, 0.000e+00 ],
+   C_DI            => [ 5.507e+00, 0.000e+00, 0.000e+00, 0.000e+00, 1.156e-01, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   C_WRITE           => [ 4.454e+00, 3.650e-03, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   DO_MAX_CAP      => [ 4.177e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00 ],
+   P_DYNAMIC_READ  => [ 3.101e+00, 2.149e-02, 8.667e-02, 5.999e-01, 1.578e-02, 6.958e-01,-3.134e-02, 2.722e-04 ],
+   P_DYNAMIC_WRITE => [ 0.000e+00, 1.175e-02, 8.164e-02, 4.112e-01, 1.060e+00, 2.992e-01,-2.002e-01, 2.786e-04 ],
+   HEIGHT    => [ 7.408e+01, 3.336e+00, 0.000e+00, 0.000e+00, 0.000e+00, 2.951e+00,-2.951e+00, 0.000e+00 ],
+   LENGTH    => [ 0.000e+00, 0.000e+00, 2.859e+00, 0.000e+00, 1.072e+00, 4.138e+00, 8.985e+00, 0.000e+00 ]
+   ) ;
+
+# Table de références pour une RAM HCMOS9 (pour un fit des temps et capacités). Les caractéristiques corespondent
+# a un Worst Case
+                      # row  col bits
+our @hcmos9_spram_ref_id = ( 128, 16, 8 ) ;
+our %hcmos9_spram_ref_val =  (
+   MAX_TRANS_TIME  =>  1,
+   CK_MAX_TRAN     =>  0.800e+00, #ns
+   CK_HIGH_TIME    =>  1.863e+00, # ns
+   CK_LOW_TIME     =>  1.994e+00, # ns
+   CYCLE_TIME      =>  3.989e+00, # ns
+   ACCESS_TIME     =>  2.638e+00, # ns
+   D_ACCESS_TIME   =>  1.000e+00, # ns/pf
+   AD_MAX_TRAN     =>  1.900e+00, #ns
+   AD_SETUP_TIME   =>  1.001e+00, # ns
+   AD_HOLD_TIME    =>  0.244e+00, # ns
+   DI_MAX_TRAN     =>  1.900e+00, #ns
+   DI_SETUP_TIME   =>  1.684e+00, # ns
+   DI_HOLD_TIME    =>  0.010e+00, # ns
+   WRITE_MAX_TRAN    =>  1.900e+00, #ns
+   WRITE_SETUP_TIME  =>  0.803e+00, # ns
+   WRITE_HOLD_TIME   =>  0.010e+00, # ns
+   C_AD            =>  8.000e-03, # pf
+   C_CK            =>  1.600e-02, # pf
+   C_DI            =>  4.000e-03, # pf
+   C_WRITE           =>  4.000e-03, # pf
+   DO_MAX_CAP      =>  6.400e-01, # pf
+   P_DYNAMIC_READ  =>  5.086e+00, # uW/Mhz
+   P_DYNAMIC_WRITE =>  5.819e+00, # uW/Mhz
+   HEIGHT          =>  1.832e+02, # um
+   LENGTH          =>  8.469e+01  # um
+   ) ;
+
+our @hcmos9_dpram_ref_id = ( 128, 16, 8 ) ;
+our %hcmos9_dpram_ref_val =  (
+   MAX_TRANS_TIME  =>  1,
+   CK_MAX_TRAN     =>  0.800e+00, #ns
+   CK_HIGH_TIME    =>  1.863e+00, # ns
+   CK_LOW_TIME     =>  1.994e+00, # ns
+   CYCLE_TIME      =>  3.989e+00, # ns
+   ACCESS_TIME     =>  2.638e+00, # ns
+   D_ACCESS_TIME   =>  1.000e+00, # ns/pf
+   AD_MAX_TRAN     =>  1.900e+00, #ns
+   AD_SETUP_TIME   =>  1.001e+00, # ns
+   AD_HOLD_TIME    =>  0.244e+00, # ns
+   DI_MAX_TRAN     =>  1.900e+00, #ns
+   DI_SETUP_TIME   =>  1.684e+00, # ns
+   DI_HOLD_TIME    =>  0.010e+00, # ns
+   WRITE_MAX_TRAN    =>  1.900e+00, #ns
+   WRITE_SETUP_TIME  =>  0.803e+00, # ns
+   WRITE_HOLD_TIME   =>  0.010e+00, # ns
+   C_AD            =>  8.000e-03, # pf
+   C_CK            =>  1.600e-02, # pf
+   C_DI            =>  4.000e-03, # pf
+   C_WRITE           =>  4.000e-03, # pf
+   DO_MAX_CAP      =>  6.400e-01, # pf
+   P_DYNAMIC_READ  =>  5.086e+00, # uW/Mhz
+   P_DYNAMIC_WRITE =>  5.819e+00, # uW/Mhz
+   HEIGHT          =>  1.832e+02, # um
+   LENGTH          =>  8.469e+01  # um
+   ) ;
+
+our %hcmos9_adj =  (
+   MAX_TRANS_TIME  =>  1.0,
+   CK_MAX_TRAN     =>  1.0, 
+   CK_HIGH_TIME    =>  1.0, 
+   CK_LOW_TIME     =>  1.0,
+   CYCLE_TIME      =>  1.0, 
+   ACCESS_TIME     =>  1.0, 
+   D_ACCESS_TIME   =>  1.0, 
+   AD_MAX_TRAN     =>  1.0, 
+   AD_SETUP_TIME   =>  1.0, 
+   AD_HOLD_TIME    =>  1.0, 
+   DI_MAX_TRAN     =>  1.0, 
+   DI_SETUP_TIME   =>  1.0, 
+   DI_HOLD_TIME    =>  1.0, 
+   WRITE_MAX_TRAN    =>  1.0, 
+   WRITE_SETUP_TIME  =>  1.0, 
+   WRITE_HOLD_TIME   =>  1.0, 
+   C_AD            =>  1.0, 
+   C_CK            =>  1.0, 
+   C_DI            =>  1.0, 
+   C_WRITE           =>  1.0, 
+   DO_MAX_CAP      =>  1.0, 
+   P_DYNAMIC_READ  =>  1.0, 
+   P_DYNAMIC_WRITE =>  1.0, 
+   HEIGHT          =>  1.0, 
+   LENGTH          =>  1.0 
+   ) ;
+ 
+
+# Coeeficients pour les déviations "corners techno" 
+sub adj_corner {
+  my ($val,$adj) = @_ ;
+  return $val*$adj ;
+}
+
+
+# Arrondis pour que la taille des mémoires tombe sur un nombre de sites entier.
+my $site = 0.410 ;
+
+
+# Fonctions auxiliaires
+# Extraction du calcul des paramètres, avec un cas particulier pour les calculs de surfaces
+sub get_param {
+  my ($param,$row,$col,$bits) = @_ ;
+  my $result = 0 ;
+  my @tb = @{$table_dep{$param}} ;
+  if(($param eq "HEIGHT") || ($param eq "LENGTH")) {
+     my $adjc = $tb_type_dep{$ram_type} ;
+     $result  = $hcmos9_adj{$param}*($tb[0] + $adjc*$tb[1]*($row) + $adjc*$tb[2]*($col) + $tb[3]*($bits) + $adjc*$adjc*$tb[7]*($row*$col) + $tb[4]*(log($row)/log(2.0)) + $tb[5]*(log($col)/log(2.0)) + $tb[6]*(log($bits)/log(2.0))) ; 
+  } else {
+     $result  = $hcmos9_adj{$param}*($tb[0] + $tb[1]*($row) + $tb[2]*($col) + $tb[3]*($bits) + $tb[7]*($row*$col) + $tb[4]*(log($row)/log(2.0)) + $tb[5]*(log($col)/log(2.0)) + $tb[6]*(log($bits)/log(2.0))) ; 
+  }
+  return $result
+}
+  
+sub max {
+  my ($result,$tmp2) = @_ ;
+  if ($tmp2>$result)  {$result=$tmp2} ;
+  return $result ;
+}
+
+sub min {
+  my ($result,$tmp2) = @_ ;
+  if ($tmp2<$result)  {$result=$tmp2} ;
+  return $result ;
+}
+
+
+
+sub printHelpAndExit() {
+		print "
+Utilisation: gen_hcmos9_ram <NombreDeMots> <TailleDesMots>  avec
+             <NombreDeMots>  nombre de mots de la SRAM (compris entre $minwords et $maxwords)
+             <TailleDesMots> nombre de bits des mots de la SRAM (compris entre $minbits et $maxbits, en multiples de $minbits)
+             [type de Ram]   optionnel : spram (single port, defaut) , dpram (dualport) , rom (rom)
+Attention : 
+	    - la taille maximale acceptée est de $capmax bits
+            - le nombre de mots est éventuellement modifié pour être cohérent avec les autres choix.
+	    - les modèles générés ne correspondents pas à des SRAM réelles de la tehcnologie HCMOS9
+" ;
+		exit  ;
+}
+
+# mise à jour  des paramètres d'ajustement en fonction de la techno
+# doit etre fait avant la lecture du paramêtre ram_type
+for my $param (keys  %hcmos9_spram_ref_val ) {
+   $hcmos9_adj{$param} = $hcmos9_spram_ref_val{$param} / get_param($param,$hcmos9_spram_ref_id[0],$hcmos9_spram_ref_id[1],$hcmos9_spram_ref_id[2]) ;
+}
+
+
+if(($#ARGV==-1)or($#ARGV>2)) { printHelpAndExit() ;}
+if ($ARGV[0] =~/\D/) { printHelpAndExit();} 
+if ($ARGV[1] =~/\D/) { printHelpAndExit();} 
+if(($words>$maxwords)||($words<$minwords)) {print "Erreur: le nombre de mots n'est pas compris entre $minwords et $maxwords\n" ; exit} 
+if(($bits==0)) { printHelpAndExit() ;}
+if(($bits>$maxbits)||($bits<$minbits)) {print "Erreur: La taille des mots n'est pas comprise entre $minbits et $maxbits\n" ; exit} 
+my $capacity = $words*$bits ;
+if($capacity > $capmax) { print "Erreur: La taille de la ram n'est pas inférieure ou égale à $capmax\n" ; exit} 
+if ($minbits*int($bits/$minbits) != $bits) { print "Erreur: Les mots doivent être des multiples de $minbits\n"; exit}
+if (($ARGV[2] eq "dpram") || ($ARGV[2] eq "rom")) { $ram_type = $ARGV[2] ;} 
+$lib_ram_type = $tb_lib_ram_type{$ram_type} ;
+# Calcul des paramètres de génération de la RAM
+my $mux = 1 ;
+my $addrow  ;
+my $addbits  ;
+my $ram_name  ;
+our $dir_name = "tpt_asic_rams"  ;
+my $hsl ;
+my @choices ;
+my $choix=0 ;
+
+print "Solutions proposées: \n" ;
+for (my $i=0; $i<8; $i++) {
+  $mux=1<<$i ;
+  $col = $bits*$mux ;
+  $row = $words/$mux ;
+  my $irow = int($row) ;
+  if($irow != $row) {$irow=$irow +1 ;}
+  $row = $irow ;
+  $rwords = $row*$mux ;
+  $ram_name = sprintf("tpt_hcmos9_%s_DEPTH%s_WIDTH%s",$ram_type,$rwords,$bits,$mux)  ;
+  $Height = get_param("HEIGHT",$row,$col,$bits); 
+  $Length = get_param("LENGTH",$row,$col,$bits); 
+  $Height = $site*(int($Height/$site)+1) ;
+  $Length = $site*(int($Length/$site)+1) ;
+  $hsl  = $Height/$Length ;
+  $area = $Height*$Length ;
+  $CYCLE_TIME = adj_corner(get_param("CYCLE_TIME",$row,$col,$bits),1); 
+  $ACCESS_TIME = adj_corner(get_param("ACCESS_TIME",$row,$col,$bits),1); 
+  if(($hsl>=1/8)&&($hsl<=8)) {
+    $choices[++$choix] = $i ;
+  printf "Choix : $choix Nom : $ram_name	Facteur de forme:%.2f	Surface:%.3fmm2	Temps de cycle:%.2fns  Temps d'accès:%.2fns\n",$hsl,$area/1000000,$CYCLE_TIME,$ACCESS_TIME ;
+  }
+}
+
+# Choix par  l'utilisateur de la solution retenue
+open (CONSOLE,"<-") ;
+my $rep  ;
+do {
+   print "Donnez votre choix :" ;
+   $rep = substr(<CONSOLE>,0,-1)  ;
+   if ($rep =~/\D/) { $rep = $choix+1 ; }
+   if (length($rep)==0) { $rep=0;}
+} until ($rep <= $choix);
+
+if ($rep==0) {print "Abandon!\n" ; exit ;}
+
+# L'utilisateur a choisi  : on recalcule les caratéristiques
+
+$mux = 1<<$choices[$rep] ;
+$col = $bits*$mux ;
+$row = $words/$mux ;
+my $irow = int($row) ;
+if($irow != $row) {$irow=$irow +1 ;}
+$row = $irow ;
+$rwords = $row*$mux ;
+$Height = get_param("HEIGHT",$row,$col,$bits); 
+$Length = get_param("LENGTH",$row,$col,$bits); 
+$Height = $site*(int($Height/$site)+1) ;
+$Length = $site*(int($Length/$site)+1) ;
+$area = $Height*$Length ;
+$addrow = log($row)/log(2.0) ;
+my $iaddrow = int($addrow) ;
+if($iaddrow != $addrow) {$iaddrow=$iaddrow +1 ;}
+$addrow = $iaddrow ;
+$addbits = $addrow+log($mux)/log(2) ;
+my $maxaddbits = $addbits-1 ;
+$maxwords = $rwords-1 ;
+$maxbits = $bits -1 ;
+
+print "
+-----------------------------------------------------------------
+Génération de la SRAM : $ram_name dans le répertoire $dir_name
+-----------------------------------------------------------------
+" ;
+# Création du répertoire contenant les fichiers
+if(!-d $dir_name) {
+  mkdir($dir_name) or die "Can't create $dir_name directory $!" ;
+}
+if(!-d $dir_name."/lef") {
+  mkdir($dir_name."/lef") or die "Can't create $dir_name/lef directory $!" ;
+}
+if(!-d $dir_name."/lib") {
+  mkdir($dir_name."/lib") or die "Can't create $dir_name/lib directory $!" ;
+}
+if(!-d $dir_name."/hdl") {
+  mkdir($dir_name."/hdl") or die "Can't create $dir_name/hdl directory $!" ;
+}
+
+# Génération du modèle verilog
+# Simple modèle fonctionnel
+sub genver {
+open(VF,">$dir_name/hdl/$ram_name.v") or die "Can't open : $ram_name.v $!" ;
+print VF "// $MESS\n" ;
+if ($ram_type eq "rom") {
+print VF <<EOM
+module $ram_name (CK, READ, AD, DO);
+  // MODIFY HERE THE NAME OF THE ROM FILE 
+  parameter        MEM_FILE_NAME = "none" ;    
+
+  localparam       add_bit  = $addbits,
+                   data_bit = $bits,
+                   nb_word  = $rwords;
+
+  input                     CK,        /* operation on rising edge */
+                            READ;      /* read operation on CK rising edge,*/
+  input  [add_bit-1:0]      AD;        /* address bus */
+  output [data_bit-1:0]     DO;        /* output data bus */
+
+  reg [data_bit-1:0] mem [nb_word-1:0] ;
+  reg [add_bit-1:0] address_reg ;
+  assign DO = mem[address_reg] ;
+  always @(posedge CK)
+    if (READ)
+      address_reg <= AD ;
+  initial
+  begin
+    \$readmemh(MEM_FILE_NAME, mem);
+  end
+endmodule 
+EOM
+; 
+} elsif ($ram_type eq "dpram") {
+print VF <<EOM
+module $ram_name (CK, READ, WRITE, RAD, WAD, DI, DO);
+  localparam       add_bit  = $addbits,
+                   data_bit = $bits,
+                   nb_word  = $rwords;
+
+  input                     CK,        /* operation on rising edge */
+                            WRITE,     /*  write operation on CK rising edge,*/
+                            READ;      /*  reaf operation on CK rising edge,*/
+  input  [add_bit-1:0]      RAD;        /* address bus */
+  input  [add_bit-1:0]      WAD;        /* address bus */
+  input  [data_bit-1:0]     DI;        /* input data bus */
+  output [data_bit-1:0]     DO;        /* output data bus */
+
+  reg [data_bit-1:0] mem [nb_word-1:0] ;
+  reg [add_bit-1:0] address_reg ;
+  assign DO = mem[address_reg] ;
+  always @(posedge CK)
+  begin
+    if (WRITE)
+      mem[WAD] <= DI ;
+    if (READ)
+      address_reg <= RAD ;
+  end
+endmodule 
+EOM
+; 
+} else {
+print VF <<EOM
+module $ram_name (CK, WRITE, AD, DI, DO);
+  localparam       add_bit  = $addbits,
+                   data_bit = $bits,
+                   nb_word  = $rwords;
+
+  input                     CK,        /* operation on rising edge */
+                            WRITE;     /*  write operation on CK rising edge,*/
+  input  [add_bit-1:0]      AD;        /* address bus */
+  input  [data_bit-1:0]     DI;        /* input data bus */
+  output [data_bit-1:0]     DO;        /* output data bus */
+
+  reg [data_bit-1:0] mem [nb_word-1:0] ;
+  reg [add_bit-1:0] address_reg ;
+  assign DO = mem[address_reg] ;
+  always @(posedge CK)
+    if (WRITE)
+      mem[AD] <= DI ;
+   else
+     address_reg <= AD ;
+endmodule 
+EOM
+; 
+}
+close(VF) ;
+print <<EOM
+----------------------------------------------------------------------------
+  Modèle verilog $ram_name.v généré pour des vitesses 
+  de fonctionnement pires cas en vitesse
+  (T=85C,Vdd=1.08V, Process=Worst)
+----------------------------------------------------------------------------
+EOM
+;
+}
+
+### Génération du fichier .lib pour la synthèse
+sub genlib {
+my ($temp,$volt,$proc,$process,$typ,$idx) = @_ ;
+open(LF,">$dir_name/lib/${ram_name}_$process.lib") or die "Can't open : $ram_name.lib $!" ;
+
+printf LF <<EOM
+/* $MESS */
+
+library ($ram_name) {
+
+  technology (cmos) ;
+  delay_model : generic_cmos;
+
+  bus_naming_style : "%%s[%%d]" ;
+
+
+  nom_process     : $proc ;
+  nom_voltage     : $volt ;
+  nom_temperature : $temp ;
+
+   simulation               : true;
+   time_unit                : "1ns";
+   voltage_unit             : "1V";
+   current_unit             : "1mA";
+   pulling_resistance_unit  : "1kohm";
+   capacitive_load_unit(1,pf);
+   leakage_power_unit : "1pw" ;
+
+
+
+   in_place_swap_mode       : "match_footprint";
+   default_connection_class : "default";
+
+
+   default_input_pin_cap    : 0.01;
+   default_output_pin_cap   : 0.0;
+
+operating_conditions($process){
+  process : $proc;
+  temperature : $temp;
+  tree_type : "balanced_tree" ;
+  voltage : $volt ;
+}
+
+type( bus_$addbits ) {
+   base_type : array;
+   data_type : bit;
+   bit_width : $addbits; 
+   bit_from  : $maxaddbits; 
+   bit_to    : 0; 
+   downto    : TRUE; 
+}
+type( bus_$bits ) {
+   base_type : array;
+   data_type : bit;
+   bit_width : $bits; 
+   bit_from  : $maxbits; 
+   bit_to    : 0; 
+   downto    : TRUE; 
+}
+EOM
+;
+
+
+printf LF "
+cell($ram_name) {
+  area : %.0f ;
+  dont_touch : true;
+  drc_blockgroup : \"block\" ;
+  drc_blocktype : \"primitive\" ;
+  drc_celltype : \"storage\" ;
+  interface_timing : true;
+  memory() {
+    type : $lib_ram_type ;
+    address_width : $addbits ;
+    word_width : $bits ;
+  }
+",
+ $area ;
+
+printf LF "
+  pin(CK) {
+    direction : input ;
+    capacitance    : %.4f ;
+    max_transition : %.4f ;
+    clock : true ;
+    min_pulse_width_low :  %.4f ;
+    min_pulse_width_high : %.4f ;
+    min_period : %.4f ;
+  }
+",
+ get_param("C_CK",$row,$col,$bits),
+ adj_corner(get_param("CK_MAX_TRAN",$row,$col,$bits),$idx),
+ adj_corner(get_param("CK_LOW_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("CK_HIGH_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("CYCLE_TIME",$row,$col,$bits),$idx) ;
+
+
+if (($ram_type eq "spram") || ($ram_type eq "rom" )) {
+printf LF "
+  bus(AD) {
+    bus_type  : bus_$addbits;
+    direction : input ;
+    capacitance : %.4f ;
+    max_transition : %.4f ;
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+  }
+",
+ get_param("C_AD",$row,$col,$bits),
+ adj_corner(get_param("AD_MAX_TRAN",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_HOLD_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_HOLD_TIME",$row,$col,$bits),$idx) ;
+} else
+{
+printf LF "
+  bus(RAD) {
+    bus_type  : bus_$addbits;
+    direction : input ;
+    capacitance : %.4f ;
+    max_transition : %.4f ;
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+  }
+",
+ get_param("C_AD",$row,$col,$bits),
+ adj_corner(get_param("AD_MAX_TRAN",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_HOLD_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_HOLD_TIME",$row,$col,$bits),$idx) ;
+printf LF "
+  bus(WAD) {
+    bus_type  : bus_$addbits;
+    direction : input ;
+    capacitance : %.4f ;
+    max_transition : %.4f ;
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+  }
+",
+ get_param("C_AD",$row,$col,$bits),
+ adj_corner(get_param("AD_MAX_TRAN",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_HOLD_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("AD_HOLD_TIME",$row,$col,$bits),$idx) ;
+}
+
+if (($ram_type eq "rom") || ($ram_type eq "dpram")) {
+printf LF "
+  pin(READ) {
+    direction : input ;
+    capacitance : %.4f ;
+    max_transition : %.4f ;
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+  }
+",
+ get_param("C_WRITE",$row,$col,$bits),
+ adj_corner(get_param("WRITE_MAX_TRAN",$row,$col,$bits),$idx),
+ adj_corner(get_param("WRITE_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("WRITE_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("WRITE_HOLD_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("WRITE_HOLD_TIME",$row,$col,$bits),$idx);
+}
+
+if (($ram_type eq "spram") || ($ram_type eq "dpram" )) {
+printf LF "
+  pin(WRITE) {
+    direction : input ;
+    capacitance : %.4f ;
+    max_transition : %.4f ;
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+  }
+",
+ get_param("C_WRITE",$row,$col,$bits),
+ adj_corner(get_param("WRITE_MAX_TRAN",$row,$col,$bits),$idx),
+ adj_corner(get_param("WRITE_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("WRITE_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("WRITE_HOLD_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("WRITE_HOLD_TIME",$row,$col,$bits),$idx);
+
+
+printf LF "
+  bus (DI) {
+    bus_type  : bus_$bits;
+    direction : input ;
+    memory_write(){
+     address : A;
+     clocked_on : CK;
+    }
+    capacitance : %.4f ;
+    max_transition : %.4f ;
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : %.4f ;
+      intrinsic_fall : %.4f ;
+    }
+  }
+",
+ get_param("C_DI",$row,$col,$bits),
+ adj_corner(get_param("DI_MAX_TRAN",$row,$col,$bits),$idx),
+ adj_corner(get_param("DI_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("DI_SETUP_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("DI_HOLD_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("DI_HOLD_TIME",$row,$col,$bits),$idx);
+}
+
+printf LF "
+  bus(DO) {
+    bus_type  : bus_$bits;
+    direction : output ;
+    memory_read(){
+     address : A;
+    }
+    max_capacitance :  %.6f  ;
+    /* ACCESS_TIME */
+    timing() {
+      related_pin : \"CK\" ;
+      timing_type : rising_edge ;
+      intrinsic_rise : %.4f ;
+      rise_resistance : %.4f ;
+      slope_rise : 0.00000 ;
+      intrinsic_fall : %.4f ;
+      fall_resistance : %.4f ;
+      slope_fall : 0.00000 ;
+    }
+  }
+",
+ get_param("DO_MAX_CAP",$row,$col,$bits),
+ adj_corner(get_param("ACCESS_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("D_ACCESS_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("ACCESS_TIME",$row,$col,$bits),$idx),
+ adj_corner(get_param("D_ACCESS_TIME",$row,$col,$bits),$idx) ;
+
+printf LF "
+  }  
+}
+" ;  
+close(LF) ;
+printf "
+----------------------------------------------------------------------------
+  Modèle de synthèse %s_%s.lib généré pour des conditions
+  de fonctionnement de $typ CAS en vitesse. 
+  (T=%dC,Vdd=%sV, Process=$process)
+----------------------------------------------------------------------------
+" ,$ram_name,$process,$temp,$volt ;
+}
+
+# Génération du fantome LEF de la RAM
+sub genlef {
+my $deltapiny = 8*$site ;
+my $pinwidth = 0.2 ;
+my $pinyoffset = $site/2 - $pinwidth/2 ;
+my $pinlength = 0.635 ;
+my @pinleft ;
+my $pinysiglayer = "M2" ;
+#$pinleft[0] = "CK" ;
+#$pinleft[1] = "WRITE" ;
+#my $nbpinleft = 2 + $addbits ;
+my $nbpinleft = 0 ;
+#for(my $i=0;$i<$addbits;$i++) { $pinleft[$i+2]="AD[$i]";} 
+
+open(LEF,">$dir_name/lef/$ram_name.lef") or die "Can't open : $ram_name.lef $!" ;
+print LEF "# $MESS */\n" ;
+printf LEF "#
+VERSION 5.4 ;
+NAMESCASESENSITIVE ON ;
+DIVIDERCHAR \"|\" ;
+BUSBITCHARS \"[]\" ;
+
+MACRO $ram_name
+    CLASS BLOCK ;
+    FOREIGN $ram_name 0.0 0.0 ;
+    ORIGIN 0.0 0.0 ;
+    SIZE %.2f BY %.2f ;
+    SYMMETRY X Y R90 ;
+    SITE CORE ;
+", $Length, $Height ;
+# Les IO coté gauche de la RAM
+if ($nbpinleft > 0) {
+for(my $i=0;$i<$nbpinleft;$i++) {
+printf LEF "
+
+  PIN $pinleft[$i]
+      FOREIGN $pinleft[$i] ;
+      DIRECTION INPUT ;
+      USE SIGNAL ;
+      PORT 
+          LAYER $pinysiglayer ;
+	  RECT %.3f %.3f %.3f %.3f ;
+      END
+  END $pinleft[$i]
+", 0, $pinyoffset+$deltapiny*($i+1), $pinlength, $pinyoffset+$deltapiny*($i+1)+$pinwidth ;
+}
+}
+# encadrement des pins pour définir les obstructions
+my $pinyobsy =  $pinyoffset+$deltapiny*($nbpinleft)+$pinwidth+$site ;
+my $pinyobsx =  $pinlength+$site ;
+
+# Les IO coté bas de la RAM
+my $pinxsiglayer = "M3" ;
+my $deltapinx = (int(($Length/(2*$addbits+2*$bits+4))/$site))*$site ; 
+my $pinxoffset = $deltapinx + $site/2 - $pinwidth/2 ;
+my $nbpinbot = 0 ;
+
+# L'horloge 
+printf LEF "
+
+  PIN CK
+      FOREIGN CK ;
+      DIRECTION INPUT ;
+      USE SIGNAL ;
+      PORT 
+          LAYER $pinxsiglayer ;
+	  RECT %.3f %.3f %.3f %.3f ;
+      END
+  END CK
+",  $pinxoffset, 0,  $pinxoffset+$pinwidth,$pinlength  ;
+$nbpinbot = $nbpinbot  + 1 ;
+
+# Signal READ
+if (($ram_type eq "rom") || ($ram_type eq "dpram")) {
+printf LEF "
+
+  PIN READ 
+      FOREIGN READ ;
+      DIRECTION INPUT ;
+      USE SIGNAL ;
+      PORT 
+          LAYER $pinxsiglayer ;
+	  RECT %.3f %.3f %.3f %.3f ;
+      END
+  END READ 
+",  $pinxoffset+$nbpinbot*$deltapinx, 0,  $pinxoffset+$nbpinbot*$deltapinx+$pinwidth,$pinlength  ;
+$nbpinbot = $nbpinbot  + 1 ;
+}
+
+# Signal WRITE
+if (($ram_type eq "spram") || ($ram_type eq "dpram")) {
+printf LEF "
+
+  PIN WRITE
+      FOREIGN WRITE ;
+      DIRECTION INPUT ;
+      USE SIGNAL ;
+      PORT 
+          LAYER $pinxsiglayer ;
+	  RECT %.3f %.3f %.3f %.3f ;
+      END
+  END WRITE
+",  $pinxoffset+$nbpinbot*$deltapinx, 0,  $pinxoffset+$nbpinbot*$deltapinx+$pinwidth,$pinlength  ;
+$nbpinbot = $nbpinbot  + 1 ;
+}
+
+# Addresses
+if (($ram_type eq "spram") || ($ram_type eq "rom")) {
+  for(my $i=0;$i<$addbits;$i++) {
+   printf LEF "
+   
+     PIN AD[$i]
+         FOREIGN AD[$i] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER $pinxsiglayer ;
+   	  RECT %.3f %.3f %.3f %.3f ;
+         END
+     END AD[$i]
+     ",  $pinxoffset+$nbpinbot*$deltapinx, 0,  $pinxoffset+$nbpinbot*$deltapinx+$pinwidth,$pinlength  ;
+    $nbpinbot = $nbpinbot  + 1 ;
+  }
+} else {
+  for(my $i=0;$i<$addbits;$i++) {
+   printf LEF "
+   
+     PIN RAD[$i]
+         FOREIGN RAD[$i] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER $pinxsiglayer ;
+   	  RECT %.3f %.3f %.3f %.3f ;
+         END
+     END RAD[$i]
+     ",  $pinxoffset+$nbpinbot*$deltapinx, 0,  $pinxoffset+$nbpinbot*$deltapinx+$pinwidth,$pinlength  ;
+    $nbpinbot = $nbpinbot  + 1 ;
+  }
+  for(my $i=0;$i<$addbits;$i++) {
+   printf LEF "
+   
+     PIN WAD[$i]
+         FOREIGN WAD[$i] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER $pinxsiglayer ;
+   	  RECT %.3f %.3f %.3f %.3f ;
+         END
+     END WAD[$i]
+     ",  $pinxoffset+$nbpinbot*$deltapinx, 0,  $pinxoffset+$nbpinbot*$deltapinx+$pinwidth,$pinlength  ;
+    $nbpinbot = $nbpinbot  + 1 ;
+  }
+}
+
+# Les données
+if (($ram_type eq "spram") || ($ram_type eq "dpram")) {
+  for(my $i=0;$i<$bits;$i++) {
+   printf LEF "
+   
+     PIN DI[$i]
+         FOREIGN DI[$i] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER $pinxsiglayer ;
+   	  RECT %.3f %.3f %.3f %.3f ;
+         END
+     END DI[$i]
+     ",  $pinxoffset+$nbpinbot*$deltapinx, 0,  $pinxoffset+$nbpinbot*$deltapinx+$pinwidth,$pinlength  ;
+    $nbpinbot = $nbpinbot  + 1 ;
+  }
+} 
+  for(my $i=0;$i<$bits;$i++) {
+   printf LEF "
+   
+     PIN DO[$i]
+         FOREIGN DO[$i] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER $pinxsiglayer ;
+   	  RECT %.3f %.3f %.3f %.3f ;
+         END
+     END DO[$i]
+     ",  $pinxoffset+$nbpinbot*$deltapinx, 0,  $pinxoffset+$nbpinbot*$deltapinx+$pinwidth,$pinlength  ;
+    $nbpinbot = $nbpinbot  + 1 ;
+  }
+
+# encadrement des pins pour définir les obstructions
+my $pinxobsdeb =  $pinxoffset - $site ;
+my $pinxobsfin =  $pinxoffset+$deltapinx*($nbpinbot+1)+$pinwidth+$site ;
+my $pinxobsy =  $pinlength+$site ;
+
+
+# La masse et l'alim sous forme d'anneau
+my $supply_margin = 5*$site ;
+my $supply_width  = 50*$site ;
+
+printf LEF "
+
+  PIN gnd
+    FOREIGN gnd ;
+    DIRECTION INOUT ;
+    USE GROUND ;
+    SHAPE ABUTMENT ;
+    PORT
+      LAYER M5 ;
+      RECT %.3f %.3f %.3f %.3f ;
+    END
+    PORT
+      LAYER M5 ;
+      RECT %.3f %.3f %.3f %.3f ;
+    END
+    PORT
+      LAYER M5 ;
+      RECT %.3f %.3f %.3f %.3f ;
+    END
+    PORT
+      LAYER M5 ;
+      RECT %.3f %.3f %.3f %.3f ;
+    END
+  END gnd
+", 
+ $supply_margin, $supply_margin, $Length-$supply_margin ,$supply_margin+$supply_width ,
+ $supply_margin, $Height-$supply_margin-$supply_width, $Length-$supply_margin ,$Height-$supply_margin ,
+ $supply_margin, $supply_margin, $supply_margin+$supply_width ,$Height-$supply_margin ,
+ $Length-$supply_margin-$supply_width, $supply_margin, $Length-$supply_margin ,$Height-$supply_margin ;
+
+printf LEF "
+
+  PIN vdd 
+    FOREIGN gnd ;
+    DIRECTION INOUT ;
+    USE POWER ;
+    SHAPE ABUTMENT ;
+    PORT
+      LAYER M6 ;
+      RECT %.3f %.3f %.3f %.3f ;
+    END
+    PORT
+      LAYER M6 ;
+      RECT %.3f %.3f %.3f %.3f ;
+    END
+    PORT
+      LAYER M6 ;
+      RECT %.3f %.3f %.3f %.3f ;
+    END
+    PORT
+      LAYER M6 ;
+      RECT %.3f %.3f %.3f %.3f ;
+    END
+  END vdd
+", 
+ $supply_margin, $supply_margin, $Length-$supply_margin ,$supply_margin+$supply_width ,
+ $supply_margin, $Height-$supply_margin-$supply_width, $Length-$supply_margin ,$Height-$supply_margin ,
+ $supply_margin, $supply_margin, $supply_margin+$supply_width ,$Height-$supply_margin ,
+ $Length-$supply_margin-$supply_width, $supply_margin, $Length-$supply_margin ,$Height-$supply_margin ;
+
+# Les obstructions
+print LEF"
+
+  OBS
+    LAYER M1 ;
+    POLYGON
+        0 0
+        $Length 0
+        $Length $Height
+        0 $Height ;
+    
+    LAYER $pinysiglayer ;
+    POLYGON
+       $pinyobsx 0
+       $Length 0
+       $Length $Height
+       0 $Height
+       0 $pinyobsy
+       $pinyobsx $pinyobsy ;
+    
+    LAYER $pinxsiglayer ;
+    POLYGON
+       $Length 0
+       $Length $Height
+       0 $Height
+       0 0
+       $pinxobsdeb 0
+       $pinxobsdeb $pinxobsy
+       $pinxobsfin $pinxobsy
+       $pinxobsfin 0 ;
+
+   END" ;
+   
+# La fin
+print LEF "
+  END $ram_name
+END LIBRARY
+" ;
+
+
+close(LEF) ;
+printf "
+----------------------------------------------------------------------------
+  Modèle de placement_routage %s.lef généré 
+----------------------------------------------------------------------------
+" ,$ram_name ;
+}
+
+# Générations proprement dites
+#
+genver ;
+genlib(0,1.32,0.8,"Best","MEILLEUR",$best_derate) ;
+genlib(85,1.08,1.2,"Worst","PIRE",$worst_derate) ;
+genlef ;

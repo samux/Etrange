@@ -1,0 +1,1008 @@
+# TPT/COMELEC: Modèle générique Généré par gen_hcmos9_ram pour l'ue ELEC342 SOC  V1.0 Mon Jun 28 18:00:01 2010  */
+#
+VERSION 5.4 ;
+NAMESCASESENSITIVE ON ;
+DIVIDERCHAR "|" ;
+BUSBITCHARS "[]" ;
+
+MACRO tpt_hcmos9_dpram_DEPTH256_WIDTH32
+    CLASS BLOCK ;
+    FOREIGN tpt_hcmos9_dpram_DEPTH256_WIDTH32 0.0 0.0 ;
+    ORIGIN 0.0 0.0 ;
+    SIZE 294.38 BY 247.64 ;
+    SYMMETRY X Y R90 ;
+    SITE CORE ;
+
+
+  PIN CK
+      FOREIGN CK ;
+      DIRECTION INPUT ;
+      USE SIGNAL ;
+      PORT 
+          LAYER M3 ;
+	  RECT 3.385 0.000 3.585 0.635 ;
+      END
+  END CK
+
+
+  PIN READ 
+      FOREIGN READ ;
+      DIRECTION INPUT ;
+      USE SIGNAL ;
+      PORT 
+          LAYER M3 ;
+	  RECT 6.665 0.000 6.865 0.635 ;
+      END
+  END READ 
+
+
+  PIN WRITE
+      FOREIGN WRITE ;
+      DIRECTION INPUT ;
+      USE SIGNAL ;
+      PORT 
+          LAYER M3 ;
+	  RECT 9.945 0.000 10.145 0.635 ;
+      END
+  END WRITE
+
+   
+     PIN RAD[0]
+         FOREIGN RAD[0] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 13.225 0.000 13.425 0.635 ;
+         END
+     END RAD[0]
+     
+   
+     PIN RAD[1]
+         FOREIGN RAD[1] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 16.505 0.000 16.705 0.635 ;
+         END
+     END RAD[1]
+     
+   
+     PIN RAD[2]
+         FOREIGN RAD[2] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 19.785 0.000 19.985 0.635 ;
+         END
+     END RAD[2]
+     
+   
+     PIN RAD[3]
+         FOREIGN RAD[3] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 23.065 0.000 23.265 0.635 ;
+         END
+     END RAD[3]
+     
+   
+     PIN RAD[4]
+         FOREIGN RAD[4] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 26.345 0.000 26.545 0.635 ;
+         END
+     END RAD[4]
+     
+   
+     PIN RAD[5]
+         FOREIGN RAD[5] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 29.625 0.000 29.825 0.635 ;
+         END
+     END RAD[5]
+     
+   
+     PIN RAD[6]
+         FOREIGN RAD[6] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 32.905 0.000 33.105 0.635 ;
+         END
+     END RAD[6]
+     
+   
+     PIN RAD[7]
+         FOREIGN RAD[7] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 36.185 0.000 36.385 0.635 ;
+         END
+     END RAD[7]
+     
+   
+     PIN WAD[0]
+         FOREIGN WAD[0] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 39.465 0.000 39.665 0.635 ;
+         END
+     END WAD[0]
+     
+   
+     PIN WAD[1]
+         FOREIGN WAD[1] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 42.745 0.000 42.945 0.635 ;
+         END
+     END WAD[1]
+     
+   
+     PIN WAD[2]
+         FOREIGN WAD[2] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 46.025 0.000 46.225 0.635 ;
+         END
+     END WAD[2]
+     
+   
+     PIN WAD[3]
+         FOREIGN WAD[3] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 49.305 0.000 49.505 0.635 ;
+         END
+     END WAD[3]
+     
+   
+     PIN WAD[4]
+         FOREIGN WAD[4] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 52.585 0.000 52.785 0.635 ;
+         END
+     END WAD[4]
+     
+   
+     PIN WAD[5]
+         FOREIGN WAD[5] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 55.865 0.000 56.065 0.635 ;
+         END
+     END WAD[5]
+     
+   
+     PIN WAD[6]
+         FOREIGN WAD[6] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 59.145 0.000 59.345 0.635 ;
+         END
+     END WAD[6]
+     
+   
+     PIN WAD[7]
+         FOREIGN WAD[7] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 62.425 0.000 62.625 0.635 ;
+         END
+     END WAD[7]
+     
+   
+     PIN DI[0]
+         FOREIGN DI[0] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 65.705 0.000 65.905 0.635 ;
+         END
+     END DI[0]
+     
+   
+     PIN DI[1]
+         FOREIGN DI[1] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 68.985 0.000 69.185 0.635 ;
+         END
+     END DI[1]
+     
+   
+     PIN DI[2]
+         FOREIGN DI[2] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 72.265 0.000 72.465 0.635 ;
+         END
+     END DI[2]
+     
+   
+     PIN DI[3]
+         FOREIGN DI[3] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 75.545 0.000 75.745 0.635 ;
+         END
+     END DI[3]
+     
+   
+     PIN DI[4]
+         FOREIGN DI[4] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 78.825 0.000 79.025 0.635 ;
+         END
+     END DI[4]
+     
+   
+     PIN DI[5]
+         FOREIGN DI[5] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 82.105 0.000 82.305 0.635 ;
+         END
+     END DI[5]
+     
+   
+     PIN DI[6]
+         FOREIGN DI[6] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 85.385 0.000 85.585 0.635 ;
+         END
+     END DI[6]
+     
+   
+     PIN DI[7]
+         FOREIGN DI[7] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 88.665 0.000 88.865 0.635 ;
+         END
+     END DI[7]
+     
+   
+     PIN DI[8]
+         FOREIGN DI[8] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 91.945 0.000 92.145 0.635 ;
+         END
+     END DI[8]
+     
+   
+     PIN DI[9]
+         FOREIGN DI[9] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 95.225 0.000 95.425 0.635 ;
+         END
+     END DI[9]
+     
+   
+     PIN DI[10]
+         FOREIGN DI[10] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 98.505 0.000 98.705 0.635 ;
+         END
+     END DI[10]
+     
+   
+     PIN DI[11]
+         FOREIGN DI[11] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 101.785 0.000 101.985 0.635 ;
+         END
+     END DI[11]
+     
+   
+     PIN DI[12]
+         FOREIGN DI[12] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 105.065 0.000 105.265 0.635 ;
+         END
+     END DI[12]
+     
+   
+     PIN DI[13]
+         FOREIGN DI[13] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 108.345 0.000 108.545 0.635 ;
+         END
+     END DI[13]
+     
+   
+     PIN DI[14]
+         FOREIGN DI[14] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 111.625 0.000 111.825 0.635 ;
+         END
+     END DI[14]
+     
+   
+     PIN DI[15]
+         FOREIGN DI[15] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 114.905 0.000 115.105 0.635 ;
+         END
+     END DI[15]
+     
+   
+     PIN DI[16]
+         FOREIGN DI[16] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 118.185 0.000 118.385 0.635 ;
+         END
+     END DI[16]
+     
+   
+     PIN DI[17]
+         FOREIGN DI[17] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 121.465 0.000 121.665 0.635 ;
+         END
+     END DI[17]
+     
+   
+     PIN DI[18]
+         FOREIGN DI[18] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 124.745 0.000 124.945 0.635 ;
+         END
+     END DI[18]
+     
+   
+     PIN DI[19]
+         FOREIGN DI[19] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 128.025 0.000 128.225 0.635 ;
+         END
+     END DI[19]
+     
+   
+     PIN DI[20]
+         FOREIGN DI[20] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 131.305 0.000 131.505 0.635 ;
+         END
+     END DI[20]
+     
+   
+     PIN DI[21]
+         FOREIGN DI[21] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 134.585 0.000 134.785 0.635 ;
+         END
+     END DI[21]
+     
+   
+     PIN DI[22]
+         FOREIGN DI[22] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 137.865 0.000 138.065 0.635 ;
+         END
+     END DI[22]
+     
+   
+     PIN DI[23]
+         FOREIGN DI[23] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 141.145 0.000 141.345 0.635 ;
+         END
+     END DI[23]
+     
+   
+     PIN DI[24]
+         FOREIGN DI[24] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 144.425 0.000 144.625 0.635 ;
+         END
+     END DI[24]
+     
+   
+     PIN DI[25]
+         FOREIGN DI[25] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 147.705 0.000 147.905 0.635 ;
+         END
+     END DI[25]
+     
+   
+     PIN DI[26]
+         FOREIGN DI[26] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 150.985 0.000 151.185 0.635 ;
+         END
+     END DI[26]
+     
+   
+     PIN DI[27]
+         FOREIGN DI[27] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 154.265 0.000 154.465 0.635 ;
+         END
+     END DI[27]
+     
+   
+     PIN DI[28]
+         FOREIGN DI[28] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 157.545 0.000 157.745 0.635 ;
+         END
+     END DI[28]
+     
+   
+     PIN DI[29]
+         FOREIGN DI[29] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 160.825 0.000 161.025 0.635 ;
+         END
+     END DI[29]
+     
+   
+     PIN DI[30]
+         FOREIGN DI[30] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 164.105 0.000 164.305 0.635 ;
+         END
+     END DI[30]
+     
+   
+     PIN DI[31]
+         FOREIGN DI[31] ;
+         DIRECTION INPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 167.385 0.000 167.585 0.635 ;
+         END
+     END DI[31]
+     
+   
+     PIN DO[0]
+         FOREIGN DO[0] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 170.665 0.000 170.865 0.635 ;
+         END
+     END DO[0]
+     
+   
+     PIN DO[1]
+         FOREIGN DO[1] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 173.945 0.000 174.145 0.635 ;
+         END
+     END DO[1]
+     
+   
+     PIN DO[2]
+         FOREIGN DO[2] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 177.225 0.000 177.425 0.635 ;
+         END
+     END DO[2]
+     
+   
+     PIN DO[3]
+         FOREIGN DO[3] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 180.505 0.000 180.705 0.635 ;
+         END
+     END DO[3]
+     
+   
+     PIN DO[4]
+         FOREIGN DO[4] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 183.785 0.000 183.985 0.635 ;
+         END
+     END DO[4]
+     
+   
+     PIN DO[5]
+         FOREIGN DO[5] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 187.065 0.000 187.265 0.635 ;
+         END
+     END DO[5]
+     
+   
+     PIN DO[6]
+         FOREIGN DO[6] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 190.345 0.000 190.545 0.635 ;
+         END
+     END DO[6]
+     
+   
+     PIN DO[7]
+         FOREIGN DO[7] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 193.625 0.000 193.825 0.635 ;
+         END
+     END DO[7]
+     
+   
+     PIN DO[8]
+         FOREIGN DO[8] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 196.905 0.000 197.105 0.635 ;
+         END
+     END DO[8]
+     
+   
+     PIN DO[9]
+         FOREIGN DO[9] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 200.185 0.000 200.385 0.635 ;
+         END
+     END DO[9]
+     
+   
+     PIN DO[10]
+         FOREIGN DO[10] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 203.465 0.000 203.665 0.635 ;
+         END
+     END DO[10]
+     
+   
+     PIN DO[11]
+         FOREIGN DO[11] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 206.745 0.000 206.945 0.635 ;
+         END
+     END DO[11]
+     
+   
+     PIN DO[12]
+         FOREIGN DO[12] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 210.025 0.000 210.225 0.635 ;
+         END
+     END DO[12]
+     
+   
+     PIN DO[13]
+         FOREIGN DO[13] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 213.305 0.000 213.505 0.635 ;
+         END
+     END DO[13]
+     
+   
+     PIN DO[14]
+         FOREIGN DO[14] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 216.585 0.000 216.785 0.635 ;
+         END
+     END DO[14]
+     
+   
+     PIN DO[15]
+         FOREIGN DO[15] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 219.865 0.000 220.065 0.635 ;
+         END
+     END DO[15]
+     
+   
+     PIN DO[16]
+         FOREIGN DO[16] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 223.145 0.000 223.345 0.635 ;
+         END
+     END DO[16]
+     
+   
+     PIN DO[17]
+         FOREIGN DO[17] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 226.425 0.000 226.625 0.635 ;
+         END
+     END DO[17]
+     
+   
+     PIN DO[18]
+         FOREIGN DO[18] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 229.705 0.000 229.905 0.635 ;
+         END
+     END DO[18]
+     
+   
+     PIN DO[19]
+         FOREIGN DO[19] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 232.985 0.000 233.185 0.635 ;
+         END
+     END DO[19]
+     
+   
+     PIN DO[20]
+         FOREIGN DO[20] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 236.265 0.000 236.465 0.635 ;
+         END
+     END DO[20]
+     
+   
+     PIN DO[21]
+         FOREIGN DO[21] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 239.545 0.000 239.745 0.635 ;
+         END
+     END DO[21]
+     
+   
+     PIN DO[22]
+         FOREIGN DO[22] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 242.825 0.000 243.025 0.635 ;
+         END
+     END DO[22]
+     
+   
+     PIN DO[23]
+         FOREIGN DO[23] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 246.105 0.000 246.305 0.635 ;
+         END
+     END DO[23]
+     
+   
+     PIN DO[24]
+         FOREIGN DO[24] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 249.385 0.000 249.585 0.635 ;
+         END
+     END DO[24]
+     
+   
+     PIN DO[25]
+         FOREIGN DO[25] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 252.665 0.000 252.865 0.635 ;
+         END
+     END DO[25]
+     
+   
+     PIN DO[26]
+         FOREIGN DO[26] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 255.945 0.000 256.145 0.635 ;
+         END
+     END DO[26]
+     
+   
+     PIN DO[27]
+         FOREIGN DO[27] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 259.225 0.000 259.425 0.635 ;
+         END
+     END DO[27]
+     
+   
+     PIN DO[28]
+         FOREIGN DO[28] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 262.505 0.000 262.705 0.635 ;
+         END
+     END DO[28]
+     
+   
+     PIN DO[29]
+         FOREIGN DO[29] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 265.785 0.000 265.985 0.635 ;
+         END
+     END DO[29]
+     
+   
+     PIN DO[30]
+         FOREIGN DO[30] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 269.065 0.000 269.265 0.635 ;
+         END
+     END DO[30]
+     
+   
+     PIN DO[31]
+         FOREIGN DO[31] ;
+         DIRECTION OUTPUT ;
+         USE SIGNAL ;
+         PORT 
+             LAYER M3 ;
+   	  RECT 272.345 0.000 272.545 0.635 ;
+         END
+     END DO[31]
+     
+
+  PIN gnd
+    FOREIGN gnd ;
+    DIRECTION INOUT ;
+    USE GROUND ;
+    SHAPE ABUTMENT ;
+    PORT
+      LAYER M5 ;
+      RECT 2.050 2.050 292.330 22.550 ;
+    END
+    PORT
+      LAYER M5 ;
+      RECT 2.050 225.090 292.330 245.590 ;
+    END
+    PORT
+      LAYER M5 ;
+      RECT 2.050 2.050 22.550 245.590 ;
+    END
+    PORT
+      LAYER M5 ;
+      RECT 271.830 2.050 292.330 245.590 ;
+    END
+  END gnd
+
+
+  PIN vdd 
+    FOREIGN gnd ;
+    DIRECTION INOUT ;
+    USE POWER ;
+    SHAPE ABUTMENT ;
+    PORT
+      LAYER M6 ;
+      RECT 2.050 2.050 292.330 22.550 ;
+    END
+    PORT
+      LAYER M6 ;
+      RECT 2.050 225.090 292.330 245.590 ;
+    END
+    PORT
+      LAYER M6 ;
+      RECT 2.050 2.050 22.550 245.590 ;
+    END
+    PORT
+      LAYER M6 ;
+      RECT 271.830 2.050 292.330 245.590 ;
+    END
+  END vdd
+
+
+  OBS
+    LAYER M1 ;
+    POLYGON
+        0 0
+        294.38 0
+        294.38 247.64
+        0 247.64 ;
+    
+    LAYER M2 ;
+    POLYGON
+       1.045 0
+       294.38 0
+       294.38 247.64
+       0 247.64
+       0 0.715
+       1.045 0.715 ;
+    
+    LAYER M3 ;
+    POLYGON
+       294.38 0
+       294.38 247.64
+       0 247.64
+       0 0
+       2.975 0
+       2.975 1.045
+       279.515 1.045
+       279.515 0 ;
+
+   END
+  END tpt_hcmos9_dpram_DEPTH256_WIDTH32
+END LIBRARY

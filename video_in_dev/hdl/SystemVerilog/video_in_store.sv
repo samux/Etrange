@@ -7,7 +7,12 @@ parameter NB_PACK_STORE = 16; //TODO À définir correctement
 //L'interruption vers le processeur doit durer
 //au moins 3 cycles
 
-module video_in_store (
+module video_in_store
+	#(parameter p_WIDTH = 640,
+		parameter p_HEIGHT = 480
+		)
+
+(
 		input wire clk,
 		input wire nRST,
 		input wire [31:0] wb_reg_ctr,

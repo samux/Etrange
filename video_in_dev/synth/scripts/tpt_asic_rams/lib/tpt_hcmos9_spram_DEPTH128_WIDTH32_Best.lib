@@ -1,0 +1,160 @@
+/* TPT/COMELEC: Modèle générique Généré par gen_hcmos9_ram pour l'ue ELEC342 SOC  V1.0 Fri Jun 17 17:42:05 2011  */
+
+library (tpt_hcmos9_spram_DEPTH128_WIDTH32) {
+
+  technology (cmos) ;
+  delay_model : generic_cmos;
+
+  bus_naming_style : "%s[%d]" ;
+
+
+  nom_process     : 0.8 ;
+  nom_voltage     : 1.32 ;
+  nom_temperature : 0 ;
+
+   simulation               : true;
+   time_unit                : "1ns";
+   voltage_unit             : "1V";
+   current_unit             : "1mA";
+   pulling_resistance_unit  : "1kohm";
+   capacitive_load_unit(1,pf);
+   leakage_power_unit : "1pw" ;
+
+
+
+   in_place_swap_mode       : "match_footprint";
+   default_connection_class : "default";
+
+
+   default_input_pin_cap    : 0.01;
+   default_output_pin_cap   : 0.0;
+
+operating_conditions(Best){
+  process : 0.8;
+  temperature : 0;
+  tree_type : "balanced_tree" ;
+  voltage : 1.32 ;
+}
+
+type( bus_4 ) {
+   base_type : array;
+   data_type : bit;
+   bit_width : 4; 
+   bit_from  : 3; 
+   bit_to    : 0; 
+   downto    : TRUE; 
+}
+type( bus_32 ) {
+   base_type : array;
+   data_type : bit;
+   bit_width : 32; 
+   bit_from  : 31; 
+   bit_to    : 0; 
+   downto    : TRUE; 
+}
+
+cell(tpt_hcmos9_spram_DEPTH128_WIDTH32) {
+  area : 6553 ;
+  dont_touch : true;
+  drc_blockgroup : "block" ;
+  drc_blocktype : "primitive" ;
+  drc_celltype : "storage" ;
+  interface_timing : true;
+  memory() {
+    type : ram ;
+    address_width : 4 ;
+    word_width : 32 ;
+  }
+
+  pin(CK) {
+    direction : input ;
+    capacitance    : 0.0170 ;
+    max_transition : 0.4308 ;
+    clock : true ;
+    min_pulse_width_low :  1.0054 ;
+    min_pulse_width_high : 0.9393 ;
+    min_period : 1.7901 ;
+  }
+
+  bus(AD) {
+    bus_type  : bus_4;
+    direction : input ;
+    capacitance : 0.0094 ;
+    max_transition : 1.0231 ;
+    timing() {
+      related_pin : "CK" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : 0.5356 ;
+      intrinsic_fall : 0.5356 ;
+    }
+    timing() {
+      related_pin : "CK" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : 0.1314 ;
+      intrinsic_fall : 0.1314 ;
+    }
+  }
+
+  pin(WRITE) {
+    direction : input ;
+    capacitance : 0.0037 ;
+    max_transition : 1.0231 ;
+    timing() {
+      related_pin : "CK" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : 0.4630 ;
+      intrinsic_fall : 0.4630 ;
+    }
+    timing() {
+      related_pin : "CK" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : 0.0071 ;
+      intrinsic_fall : 0.0071 ;
+    }
+  }
+
+  bus (DI) {
+    bus_type  : bus_32;
+    direction : input ;
+    memory_write(){
+     address : A;
+     clocked_on : CK;
+    }
+    capacitance : 0.0038 ;
+    max_transition : 1.0231 ;
+    timing() {
+      related_pin : "CK" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : 0.9068 ;
+      intrinsic_fall : 0.9068 ;
+    }
+    timing() {
+      related_pin : "CK" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : 0.0061 ;
+      intrinsic_fall : 0.0061 ;
+    }
+  }
+
+  bus(DO) {
+    bus_type  : bus_32;
+    direction : output ;
+    memory_read(){
+     address : A;
+    }
+    max_capacitance :  0.640000  ;
+    /* ACCESS_TIME */
+    timing() {
+      related_pin : "CK" ;
+      timing_type : rising_edge ;
+      intrinsic_rise : 1.1975 ;
+      rise_resistance : 0.5385 ;
+      slope_rise : 0.00000 ;
+      intrinsic_fall : 1.1975 ;
+      fall_resistance : 0.5385 ;
+      slope_fall : 0.00000 ;
+    }
+  }
+
+  }  
+}

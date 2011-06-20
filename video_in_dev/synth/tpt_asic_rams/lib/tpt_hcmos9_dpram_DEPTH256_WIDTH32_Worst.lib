@@ -1,0 +1,197 @@
+/* TPT/COMELEC: Modèle générique Généré par gen_hcmos9_ram pour l'ue ELEC342 SOC  V1.0 Mon Jun 28 18:00:01 2010  */
+
+library (tpt_hcmos9_dpram_DEPTH256_WIDTH32) {
+
+  technology (cmos) ;
+  delay_model : generic_cmos;
+
+  bus_naming_style : "%s[%d]" ;
+
+
+  nom_process     : 1.2 ;
+  nom_voltage     : 1.08 ;
+  nom_temperature : 85 ;
+
+   simulation               : true;
+   time_unit                : "1ns";
+   voltage_unit             : "1V";
+   current_unit             : "1mA";
+   pulling_resistance_unit  : "1kohm";
+   capacitive_load_unit(1,pf);
+   leakage_power_unit : "1pw" ;
+
+
+
+   in_place_swap_mode       : "match_footprint";
+   default_connection_class : "default";
+
+
+   default_input_pin_cap    : 0.01;
+   default_output_pin_cap   : 0.0;
+
+operating_conditions(Worst){
+  process : 1.2;
+  temperature : 85;
+  tree_type : "balanced_tree" ;
+  voltage : 1.08 ;
+}
+
+type( bus_8 ) {
+   base_type : array;
+   data_type : bit;
+   bit_width : 8; 
+   bit_from  : 7; 
+   bit_to    : 0; 
+   downto    : TRUE; 
+}
+type( bus_32 ) {
+   base_type : array;
+   data_type : bit;
+   bit_width : 32; 
+   bit_from  : 31; 
+   bit_to    : 0; 
+   downto    : TRUE; 
+}
+
+cell(tpt_hcmos9_dpram_DEPTH256_WIDTH32) {
+  area : 72900 ;
+  dont_touch : true;
+  drc_blockgroup : "block" ;
+  drc_blocktype : "primitive" ;
+  drc_celltype : "storage" ;
+  interface_timing : true;
+  memory() {
+    type : ram ;
+    address_width : 8 ;
+    word_width : 32 ;
+  }
+
+  pin(CK) {
+    direction : input ;
+    capacitance    : 0.0179 ;
+    max_transition : 0.8000 ;
+    clock : true ;
+    min_pulse_width_low :  1.9940 ;
+    min_pulse_width_high : 1.8630 ;
+    min_period : 3.9999 ;
+  }
+
+  bus(RAD) {
+    bus_type  : bus_8;
+    direction : input ;
+    capacitance : 0.0110 ;
+    max_transition : 1.9000 ;
+    timing() {
+      related_pin : "CK" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : 1.0010 ;
+      intrinsic_fall : 1.0010 ;
+    }
+    timing() {
+      related_pin : "CK" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : 0.2440 ;
+      intrinsic_fall : 0.2440 ;
+    }
+  }
+
+  bus(WAD) {
+    bus_type  : bus_8;
+    direction : input ;
+    capacitance : 0.0110 ;
+    max_transition : 1.9000 ;
+    timing() {
+      related_pin : "CK" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : 1.0010 ;
+      intrinsic_fall : 1.0010 ;
+    }
+    timing() {
+      related_pin : "CK" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : 0.2440 ;
+      intrinsic_fall : 0.2440 ;
+    }
+  }
+
+  pin(READ) {
+    direction : input ;
+    capacitance : 0.0040 ;
+    max_transition : 1.9000 ;
+    timing() {
+      related_pin : "CK" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : 0.8789 ;
+      intrinsic_fall : 0.8789 ;
+    }
+    timing() {
+      related_pin : "CK" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : 0.0161 ;
+      intrinsic_fall : 0.0161 ;
+    }
+  }
+
+  pin(WRITE) {
+    direction : input ;
+    capacitance : 0.0040 ;
+    max_transition : 1.9000 ;
+    timing() {
+      related_pin : "CK" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : 0.8789 ;
+      intrinsic_fall : 0.8789 ;
+    }
+    timing() {
+      related_pin : "CK" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : 0.0161 ;
+      intrinsic_fall : 0.0161 ;
+    }
+  }
+
+  bus (DI) {
+    bus_type  : bus_32;
+    direction : input ;
+    memory_write(){
+     address : A;
+     clocked_on : CK;
+    }
+    capacitance : 0.0040 ;
+    max_transition : 1.9000 ;
+    timing() {
+      related_pin : "CK" ;
+      timing_type : setup_rising ;
+      intrinsic_rise : 1.6840 ;
+      intrinsic_fall : 1.6840 ;
+    }
+    timing() {
+      related_pin : "CK" ;
+      timing_type : hold_rising ;
+      intrinsic_rise : 0.0115 ;
+      intrinsic_fall : 0.0115 ;
+    }
+  }
+
+  bus(DO) {
+    bus_type  : bus_32;
+    direction : output ;
+    memory_read(){
+     address : A;
+    }
+    max_capacitance :  0.640000  ;
+    /* ACCESS_TIME */
+    timing() {
+      related_pin : "CK" ;
+      timing_type : rising_edge ;
+      intrinsic_rise : 2.7822 ;
+      rise_resistance : 1.0000 ;
+      slope_rise : 0.00000 ;
+      intrinsic_fall : 2.7822 ;
+      fall_resistance : 1.0000 ;
+      slope_fall : 0.00000 ;
+    }
+  }
+
+  }  
+}

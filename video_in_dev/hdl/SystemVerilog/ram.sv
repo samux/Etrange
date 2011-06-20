@@ -1,7 +1,9 @@
-//parameter ADDR_SIZE = 6;
-//parameter DATA_SIZE = 32;
 
-module ram (
+module ram
+		#(
+		parameter ADDR_SIZE = 6,
+		parameter DATA_SIZE = 32 )
+	(
 		input wire clk,
 		//Port 1, read/write 
 		input wire [DATA_SIZE-1:0] data_in_A,

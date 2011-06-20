@@ -18,7 +18,7 @@ module video_in (
 	output wire p_wb_WE_O,
 	output wire [31:0] p_wb_ADR_O,
 	input wire p_wb_ACK_I,
-	output wire [31:0] p_wb_DAT_O,
+	output wire [31:0] p_wb_DAT_O
 	);
 
 //Signaux pour faire le lien video_in_read <---> fifo

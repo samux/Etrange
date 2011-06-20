@@ -1,0 +1,300 @@
+Checking out license 'Encounter_Digital_Impl_Sys_XL'... (0 seconds elapsed)
+Reading GUI preferences file '/stud/users/promo12/keramsi/.cadence/rc.gui'.
+
+                            Cadence Encounter(R) RTL Compiler
+                    Version v09.10-p104_1 (64-bit), built Jun 18 2009
+
+
+Copyright notice: Copyright 1997-2009 Cadence Design Systems, Inc. All rights reserved 
+worldwide. 
+
+Patent notices: Protected by U.S. Patents: 5892687; 6470486; 6772398; 6772399; 6807651; 
+6832357; 7007247 
+
+
+==========================================================================================
+                       Welcome to Cadence Encounter(R) RTL Compiler
+
+Here is a quick introduction on how to access our product information.  
+If you do not want this message to appear in the future, create an 
+initialization file (an empty file will do) in your home directory 
+called '~/.cadence/.synth_init'.
+
+  To access the product documentation in HTML and PDF, type 'cdnshelp'
+    at the system prompt. 
+  For a list of available commands, type 'help'. 
+  To view a man page for a command, type 'man <commandName>'.
+  To view a man page for an error message, type 'man <messageID>'.
+  For a list of all possible object types, type 'get_attribute -help'.
+  For a list of all available attributes by object type, type
+    'get_attribute * <object_type> -help'.
+  For a list of all attributes for every object type, type
+    'get_attribute * * -help'
+  To list only writable attributes, substitute 'get_attribute' with
+    'set_attribute'.
+  To get a template script to run RTL Compiler, use the 'write_template'
+    command.
+  To get a template script to run Conformal based on the current RTL
+    Compiler session, use the 'write_do_lec' command.
+  
+  Obsolete attributes in the current tool version.
+  To learn more, type 'get_attribute -help <attribute> <object>'.
+
+       object  attribute
+       ------  ---------
+       design  checkpoint_dofile_naming_style
+       design  checkpoint_netlist_naming_style
+       design  dp_perform_rewriting_operations
+       design  multipass_mux_optimization
+       design  timing_driven_muxopto
+     instance  black_box
+     instance  dft_inherited_dont_scan
+     instance  write_positional_connections
+      libcell  black_box
+          net  logic0_driven
+          net  logic1_driven
+         root  bit_blast_constants
+         root  bit_blast_mapped_ports
+         root  checkpoint_flow
+         root  checkpoint_gzipped_netlist
+         root  degenerate_complex_seqs
+         root  delayed_pragma_commands_interpreter
+         root  dp_perform_rewriting_operations
+         root  dp_perform_sharing_operations
+         root  exact_match_seqs_async_controls
+         root  gen_no_negative_index
+         root  gen_unconnected_port_style
+         root  gen_write_empty_module_for_logic_abstract
+         root  hdl_array_generator
+         root  hdl_flatten_array
+         root  hdl_old_reg_naming
+         root  hdl_record_generator
+         root  hdl_reg_naming_style_scalar
+         root  hdl_reg_naming_style_vector
+         root  hdl_trim_target_index
+         root  hdl_vector_naming_style
+         root  lbr_async_clr_pre_seqs_interchangable
+         root  pqos_virtual_buffer
+         root  retime_preserve_state_points
+         root  wlec_env_var
+         root  wlec_flat_r2n
+         root  wlec_new_hier_comp
+         root  wlec_no_exit
+         root  wlec_save_ssion
+         root  wlec_sim_lib
+         root  wlec_sim_plus_lib
+         root  wlec_verbose
+    subdesign  allow_sharing_subdesign
+    subdesign  dp_perform_rewriting_operations
+    subdesign  multipass_mux_optimization
+    subdesign  timing_driven_muxopto
+
+Send us feedback at rc_feedback@cadence.com.
+==========================================================================================
+
+Sourcing './rc_synth.tcl' (Mon Jun 20 09:03:58 CEST 2011)...
+  Setting attribute of root '/': 'script_search_path' = .
+Sourcing './scripts/fix_blackbox_cell.tcl' (Mon Jun 20 09:03:58 CEST 2011)...
+  Setting attribute of root '/': 'lib_search_path' =  /comelec/softs/opt/opus_kits/HCMOS9GP_CMP_UPDATE/CORE9GPHS_SNPS_AVT_4.1.a/SNPS/bc_1.32V_0C_wc_1.08V_85C/PHS  ./tpt_asic_rams/lib \ 
+	/comelec/softs/opt/opus_kits/HCMOS9GP_CMP_UPDATE/CORE9GPHS_SNPS_AVT_4.1.a/SIGNOFF/common/LEF  ./tpt_asic_rams/lef  .  
+  Setting attribute of root '/': 'hdl_search_path' = ../hdl
+  Setting attribute of root '/': 'wireload_mode' = none
+  Setting attribute of root '/': 'information_level' = 7
+  Setting attribute of message 'LBR-41': 'max_print' = 0
+  Setting attribute of message 'LBR-40': 'max_print' = 0
+  Setting attribute of message 'LBR-21': 'max_print' = 0
+  Setting attribute of message 'LBR-162': 'max_print' = 0
+            Reading file '/comelec/softs/opt/opus_kits/HCMOS9GP_CMP_UPDATE/CORE9GPHS_SNPS_AVT_4.1.a/SNPS/bc_1.32V_0C_wc_1.08V_85C/PHS/CORE9GPHS_Worst.lib'
+    Loading library CORE9GPHS_Worst.lib
+  Setting attribute of root '/': 'library' =  
+	"CORE9GPHS_Worst.lib"   
+  Setting attribute of root '/': 'hdl_track_filename_row_col' = true
+            Reading Verilog file '../hdl/../hdl/SystemVerilog/video_in.sv'
+            Reading Verilog file '../hdl/../hdl/SystemVerilog/video_in_read.sv'
+            Reading Verilog file '../hdl/../hdl/SystemVerilog/video_in_store.sv'
+            Reading Verilog file '../hdl/../hdl/SystemVerilog/fifo.sv'
+            Reading Verilog file '../hdl/../hdl/SystemVerilog/ram.sv'
+  Elaborating top-level block 'video_in' from file '../hdl/../hdl/SystemVerilog/video_in.sv'.
+    Elaborating block 'video_in_read' from file '../hdl/../hdl/SystemVerilog/video_in_read.sv'.
+    Elaborating block 'fifo' from file '../hdl/../hdl/SystemVerilog/fifo.sv'.
+    Elaborating block 'ram' from file '../hdl/../hdl/SystemVerilog/ram.sv'.
+Info    : Processing multi-dimensional arrays. [CDFG-250]
+        : Variable 'internal_data' in module 'ram' in file '../hdl/../hdl/SystemVerilog/ram.sv' on line 19.
+Info    : Unused instance port. [ELABUTL-132]
+        : Unused Port 'data_out_A' of instance 'ram' of module 'ram' inside module 'fifo' in file '../hdl/../hdl/SystemVerilog/fifo.sv' on line 27.
+Info    : Unused instance port. [ELABUTL-132]
+        : Unused Port 'full' of instance 'fifo' of module 'fifo' inside module 'video_in' in file '../hdl/../hdl/SystemVerilog/video_in.sv' on line 57.
+    Elaborating block 'video_in_store' from file '../hdl/../hdl/SystemVerilog/video_in_store.sv'.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused register 'stockage_ok' in module 'video_in_store' in file '../hdl/../hdl/SystemVerilog/video_in_store.sv' on line 240.
+        : A flip-flop or latch that was inferred for an unused signal or variable was removed. Use 'set_attribute hdl_preserve_unused_registers true /' to preserve the flip-flop or latch.
+Info    : Unused module input port. [CDFG-500]
+        : Input port 'p_wb_ERR_I' is not used in module 'video_in_store' in file '../hdl/../hdl/SystemVerilog/video_in_store.sv' on line 40.
+        : The value of the input port is not used within the design.
+Warning : Variable or signal is driven in more than one process or block. This may cause simulation mismatches between the original and synthesized designs. [CDFG2G-622]
+        : 'deb_im' in module 'video_in_store' in file '../hdl/../hdl/SystemVerilog/video_in_store.sv' on line 201, column 19.
+        : There are multiple drivers to the net or register.
+Warning : Variable or signal is driven in more than one process or block. This may cause simulation mismatches between the original and synthesized designs. [CDFG2G-622]
+        : 'interrupt' in module 'video_in_store' in file '../hdl/../hdl/SystemVerilog/video_in_store.sv' on line 23, column 23.
+Warning : Non-constant signal or variable is assigned to a flip-flop or latch during an asynchronous set or reset operation. [CDFG2G-608]
+        : Variable 'wb_reg_data' in file '../hdl/../hdl/SystemVerilog/video_in_store.sv' on line 154, column 5.
+        : This may cause simulation mismatches between the original and synthesized designs.
+Warning : Non-constant signal or variable is assigned to a flip-flop or latch during an asynchronous set or reset operation. [CDFG2G-608]
+        : Variable 'wb_reg_data' in file '../hdl/../hdl/SystemVerilog/video_in_store.sv' on line 241, column 5.
+Warning : Undriven module input port. [ELABUTL-127]
+        : Undriven bits of port 'p_wb_ERR_I' of instance 'video_in_store' of module 'video_in_store' in file '../hdl/../hdl/SystemVerilog/video_in.sv' on line 71, column 31.
+        : Use the 'hdl_undriven_signal_value' attribute to control treatment of undriven input port during elaboration.
+  Done elaborating 'video_in'.
+End of read_hdl and elaborate
+Mon Jun 20 09:04:01 CEST 2011
+  Checking the design.
+
+ 	 Check Design Report
+	 -------------------- 
+
+  Unresolved References & Empty Modules
+  ------------------------------------- 
+No unresolved references in design 'video_in'
+
+No empty modules in design 'video_in'
+
+  Done Checking the design.
+  Checking the design.
+
+ 	 Check Design Report
+	 -------------------- 
+
+ Summary
+ ------- 
+
+                Name                 Total 
+-------------------------------------------
+Unresolved References                    0 
+Empty Modules                            0 
+Unloaded Port(s)                         0 
+Unloaded Sequential Pin(s)              32 
+Assigns                                  4 
+Undriven Port(s)                         0 
+Undriven Leaf Pin(s)                     0 
+Undriven hierarchical pin(s)             1 
+Multidriven Port(s)                      0 
+Multidriven Leaf Pin(s)                  0 
+Multidriven hierarchical Pin(s)         33 
+Multidriven unloaded net(s)              0 
+Constant Port(s)                         4 
+Constant Leaf Pin(s)                     0 
+Constant hierarchical Pin(s)           268 
+Preserved leaf instance(s)               0 
+Preserved hierarchical instance(s)       0 
+Libcells with no LEF cell                0 
+Physical (LEF) cells with no libcell     0 
+
+  Done Checking the design.
+Statistics for commands executed by read_sdc:
+ "create_clock"            - successful      1 , failed      0 (runtime  0.00)
+Total runtime 0
+Info    : Equivalent sequential instances have been merged. [GLO-42]
+        : Instances 'p_wb_STB_O_reg' and 'p_wb_CYC_O_reg' in 'video_in_store' have been merged.
+        : To prevent merging of sequential instances, set the 'optimize_merge_flops' and 'optimize_merge_latches' root attributes to 'false' or the 'optimize_merge_seq' instance attribute to 'false'.
+Info    : Deleting instances not driving any primary outputs. [GLO-32]
+        : Deleting 18 hierarchical instances. 
+Following instances are deleted as they do not drive any primary output:
+'fifo/mux_addr_first_44_5', 'fifo/mux_addr_last_44_5', 
+'fifo/mux_fifo_cnt_44_5', 'video_in_read/mux_old_write_fifo_slow_54_5', 
+'video_in_read/mux_pixel_c_77_11', 'video_in_read/mux_pixel_l_77_11', 
+'video_in_read/mux_ready_77_11', 'video_in_read/mux_w_e_62_5', 
+'video_in_read/mux_w_e_66_6', 'video_in_read/mux_write_fifo_slow_77_11', 
+'video_in_store/mux_counter_pack_154_5', 
+'video_in_store/mux_int_cnt_154_5', 'video_in_store/mux_interrupt_154_5', 
+'video_in_store/mux_p_wb_CYC_O_154_5', 
+'video_in_store/mux_p_wb_WE_O_154_5', 
+'video_in_store/mux_pixel_count_154_5', 'video_in_store/mux_r_ack_154_5', 
+'video_in_store/mux_state_146_5'.
+        : To see the list of deleted instances, set the 'information_level' attribute to 2 or above.
+Info    : Applied datapath macro transformation. [RTLOPT-40]
+        : 1 datapath macros in module 'fifo' were transformed to a form more suitable for further optimization.
+        Trying carrysave optimization (configuration 1 of 1) on module 'fifo'...
+                  Allow CSA over Muxes:      Yes
+                  Allow CSA over Inverter:   Yes
+                  Allow Complex CSA:         No
+                  Allow CSA over Truncation: No
+Info    : Done carrysave optimization. [RTLOPT-20]
+        : There are 4 CSA groups in module 'fifo'... Accepted.
+        Trying carrysave optimization (configuration 1 of 1) on module 'video_in_read'...
+                  Allow CSA over Muxes:      Yes
+                  Allow CSA over Inverter:   Yes
+                  Allow Complex CSA:         No
+                  Allow CSA over Truncation: No
+Info    : Done carrysave optimization. [RTLOPT-20]
+        : There are 2 CSA groups in module 'video_in_read'... Accepted.
+        Trying carrysave optimization (configuration 1 of 1) on module 'video_in_store'...
+                  Allow CSA over Muxes:      Yes
+                  Allow CSA over Inverter:   Yes
+                  Allow Complex CSA:         No
+                  Allow CSA over Truncation: No
+Info    : Done carrysave optimization. [RTLOPT-20]
+        : There are 2 CSA groups in module 'video_in_store'... Accepted.
+      Removing temporary intermediate hierarchies under video_in
+Info    : Found floating hierarchical output. [GLO-33]
+        : Found 1 floating hierarchical output:
+'fifo/ram/data_out_A[0:31]'.
+        : To see the list of floating hierarchical instances, set the 'information_level' attribute to 2 or above.
+Info    : Deleting instances not driving any primary outputs. [GLO-32]
+        : Deleting 32 sequential instances. 
+Following instances are deleted as they do not drive any primary output:
+'fifo/ram/data_out_A_reg[0]', 'fifo/ram/data_out_A_reg[1]', 
+'fifo/ram/data_out_A_reg[2]', 'fifo/ram/data_out_A_reg[3]', 
+'fifo/ram/data_out_A_reg[4]', 'fifo/ram/data_out_A_reg[5]', 
+'fifo/ram/data_out_A_reg[6]', 'fifo/ram/data_out_A_reg[7]', 
+'fifo/ram/data_out_A_reg[8]', 'fifo/ram/data_out_A_reg[9]', 
+'fifo/ram/data_out_A_reg[10]', 'fifo/ram/data_out_A_reg[11]', 
+'fifo/ram/data_out_A_reg[12]', 'fifo/ram/data_out_A_reg[13]', 
+'fifo/ram/data_out_A_reg[14]', 'fifo/ram/data_out_A_reg[15]', 
+'fifo/ram/data_out_A_reg[16]', 'fifo/ram/data_out_A_reg[17]', 
+'fifo/ram/data_out_A_reg[18]', 'fifo/ram/data_out_A_reg[19]', 
+'fifo/ram/data_out_A_reg[20]', 'fifo/ram/data_out_A_reg[21]', 
+'fifo/ram/data_out_A_reg[22]', 'fifo/ram/data_out_A_reg[23]', 
+'fifo/ram/data_out_A_reg[24]', 'fifo/ram/data_out_A_reg[25]', 
+'fifo/ram/data_out_A_reg[26]', 'fifo/ram/data_out_A_reg[27]', 
+'fifo/ram/data_out_A_reg[28]', 'fifo/ram/data_out_A_reg[29]', 
+'fifo/ram/data_out_A_reg[30]', 'fifo/ram/data_out_A_reg[31]'.
+Info    : Deleting instances not driving any primary outputs. [GLO-32]
+        : Deleting 1 hierarchical instance. 
+Following instance is deleted as they do not drive any primary output:
+'fifo/ram/mux_internal_data[0]_25_17'.
+              Optimizing muxes in design 'fifo'.
+              Optimizing muxes in design 'video_in_store'.
+              Optimizing muxes in design 'ram'.
+              Optimizing muxes in design 'video_in_read'.
+Mapping video_in to gates.
+      Mapping 'video_in'...
+        Preparing the circuit
+          Pruning unused logic
+Info    : Replacing a flip-flop with a logic constant 0. [GLO-12]
+        : The instance is 'video_in_store/interrupt_reg572'.
+        : This optimization was enabled by the root attribute 'optimize_constant_0_flops'.
+Info    : Replacing a flip-flop with a logic constant 0. [GLO-12]
+        : The instance is 'video_in_store/p_wb_LOCK_O_reg890'.
+Info    : Replacing a flip-flop with a logic constant 0. [GLO-12]
+        : The instance is 'video_in_store/pixel_count_reg[0]893'.
+Info    : Replacing a flip-flop with a logic constant 0. [GLO-12]
+        : The instance is 'video_in_store/pixel_count_reg[1]904'.
+Info    : Deleting instances not driving any primary outputs. [GLO-32]
+        : Deleting 4 sequential instances. 
+Following instances are deleted as they do not drive any primary output:
+'video_in_store/interrupt_reg572 (floating root)', 
+'video_in_store/p_wb_LOCK_O_reg890 (floating root)', 
+'video_in_store/pixel_count_reg[0]893 (floating root)', 
+'video_in_store/pixel_count_reg[1]904 (floating root)'.
+Error   : Unable to map design without a suitable flip-flop. [MAP-2] [synthesize]
+        : Instance 'video_in_store/deb_im_reg[0]574' requires an async preset, async clear flip-flop.
+        : Check the libraries for necessary flop cell. The cell could be marked unusable.
+Synthesis failed.
+Failed on synthesize -to_mapped -eff medium -no_incr
+Encountered problems processing file: rc_synth.tcl
+rc:/> Warning : Instance count threshold exceeded.  Switching to manual update mode. [GUI-12]
+        : Current instance count: '2289', threshold: '2000'
+        : To change the threshold set the 'gui_sv_threshold' root attribute.
+  Setting attribute of root '/': 'gui_sv_update' = manual
+Info    : The schematic is in manual update mode. [GUI-10]
+        : To change update mode set the 'gui_sv_update' root attribute to 'auto' or 'manual'.
