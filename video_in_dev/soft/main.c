@@ -56,7 +56,7 @@ int main(void)
 
   printf("Bonjour du LM32\n");
   init_poly();
-  //print_poly();
+  print_poly();
   printf("Coeff OK\n");
 
   irq_enable();

@@ -217,13 +217,13 @@ namespace soclib { namespace caba {
             pixel_x = coeff[tile_nb].reg.Px[3] >> 16;
             pixel_y = coeff[tile_nb].reg.Py[3] >> 16;
 
-              std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
+              /*std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
                         << tile_nb
                         << " antecedent_y : "
                         << pixel_y
                         << " antecedent_x : "
                         << pixel_x
-                        << std::endl;
+                        << std::endl;*/
 
             if ((pixel_x < (uint16_t) cache_x) || (pixel_x > (uint16_t) (cache_x + C_W)) ||
                 (pixel_y < (uint16_t) cache_y) || (pixel_y > (uint16_t) (cache_y + C_H)))
@@ -270,6 +270,10 @@ namespace soclib { namespace caba {
                 (1 - dx) * dy * I[0][1] +
                 dx * (1 - dy) * I[1][0] +
                 dx * dy * I[1][1];*/
+
+				  ///////////////////////////
+				  // XXX DEBUG
+				  // ////////////////////////
 				  intensity = I[0][0];
 
              // std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
@@ -566,22 +570,33 @@ namespace soclib { namespace caba {
 
     tmpl(void)::init_coeff()
     {
-      int16_t temp;
-		for(int i = 0; i < 2; i++)
+      int16_t temp_x;
+      int16_t temp_y;
+		uint32_t addr = wb_tab[8];
+		for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
 		{
-		  for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
-		  {
-			 master0.wb_read_blk(wb_tab[8] + tile_nb * NB_COEFF * 2, NB_COEFF/2, &coeff_image[tile_nb].raw[i*NB_COEFF/2]);
-			/* temp = coeff_image[tile_nb].Py[3] >> 16;
-			 std::cout << " VCALC GET_TILE: COEFF RAM : "
-				<< " addr : "
-				<< wb_tab[8] + tile_nb * NB_COEFF * 4
-				<< " tile nb : "
-				<< tile_nb
-				<< " coeff : "
-				<< temp
-				<< std::endl;*/
-		  }
+		  master0.wb_read_blk(	addr + tile_nb * NB_COEFF * 4 / 2, 
+										NB_COEFF/2, 
+										&coeff_image[tile_nb].raw[0]);
+
+		  master0.wb_read_blk(	addr + T_NB * NB_COEFF * 4 / 2 + 
+										tile_nb * NB_COEFF * 4 / 2, 
+										NB_COEFF/2, 
+										&coeff_image[tile_nb].raw[NB_COEFF / 2]);
+
+		}
+		for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
+		{
+		  temp_x = coeff_image[tile_nb].raw[3] >> 16;
+		  temp_y = coeff_image[tile_nb].raw[16] >> 16;
+		  std::cout << " VCALC GET_TILE: COEFF RAM : "
+			 << " tile nb : "
+			 << tile_nb
+			 << " coeff x : "
+			 << temp_x
+			 << " coeff y : "
+			 << temp_y
+			 << std::endl;
 		}
     }
 
