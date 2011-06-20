@@ -60,12 +60,14 @@ enum logic [2:0] {WAIT_ADDR, WAIT_ACK, BREAK, WRITE_FIFO, WAIT_FIFO, READ_RAM, I
 reg [31:0] deb_im;
 
 //Buffer pour les données à placer en fifo :
-reg [7:0] pack [4*NBPACK];
+reg [7:0] pack [NBPACK];
 
 //Compteur pour se situer dans l'image
 reg [19:0] pixel_count;
 //Compteur pour se situer dans le paquet de pixels
 reg [NBPACK-1:0] pack_count; 
+
+assign pixel_out = pack[pack_count];
 
 //Compteur pour maintenir l'interruption
 reg [1:0] int_cnt;
@@ -181,7 +183,6 @@ else
 			WRITE_FIFO:
 				begin
 					w_e <= 1;
-					pixel_out <= pack[pack_count];
 					pack_count <= pack_count - 1;
 				end
 

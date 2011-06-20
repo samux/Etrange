@@ -87,7 +87,8 @@ video_out_gen video_out_gen (
 
 	);
 
-fifo fifo_out (
+fifo #(.ADDR_SIZE (6), .DATA_SIZE(8), .NB_PACK(16)) fifo_out 
+	(
 	.clk(clk),
 	.nRST(nRST),
 	.data_in(pixel_fifo_in),
@@ -96,7 +97,7 @@ fifo fifo_out (
 	.full(full),
 	.w_e(w_e),
 	.r_ack(r_ack)
-	 );
+	 ); 
 
 
 endmodule

@@ -1,8 +1,10 @@
-parameter ADDR_SIZE = 6;
-parameter DATA_SIZE = 32;
-parameter NB_PACK = 16;
-
-module fifo (
+module fifo
+	#(
+		parameter ADDR_SIZE = 6,
+		parameter DATA_SIZE = 32,
+		parameter NB_PACK = 16
+	)
+	(
 	input wire clk,
 	input wire nRST,
 	input wire [DATA_SIZE-1:0] data_in,
@@ -24,7 +26,8 @@ wire empty;
 //	RAM
 ///////////////////////////////////
 
-ram ram (
+ram #(.ADDR_SIZE(ADDR_SIZE), .DATA_SIZE(DATA_SIZE)) ram 
+	(
 	.clk(clk),
 	.data_in_A(data_in),
 	.data_out_B(data_out),

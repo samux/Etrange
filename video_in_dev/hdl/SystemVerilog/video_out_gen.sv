@@ -12,7 +12,7 @@ module video_out_gen (
 	input wire [7:0] pixel_in,
 	input wire nb_pack_available,
 
-	output reg pixel_out,
+	output reg [7:0] pixel_out,
 	output reg frame_valid,
 	output reg line_valid
 	);
