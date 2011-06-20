@@ -49,6 +49,12 @@ namespace soclib { namespace caba {
                     uint32_t *dest
                     );
 
+            void     wb_read_blk (
+                    uint32_t saddr,
+                    uint32_t num ,
+                    int32_t *dest
+                    );
+
             void     wb_write_blk (
                     uint32_t saddr,
                     uint8_t *mask,

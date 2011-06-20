@@ -81,21 +81,29 @@ namespace soclib { namespace caba {
         }
 
         /**********
-         * On change les coeffs toutes les X images
-         **********/
-        if (!(nb_frame % 3))
-        {
-          for (int i = 0; i < T_NB; i++)
-            for (int j = 0; j < NB_COEFF; j++)
-              coeff[i].raw[j] = coeff_image[i].raw[j];
-        }
-
-
-        /**********
          * On attend une nouvelle addresse ou l'on va stocker l'image
          **********/
         while(!wb_tab[5] && !get_ok)
           wait();
+
+        /**********
+         * On change les coeffs toutes les X images
+         **********/
+        if (!(nb_frame % 3))
+        {
+          init_coeff();
+          for (int i = 0; i < T_NB; i++)
+            for (int j = 0; j < NB_COEFF; j++)
+            {
+              coeff[i].raw[j] = coeff_image[i].raw[j];
+               /*std::cout << " VCALC GET_TILE: COEFF RAM : "
+                         << " tile nb : "
+                         << i
+                         << " coeff : "
+                         << (int) (coeff[i].raw[j] >> 16)
+                         << std::endl;*/
+            }
+        }
 
         if (!get_ok)
         {
@@ -188,7 +196,7 @@ namespace soclib { namespace caba {
          * On met à jour le coin gauche de la tuile
          **********/
         cache_x =  coeff[tile_nb].reg.Px[3] >> 16;
-        cache_y = (int32_t) coeff[tile_nb].reg.Py[3] >> 16;
+        cache_y =  coeff[tile_nb].reg.Py[3] >> 16;
 
         ask_cache = true;
 
@@ -208,13 +216,13 @@ namespace soclib { namespace caba {
             pixel_x = coeff[tile_nb].reg.Px[3] >> 16;
             pixel_y = coeff[tile_nb].reg.Py[3] >> 16;
 
-            // std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
-            //           << tile_nb
-            //           << " antecedent_y : "
-            //           << pixel_y
-            //           << " antecedent_x : "
-            //           << pixel_x
-            //           << std::endl;
+             std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
+                       << tile_nb
+                       << " antecedent_y : "
+                       << pixel_y
+                       << " antecedent_x : "
+                       << pixel_x
+                       << std::endl;
 
             if ((pixel_x < (uint16_t) cache_x) || (pixel_x > (uint16_t) (cache_x + C_W)) ||
                 (pixel_y < (uint16_t) cache_y) || (pixel_y > (uint16_t) (cache_y + C_H)))
@@ -534,13 +542,24 @@ namespace soclib { namespace caba {
 
     tmpl(void)::init_coeff()
     {
-      uint32_t buffer[T_NB];
-      for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
-      {
-        master0.wb_read_blk(wb_tab[8], NB_COEFF, buffer);
-        for (int j = 0; j < NB_COEFF; j++)
-          coeff_image[tile_nb].raw[j] = buffer[j];
-      }
+      int16_t temp;
+		for(int i = 0; i < 2; i++)
+		{
+		  for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
+		  {
+			 master0.wb_read_blk(wb_tab[8] + tile_nb * NB_COEFF * 2, NB_COEFF/2, &coeff_image[tile_nb].raw[i*NB_COEFF/2]);
+			/* temp = coeff_image[tile_nb].Py[3] >> 16;
+			 std::cout << " VCALC GET_TILE: COEFF RAM : "
+				<< " addr : "
+				<< wb_tab[8] + tile_nb * NB_COEFF * 4
+				<< " tile nb : "
+				<< tile_nb
+				<< " coeff : "
+				<< temp
+				<< std::endl;*/
+		  }
+		}
     }
+
 
   }}

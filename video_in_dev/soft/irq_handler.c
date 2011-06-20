@@ -16,6 +16,9 @@ void video_in_handler()
 	 printf(" Coucou de VIN handler : %ld\n", (uint32_t) RAM_FIRST_IMAGE + (nb_image_in % NB_MAX_IMAGES) * 640 * 480);
   }
 
+  VCALC_POLY = (uint32_t) &(coeff_incr_array[0][0][0].P0.all);
+  //printf( " adresse tableau de coeffs : %d\n", VCALC_POLY);
+  //printf ( "P3 %d %d \n",coeff_incr_array[0][0][3].P3.h,coeff_incr_array[0][0][3].P3.l);
   VIN = (uint32_t) RAM_FIRST_IMAGE + (nb_image_in % NB_MAX_IMAGES) * 640 * 480;
   VIN_CRL = 1;
 
@@ -23,8 +26,7 @@ void video_in_handler()
   VCALC_IN_CRL = 1;
   VCALC_OUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED +((nb_image_in-1) % NB_MAX_IMAGES) * 640 * 480;
   VCALC_OUT_CRL = 1;
-  VCALC_POLY = (uint32_t) &coeff_incr_array;
-}
+ }
 
 /**
  * When we receive an interruption from video_calc,

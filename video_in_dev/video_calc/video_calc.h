@@ -98,8 +98,8 @@ namespace soclib { namespace caba {
 
       // Coordonnées du coin supérieur gauche
       // de la tuile en traitement
-      int32_t cache_x;
-      int32_t cache_y;
+      int16_t cache_x;
+      int16_t cache_y;
 
       // Process_tile demande à Get_tile de
       // remplir le cache

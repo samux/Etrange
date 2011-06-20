@@ -278,5 +278,6 @@ void print_poly()
 		printf("S[1].y = %d,%d\n", coeff_incr_array[1][i][j].S0.h, coeff_incr_array[1][i][j].S0.l);
 	 }
   }
+  printf("ADR du tableau putain : %ld", &coeff_incr_array[0][0][0].P0.all);
 
 }

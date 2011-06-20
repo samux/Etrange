@@ -75,7 +75,7 @@ namespace soclib { namespace caba {
         ( uint32_t saddr, uint32_t num, uint32_t *dest)
         {
 #if DEBUG_WB
-			std::cout << "WBMaster lit "<< num << "mots en " << saddr << std::endl; 
+			std::cout << "WBMaster lit "<< num << "mots en " << saddr << std::endl;
 #endif
             for (uint32_t i = 0; i< num; i++)
             {
@@ -105,12 +105,47 @@ namespace soclib { namespace caba {
         }
 
     template<typename wb_param>
+        void WbMasterModule<wb_param>::wb_read_blk
+        ( uint32_t saddr, uint32_t num, int32_t *dest)
+        {
+#if DEBUG_WB
+			std::cout << "WBMaster lit "<< num << "mots en " << saddr << std::endl;
+#endif
+            for (int32_t i = 0; i< num; i++)
+            {
+                sc_core::wait(p_clk.negedge_event());
+                p_wb.ADR_O = saddr;
+                p_wb.SEL_O = 0xF;
+                p_wb.STB_O = true;
+                p_wb.CYC_O = true;
+                p_wb.WE_O  = false;
+
+                // sc_core::wait for ack
+                WaitWbAck();
+#if DEBUG_WB2
+				std::cout << "Ack WBM lecture OK" << std::endl;
+#endif
+                num_reads++;
+                *dest++ = (int32_t) p_wb.DAT_I.read();
+                // next data
+                saddr = saddr + 4;
+            }
+            // clean request after clk falling edge
+            sc_core::wait(p_clk.negedge_event());
+            CleanWb();
+#if DEBUG_WB
+			std::cout << "WBMaster lecture OK" << std::endl;
+#endif
+        }
+
+
+    template<typename wb_param>
         void     WbMasterModule<wb_param>::wb_write_blk
         ( uint32_t saddr, uint8_t *mask, uint32_t *data, uint32_t num)
         {
 #if DEBUG_WB
 			std::cout << "WBmaster ecrit" << std::endl;
-			std::cout << "WBMaster ecrit "<< num << "mots en " << saddr << std::endl; 
+			std::cout << "WBMaster ecrit "<< num << "mots en " << saddr << std::endl;
 #endif
             for (uint32_t i = 0; i< num; i++)
             {
@@ -161,7 +196,7 @@ namespace soclib { namespace caba {
     ////////////////////////////////////////////////////////////////////////////
 
     template<typename wb_param>
-        WbMasterModule<wb_param>::WbMasterModule ( 
+        WbMasterModule<wb_param>::WbMasterModule (
                 sc_core::sc_in<bool> &p_clk,
 				sc_core::sc_in<bool> &p_resetn,
                 soclib::caba::WbMaster<wb_param> &p_wb
