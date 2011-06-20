@@ -76,6 +76,7 @@ namespace soclib { namespace caba {
 
       void fill_cache(uint32_t deb_im_in, int tile_nb);
       void init_coeff();
+		int32_t fx_mul(int32_t A, int32_t B);
 
       private:
 

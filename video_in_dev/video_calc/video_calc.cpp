@@ -271,26 +271,43 @@ namespace soclib { namespace caba {
               else
                 I[1][1] = I[0][0];
 
-              /*intensity = (1 - dx) * (1 - dy) * I[0][0] +
-                (1 - dx) * dy * I[0][1] +
-                dx * (1 - dy) * I[1][0] +
-                dx * dy * I[1][1];*/
+				  uint32_t dx_1 = (1 << 16) - dx;
+				  uint32_t dy_1 = (1 << 16) - dy;
+				  int32_t a1 = fx_mul(dx_1, fx_mul(dy_1, (int32_t)(I[0][0] << 16)));
+				  int32_t a2 = fx_mul(dx_1, fx_mul(dy, (int32_t)(I[0][1] << 16)));
+				  int32_t a3 = fx_mul(dx, fx_mul(dy_1, (int32_t)(I[1][0] << 16)));
+				  int32_t a4 = fx_mul(dx, fx_mul(dy, (int32_t)(I[1][1] << 16)));
+				  /*std::cout << "entire part : " << 
+					 				(a1 >> 16) << 
+									" fractionnale part : " << ((a1 << 16) >> 16) << std::endl;*/
+				  intensity = a1 + a2 + a3 + a4;
+              /*intensity = 	(1 - dx) * 
+					 				(1 - dy) * 
+									I[0][0] +
 
-				  ///////////////////////////
-				  // XXX DEBUG
-				  // ////////////////////////
-				  intensity = I[0][0];
+                				(1 - dx) * 
+									dy * 
+									I[0][1] +
 
-             // std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
-             //           << tile_nb
-             //           << " intensity : "
-             //           << intensity
-             //           << std::endl;
+                				dx * 
+									(1 - dy) * 
+									I[1][0] +
 
-              if ((uint8_t) intensity > PIXEL_BLANC)
+                				dx * 
+									dy 
+									* I[1][1];*/
+
+
+              /*std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
+                        << tile_nb
+                        << " intensity : "
+                        << intensity
+                        << std::endl;*/
+
+              if ( (uint8_t) (intensity >> 16) > PIXEL_BLANC)
                 intensity_tab[count_pix] = (uint8_t) PIXEL_BLANC;
               else
-                intensity_tab[count_pix] = (uint8_t) intensity;
+                intensity_tab[count_pix] = (uint8_t) (intensity>>16);
             }
 
             if (count_pix == 3)
@@ -338,6 +355,28 @@ namespace soclib { namespace caba {
 
       }
     }
+
+	 tmpl(int32_t)::fx_mul(int32_t A, int32_t B)
+	 {
+		/*std::cout << " A decale : " << (A & 0x0000ffff) << std::endl;
+		std::cout << " B decale : " << (B & 0x0000ffff) << std::endl;
+		std::cout << " A decale : " << ((A & 0xffff0000) >> 16)<< std::endl;
+		std::cout << " B decale : " << ((B & 0xffff0000) >> 16) << std::endl;*/
+		uint16_t tmp_l = (A & 0x0000ffff) * (B & 0x0000ffff);
+		int32_t tmp_lh = ( (A & 0xffff0000) >> 16) * (B & 0x0000ffff);
+		int32_t tmp_hl = ( (B & 0xffff0000) >> 16) * (A & 0x0000ffff);
+		int32_t tmp_h = ((B & 0xffff0000)*(A & 0xffff0000) >> 16) << 16;
+		int32_t result = (int32_t) tmp_l + tmp_lh + tmp_hl + tmp_h;
+		/*std::cout 	<< "A : " << A
+		  				<< " B : " << B
+						<< " tmp_l : " << tmp_l
+						<< " tmp_lh : " << tmp_lh
+						<< " tmp_hl : " << tmp_hl
+						<< " tmp_h : " << tmp_h 
+						<< " result : " << result << std::endl;*/
+
+		return result;
+	 }
 
 
     /////////////////////////////
@@ -588,7 +627,7 @@ namespace soclib { namespace caba {
 										&coeff_image[tile_nb].raw[NB_COEFF / 2]);
 
 		}
-		for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
+		/*for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
 		{
 		  int16_t temp_Px3 = coeff_image[tile_nb].reg.Px[3] >> 16;
 		  int16_t temp_Py3 = coeff_image[tile_nb].reg.Py[3] >> 16;
@@ -630,7 +669,7 @@ namespace soclib { namespace caba {
 			 << " Qy2 : "
 			 << temp_Qy2
 			 << std::endl;
-		}
+		}*/
     }
 
 
