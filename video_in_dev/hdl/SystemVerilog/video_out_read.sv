@@ -62,15 +62,40 @@ reg [31:0] deb_im;
 //Buffer pour les données à placer en fifo :
 reg [7:0] pack [NBPACK];
 
+///////////////////////////////////////////
+//			Compteurs
+//////////////////////////////////////////
+
+
+
 //Compteur pour se situer dans l'image
+reg [19:0] next_pixel_count;
 reg [19:0] pixel_count;
 //Compteur pour se situer dans le paquet de pixels
-reg [NBPACK-1:0] pack_count; 
+reg [4:0] next_pack_count; 
+reg [4:0] pack_count; 
 
 assign pixel_out = pack[pack_count];
 
 //Compteur pour maintenir l'interruption
+reg [1:0] next_int_cnt;
 reg [1:0] int_cnt;
+
+//Mise à jour des compteurs:
+always_ff @(posedge clk or negedge nRST)
+if (~nRST)
+begin
+	int_cnt <= 0;
+	pixel_count <= 0;
+	pack_count <= 0;
+end
+else
+begin
+	int_cnt <= next_int_cnt;
+	pixel_count <= next_pixel_count;
+	pack_count <= next_pack_count;
+end
+
 
 always_ff @(posedge clk or negedge nRST)
 if (~nRST)
@@ -133,19 +158,6 @@ endcase
 
 //Calcul combinatoire des sorties
 always_comb 
-if (~nRST)
-	begin
-		p_wb_STB_O <= 0;
-		p_wb_CYC_O <= 0;
-		interrupt <= 0;
-		w_e <= 0;
-		p_wb_ADR_O <= 0;
-		int_cnt <= 0;
-		pixel_count <= 0;
-		pack_count <= 0;
-
-	end
-else
 	begin
 		case (state)
 			WAIT_ADDR:
@@ -155,7 +167,9 @@ else
 					interrupt <= 0;
 					w_e <= 0;
 					deb_im <= wb_reg_data;
-					int_cnt <= 0;
+					next_int_cnt <= 0;
+					next_pack_count <= 0;
+					next_pixel_count <= 0;
 				end
 
 			READ_RAM:
@@ -177,13 +191,14 @@ else
 				begin
 					p_wb_STB_O <= 0;
 					p_wb_CYC_O <= 0;
-					pack_count <= pack_count + 4;
+					next_pack_count <= pack_count + 4;
+					next_pixel_count <= pixel_count + 4;
 				end
 
 			WRITE_FIFO:
 				begin
 					w_e <= 1;
-					pack_count <= pack_count - 1;
+					next_pack_count <= pack_count - 1;
 				end
 
 			WAIT_FIFO:
@@ -191,9 +206,9 @@ else
 
 			IMAGE_PROCESSED:
 				begin
-					pixel_count <= 0;
-					pack_count <= 0;
-					int_cnt <= int_cnt + 1;
+					next_pixel_count <= 0;
+					next_pack_count <= 0;
+					next_int_cnt <= int_cnt + 1;
 					interrupt <= 1;
 				end
 		endcase

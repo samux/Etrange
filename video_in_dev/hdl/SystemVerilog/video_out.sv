@@ -38,7 +38,7 @@ wire [7:0] pixel_fifo_in;
 
 //Signaux video_out_gen <-> fifo
 wire nb_pack_available;
-wire r_ack = 0;
+wire r_ack;
 wire [7:0] pixel_fifo_out;
 
 //Ce module va lire une image en RAM

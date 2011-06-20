@@ -65,7 +65,7 @@ int main(void)
 
 
   //First address to store the image
-  VIN = (uint32_t)RAM_BASE;
+  VIN = (uint32_t)RAM_FIRST_IMAGE;
   VIN_CRL = 1;
   //VOUT = (uint32_t)RAM_BASE;
   //VOUT_CRL = 1;

@@ -50,7 +50,8 @@ video_in_read video_in_read (
 
 	//Signaux reliés à la fifo
 	.w_e(w_e),
-	.pixels_out(pixels_fifo_in)
+	.pixels_out(pixels_fifo_in),
+	.new_addr(new_addr)
 );
 
 

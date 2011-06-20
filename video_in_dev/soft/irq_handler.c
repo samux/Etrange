@@ -9,10 +9,11 @@ void video_out_handler()
 {
   printf("&&&&& Coucou de VOUT handler\n");
   //if(nb_image_processed > nb_image_out && nb_image_processed - nb_image_out < 3)
-  nb_image_out++;
 
-  //VOUT = (uint32_t)&images_processed[nb_image_out%NB_MAX_IMAGES];
-  VOUT = RAM_FIRST_IMAGE + (nb_image_out%NB_MAX_IMAGES) * 640 * 480;
+  if (nb_image == 0)
+	  VOUT = RAM_FIRST_IMAGE;
+  else 
+	  VOUT = RAM_FIRST_IMAGE + ((nb_image-1)%NB_MAX_IMAGES) * 640 * 480;
   VOUT_CRL = 1;
 }
 
