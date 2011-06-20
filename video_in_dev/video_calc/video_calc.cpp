@@ -273,10 +273,10 @@ namespace soclib { namespace caba {
 
 				  uint32_t dx_1 = (1 << 16) - dx;
 				  uint32_t dy_1 = (1 << 16) - dy;
-				  int32_t a1 = fx_mul(dx_1, fx_mul(dy_1, (int32_t)(I[0][0] << 16)));
-				  int32_t a2 = fx_mul(dx_1, fx_mul(dy, (int32_t)(I[0][1] << 16)));
-				  int32_t a3 = fx_mul(dx, fx_mul(dy_1, (int32_t)(I[1][0] << 16)));
-				  int32_t a4 = fx_mul(dx, fx_mul(dy, (int32_t)(I[1][1] << 16)));
+				  int32_t a1 = fx_mul(dx_1, fx_mul(dy_1, (I[0][0] << 16)));
+				  int32_t a2 = fx_mul(dx_1, fx_mul(dy, (I[0][1] << 16)));
+				  int32_t a3 = fx_mul(dx, fx_mul(dy_1, (I[1][0] << 16)));
+				  int32_t a4 = fx_mul(dx, fx_mul(dy, (I[1][1] << 16)));
 				  /*std::cout << "entire part : " << 
 					 				(a1 >> 16) << 
 									" fractionnale part : " << ((a1 << 16) >> 16) << std::endl;*/
@@ -298,11 +298,11 @@ namespace soclib { namespace caba {
 									* I[1][1];*/
 
 
-              /*std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
+              std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
                         << tile_nb
                         << " intensity : "
-                        << intensity
-                        << std::endl;*/
+                        << (intensity)
+                        << std::endl;
 
               if ( (uint8_t) (intensity >> 16) > PIXEL_BLANC)
                 intensity_tab[count_pix] = (uint8_t) PIXEL_BLANC;
@@ -362,7 +362,7 @@ namespace soclib { namespace caba {
 		std::cout << " B decale : " << (B & 0x0000ffff) << std::endl;
 		std::cout << " A decale : " << ((A & 0xffff0000) >> 16)<< std::endl;
 		std::cout << " B decale : " << ((B & 0xffff0000) >> 16) << std::endl;*/
-		uint16_t tmp_l = (A & 0x0000ffff) * (B & 0x0000ffff);
+		uint32_t tmp_l = ((A & 0x0000ffff) * (B & 0x0000ffff)) >> 16;
 		int32_t tmp_lh = ( (A & 0xffff0000) >> 16) * (B & 0x0000ffff);
 		int32_t tmp_hl = ( (B & 0xffff0000) >> 16) * (A & 0x0000ffff);
 		int32_t tmp_h = ((B & 0xffff0000)*(A & 0xffff0000) >> 16) << 16;
