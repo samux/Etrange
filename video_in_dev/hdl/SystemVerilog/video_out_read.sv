@@ -204,7 +204,8 @@ always_comb
 			WRITE_FIFO:
 				begin
 					w_e <= 1;
-					next_pack_count <= pack_count + 1;
+					if (~full)
+						next_pack_count <= pack_count + 1;
 				end
 
 			WAIT_FIFO:
