@@ -1,3 +1,4 @@
+
 /**
  * \file main.c
  * \brief Main procedure
@@ -34,17 +35,22 @@ uint8_t first_image_processed;
 COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
 /** Coefficients for the transformation in x-direction */
-mfixed coeff_x[4][4] = { 	{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
-  									{(mfixed)(1<<15), (mfixed)0, (mfixed)0, (mfixed)0},
-									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
-									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}
+
+mfixed coeff_x[4][4] = { 	{(mfixed)0,(mfixed)0 , (mfixed)0, (mfixed)0},
+                                {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+                                {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+                                {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}
 };
 /** Coefficients for the transformation in y-direction */
-mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)(1<<15), (mfixed)0, (mfixed)0},
-  									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
-									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
-									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}
+mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+                                {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+                                {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+                                {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}
 };
+
+
+
+
 
 /** The address of the first image stored in RAM */
 uint32_t * RAM_FIRST_IMAGE;
@@ -53,6 +59,22 @@ uint32_t * RAM_FIRST_IMAGE_PROCESSED;
 
 int main(void)
 {
+  mfixed cos_plus;
+  cos_plus.h = 0;
+  cos_plus.l = (1<<15) + (1<<14) + (1<<13);
+  mfixed sin_moins;
+  sin_moins.h = -1;
+  sin_moins.l = (1<<15);
+  mfixed sin_plus;
+  sin_plus.h = 0;
+  sin_plus.l = (1<<15);
+
+  coeff_x[1][0] = cos_plus;
+  coeff_x[0][1] = sin_plus;
+
+  coeff_y[0][1] = cos_plus;
+  coeff_y[1][0] = sin_moins;
+
 
   printf("Bonjour du LM32\n");
   init_poly();

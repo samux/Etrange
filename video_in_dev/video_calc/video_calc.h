@@ -10,9 +10,9 @@
 // Hauteur tuile traitée
 # define T_H 16
 // Largeur du cache
-# define C_W 32
+# define C_W 48
 // Hauteur du cache
-# define C_H 32
+# define C_H 48
 // Taille FIFO en nb de tuiles
 # define F_SIZE 2
 // Nb tuiles de sortie
