@@ -270,6 +270,13 @@ void init_poly()
 {
   int X, Y;
   int X_p, Y_p;
+
+  mfixed ante_up_left;
+  mfixed ante_up_right;
+  mfixed ante_bottom_left;
+  mfixed ante_bottom_right;
+  mfixed min;
+
   for(Y = 0; Y < NB_TILE_HEIGHT; Y++)
   {
 	 Y_p = Y * TILE_WIDTH;
@@ -302,6 +309,21 @@ void init_poly()
 		coeff_incr_array[0][Y][X].S0 = S_0(coeff_x);
 		coeff_incr_array[0][Y][X].S1 = coeff_incr_array[0][Y][X].P1;
 
+		//cache management for X
+		ante_up_left = coeff_incr_array[0][Y][X].P3;
+		min = ante_up_left;
+
+		ante_up_right = P_3(X_p + TILE_WIDTH - 1, Y_p, coeff_x);
+		min = (ante_up_right.h < min.h) ? ante_up_right : min;
+
+		ante_bottom_left = P_3(X_p, Y_p + TILE_HEIGHT - 1, coeff_x);
+		min = (ante_bottom_left.h < min.h) ? ante_bottom_left : min;
+
+		ante_bottom_right = P_3(X_p + TILE_WIDTH - 1, Y_p + TILE_HEIGHT - 1, coeff_x);
+		min = (ante_bottom_right.h < min.h) ? ante_bottom_right : min;
+
+		coeff_incr_array[0][Y][X].begin_cache = min;
+
 
 		//y coefficient
 		//P
@@ -326,6 +348,20 @@ void init_poly()
 		coeff_incr_array[1][Y][X].S0 = S_0(coeff_y); 
 		coeff_incr_array[1][Y][X].S1 = coeff_incr_array[1][Y][X].P1;
 
+		//cache management for Y
+		ante_up_left = coeff_incr_array[1][Y][X].P3;
+		min = ante_up_left;
+
+		ante_up_right = P_3(X_p + TILE_WIDTH - 1, Y_p, coeff_y);
+		min = (ante_up_right.h < min.h) ? ante_up_right : min;
+
+		ante_bottom_left = P_3(X_p, Y_p + TILE_HEIGHT - 1, coeff_y);
+		min = (ante_bottom_left.h < min.h) ? ante_bottom_left : min;
+
+		ante_bottom_right = P_3(X_p + TILE_WIDTH - 1, Y_p + TILE_HEIGHT - 1, coeff_y);
+		min = (ante_bottom_right.h < min.h) ? ante_bottom_right : min;
+
+		coeff_incr_array[1][Y][X].begin_cache = min;
 
 	 }
 

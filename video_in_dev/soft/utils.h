@@ -47,6 +47,7 @@ typedef struct coeff_incr_t {
   mfixed R2;/*!< R2 coefficient */
   mfixed S0;/*!< S0 coefficient */
   mfixed S1;/*!< S1 coefficient */
+  mfixed begin_cache;/*!< The beginning of the cache */
 } COEFF_INCR;
 
 

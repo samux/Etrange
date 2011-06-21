@@ -278,21 +278,6 @@ namespace soclib { namespace caba {
 				  int32_t a3 = fx_mul(dx, fx_mul(dy_1, (I[1][0] << 16)));
 				  int32_t a4 = fx_mul(dx, fx_mul(dy, (I[1][1] << 16)));
 				  intensity = a1 + a2 + a3 + a4;
-              /*intensity = 	(1 - dx) * 
-					 				(1 - dy) * 
-									I[0][0] +
-
-                				(1 - dx) * 
-									dy * 
-									I[0][1] +
-
-                				dx * 
-									(1 - dy) * 
-									I[1][0] +
-
-                				dx * 
-									dy 
-									* I[1][1];*/
 
 
               std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
@@ -615,12 +600,12 @@ namespace soclib { namespace caba {
 		uint32_t addr = wb_tab[8];
 		for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
 		{
-		  master0.wb_read_blk(	addr + tile_nb * NB_COEFF * 4 / 2, 
+		  master0.wb_read_blk(	addr + tile_nb * 14 * 4, 
 										NB_COEFF/2, 
 										&coeff_image[tile_nb].raw[0]);
 
-		  master0.wb_read_blk(	addr + T_NB * NB_COEFF * 4 / 2 + 
-										tile_nb * NB_COEFF * 4 / 2, 
+		  master0.wb_read_blk(	addr + T_NB * 14*4 + 
+										tile_nb * 14 * 4, 
 										NB_COEFF/2, 
 										&coeff_image[tile_nb].raw[NB_COEFF / 2]);
 
