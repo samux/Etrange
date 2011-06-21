@@ -30,11 +30,11 @@
 
 typedef union
 {
-  int32_t raw[NB_COEFF];
+  int32_t raw[NB_COEFF + 2];
   struct
   {
-    int32_t Px[4], Qx[4], Rx[3], Sx[2];
-    int32_t Py[4], Qy[4], Ry[3], Sy[2];
+    int32_t Px[4], Qx[4], Rx[3], Sx[2], cache_x;
+    int32_t Py[4], Qy[4], Ry[3], Sy[2], cache_y;
   } reg;
 } cic_u;
 

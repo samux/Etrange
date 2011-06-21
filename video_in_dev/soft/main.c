@@ -34,16 +34,16 @@ uint8_t first_image_processed;
 COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
 /** Coefficients for the transformation in x-direction */
-mfixed coeff_x[4][4] = { 	{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
-  									{(mfixed)(1<<15), (mfixed)0, (mfixed)0, (mfixed)0}, 
-									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
-									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0} 
+mfixed coeff_x[4][4] = { 	{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+  									{(mfixed)(1<<15), (mfixed)0, (mfixed)0, (mfixed)0},
+									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}
 };
 /** Coefficients for the transformation in y-direction */
-mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)(1<<15), (mfixed)0, (mfixed)0}, 
-  									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
-									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}, 
-									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0} 
+mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)(1<<15), (mfixed)0, (mfixed)0},
+  									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+									{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}
 };
 
 /** The address of the first image stored in RAM */
@@ -79,6 +79,6 @@ int main(void)
   VIN_CRL = 1;
 
   while(1);
- 
+
   return 0;
 }

@@ -94,7 +94,7 @@ namespace soclib { namespace caba {
           nb_frame = 1;
           init_coeff();
           for (int i = 0; i < T_NB; i++)
-            for (int j = 0; j < NB_COEFF; j++)
+            for (int j = 0; j < NB_COEFF + 2; j++)
             {
               coeff[i].raw[j] = coeff_image[i].raw[j];
                /*std::cout << " VCALC GET_TILE: COEFF RAM : "
@@ -196,13 +196,15 @@ namespace soclib { namespace caba {
         /**********
          * On met à jour le coin gauche de la tuile
          **********/
-        cache_x =  coeff[tile_nb].reg.Px[3] >> 16;
-        cache_y =  coeff[tile_nb].reg.Py[3] >> 16;
-		  /*std::cout << "cache_x : "
-			 			<< cache_x
-						<< " cache_y : "
-						<< cache_y
-						<< std::endl;*/
+        // cache_x =  coeff[tile_nb].reg.Px[3] >> 16;
+        // cache_y =  coeff[tile_nb].reg.Py[3] >> 16;
+        cache_x = (coeff[tile_nb].reg.cache_x >> 16);
+        cache_y = (coeff[tile_nb].reg.cache_y >> 16);
+        std::cout << "cache_x : "
+                  << cache_x
+                  << " cache_y : "
+                  << cache_y
+                  << std::endl;
 
         ask_cache = true;
 
@@ -219,8 +221,8 @@ namespace soclib { namespace caba {
         {
           for(int j = 0; j < T_W; j++)
           {
-            pixel_x = coeff[tile_nb].reg.Px[3] >> 16;
-            pixel_y = coeff[tile_nb].reg.Py[3] >> 16;
+            pixel_x = (coeff[tile_nb].reg.Px[3] >> 16);
+            pixel_y = (coeff[tile_nb].reg.Py[3] >> 16);
 
               /*std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
                         << tile_nb
@@ -355,7 +357,7 @@ namespace soclib { namespace caba {
 						<< " tmp_l : " << tmp_l
 						<< " tmp_lh : " << tmp_lh
 						<< " tmp_hl : " << tmp_hl
-						<< " tmp_h : " << tmp_h 
+						<< " tmp_h : " << tmp_h
 						<< " result : " << result << std::endl;*/
 
 		return result;
@@ -600,59 +602,65 @@ namespace soclib { namespace caba {
 		uint32_t addr = wb_tab[8];
 		for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
 		{
-		  master0.wb_read_blk(	addr + tile_nb * 14 * 4, 
-										NB_COEFF/2, 
+		  master0.wb_read_blk(	addr + tile_nb * 14 * 4,
+										NB_COEFF/2 + 1,
 										&coeff_image[tile_nb].raw[0]);
 
-		  master0.wb_read_blk(	addr + T_NB * 14*4 + 
-										tile_nb * 14 * 4, 
-										NB_COEFF/2, 
-										&coeff_image[tile_nb].raw[NB_COEFF / 2]);
+		  master0.wb_read_blk(	addr + T_NB * 14 * 4 +
+										tile_nb * 14 * 4,
+										NB_COEFF/2 + 1,
+										&coeff_image[tile_nb].raw[NB_COEFF / 2 + 1]);
 
 		}
-		/*for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
-		{
-		  int16_t temp_Px3 = coeff_image[tile_nb].reg.Px[3] >> 16;
-		  int16_t temp_Py3 = coeff_image[tile_nb].reg.Py[3] >> 16;
-		  int16_t temp_Px2 = coeff_image[tile_nb].reg.Px[2] >> 16;
-		  int16_t temp_Py2 = coeff_image[tile_nb].reg.Py[2] >> 16;
-		  int16_t temp_Px1 = coeff_image[tile_nb].reg.Px[1] >> 16;
-		  int16_t temp_Py1 = coeff_image[tile_nb].reg.Py[1] >> 16;
-		  int16_t temp_Px0 = coeff_image[tile_nb].reg.Px[0] >> 16;
-		  int16_t temp_Py0 = coeff_image[tile_nb].reg.Py[0] >> 16;
-		  int16_t temp_Rx2 = coeff_image[tile_nb].reg.Rx[2] >> 16;
-		  int16_t temp_Ry2 = coeff_image[tile_nb].reg.Ry[2] >> 16;
-		  int16_t temp_Qx2 = coeff_image[tile_nb].reg.Qx[2] >> 16;
-		  int16_t temp_Qy2 = coeff_image[tile_nb].reg.Qy[2] >> 16;
-		  std::cout << " VCALC GET_TILE: COEFF RAM : "
-			 << " tile nb : "
-			 << tile_nb
-			 << " Px3 : "
-			 << temp_Px3
-			 << " Py3 : "
-			 << temp_Py3
-			 << " Px2 : "
-			 << temp_Px2
-			 << " Py2 : "
-			 << temp_Py2
-			 << " Px1 : "
-			 << temp_Px1
-			 << " Py1 : "
-			 << temp_Py1
-			 << " Px0 : "
-			 << temp_Px0
-			 << " Py0 : "
-			 << temp_Py0
-			 << " Rx2 : "
-			 << temp_Rx2
-			 << " Ry2 : "
-			 << temp_Ry2
-			 << " Qx2 : "
-			 << temp_Qx2
-			 << " Qy2 : "
-			 << temp_Qy2
-			 << std::endl;
-		}*/
+		// for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
+		// {
+		//   int16_t temp_Px3 = coeff_image[tile_nb].reg.Px[3] >> 16;
+		//   int16_t temp_Py3 = coeff_image[tile_nb].reg.Py[3] >> 16;
+		//   int16_t temp_Px2 = coeff_image[tile_nb].reg.Px[2] >> 16;
+		//   int16_t temp_Py2 = coeff_image[tile_nb].reg.Py[2] >> 16;
+		//   int16_t temp_Px1 = coeff_image[tile_nb].reg.Px[1] >> 16;
+		//   int16_t temp_Py1 = coeff_image[tile_nb].reg.Py[1] >> 16;
+		//   int16_t temp_Px0 = coeff_image[tile_nb].reg.Px[0] >> 16;
+		//   int16_t temp_Py0 = coeff_image[tile_nb].reg.Py[0] >> 16;
+		//   int16_t temp_Rx2 = coeff_image[tile_nb].reg.Rx[2] >> 16;
+		//   int16_t temp_Ry2 = coeff_image[tile_nb].reg.Ry[2] >> 16;
+		//   int16_t temp_Qx2 = coeff_image[tile_nb].reg.Qx[2] >> 16;
+		//   int16_t temp_Qy2 = coeff_image[tile_nb].reg.Qy[2] >> 16;
+		//   int16_t temp_cache_x = coeff_image[tile_nb].reg.cache_x >> 16;
+		//   int16_t temp_cache_y = coeff_image[tile_nb].reg.cache_y >> 16;
+		//   std::cout << " VCALC GET_TILE: COEFF RAM : "
+                //             << " tile nb : "
+                //             << tile_nb
+                //             << " Px3 : "
+                //             << temp_Px3
+                //             << " Py3 : "
+                //             << temp_Py3
+                //             << " Px2 : "
+                //             << temp_Px2
+                //             << " Py2 : "
+                //             << temp_Py2
+                //             << " Px1 : "
+                //             << temp_Px1
+                //             << " Py1 : "
+                //             << temp_Py1
+                //             << " Px0 : "
+                //             << temp_Px0
+                //             << " Py0 : "
+                //             << temp_Py0
+                //             << " Rx2 : "
+                //             << temp_Rx2
+                //             << " Ry2 : "
+                //             << temp_Ry2
+                //             << " Qx2 : "
+                //             << temp_Qx2
+                //             << " Qy2 : "
+                //             << temp_Qy2
+                //             << " cache_x : "
+                //             << temp_cache_x
+                //             << " cache_y : "
+                //             << temp_cache_y
+                //             << std::endl;
+		// }
     }
 
 
