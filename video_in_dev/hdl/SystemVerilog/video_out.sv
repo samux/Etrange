@@ -87,7 +87,7 @@ video_out_gen video_out_gen (
 
 	);
 
-fifo #(.ADDR_SIZE (6), .DATA_SIZE(8), .NB_PACK(16)) fifo_out 
+fifo #(.ADDR_SIZE (8), .DATA_SIZE(8), .NB_PACK(16)) fifo_out 
 	(
 	.clk(clk),
 	.nRST(nRST),

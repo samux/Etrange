@@ -138,7 +138,8 @@ case (state)
 	//Si fin de l'écriture d'un paquet et de l'image
 	//On passe dans l'état IMAGE_PROCESSED
 	WRITE_FIFO:
-		if (pack_count == NBPACK-1)
+		if (pack_count == NBPACK-1 & ~full) //Il faut que la fifo ne
+			//soit pas pleine pour que l'écriture se fasse
 			begin
 			next_state <= READ_RAM;
 			if (pixel_count == p_WIDTH * p_HEIGHT)
