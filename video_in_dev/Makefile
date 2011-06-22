@@ -1,7 +1,7 @@
 SOFT       = soft/soft.elf
 
 PLATFORM_DESC    =  platform_desc
-SOCLIB_INCLUDES  =  -I. -I./display -I./wb_slave -I./video_gen -I./wb_master_module -I./dummy_wb_master -I./video_out -I./hdl/include
+SOCLIB_INCLUDES  =  -I. -I./display  -I./video_gen -I./wb_master_module -I./dummy_wb_master  -I./hdl/include
 
 SOCLIB_CC_ARGS   = -j4  $(SOCLIB_INCLUDES) -t sccom
 
@@ -12,7 +12,7 @@ export SOCLIB
 
 #Verilog compilation
 VLOG = vlog +acc
-VLOG_TOP = video_in.sv video_out.sv
+VLOG_TOP = video_in.sv video_out.sv wb_simple_slave.sv
 VLOG_IN = video_in_read.sv video_in_store.sv fifo.sv ram.sv video_in.sv video_out_read.sv video_out_gen.sv
 VLOG_SRC = $(VLOG_IN) $(VLOG_TOP)
 VLOG_DAT = $(patsubst %.sv,work/%/_primary.dat,$(VLOG_SRC))
