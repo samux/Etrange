@@ -27,9 +27,17 @@ volatile uint32_t nb_image_in;
 /** number of images read by V_OUT */
 volatile uint32_t nb_image_out;
 
-/**  To indicate if we have already processed a picture coming from V_IN.
- * 	Useful to send to V_OUT the signal that the first picture is ready*/
+/**  
+ * To indicate if we have already processed a picture coming from V_IN.
+ * Useful to send to V_CALC the signal that the first picture is ready
+ * */
 uint8_t first_image_processed;
+
+/**  
+ * To indicate if this is the first image stored by V_IN
+ * Useful to send to V_OUT the signal that the first image is ready (if USE_COPRO = 0).
+ * */
+uint8_t first_image;
 
 /**  Contains all coefficients of each tile */
 COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
@@ -59,6 +67,10 @@ uint32_t * RAM_FIRST_IMAGE_PROCESSED;
 
 int main(void)
 {
+  printf("Bonjour du LM32\n");
+
+#if USE_COPRO
+  printf("on utilise le coprocesseur\n");
   mfixed cos_plus;
   cos_plus.h = 1;
   cos_plus.l =  (1<<14);
@@ -86,10 +98,12 @@ int main(void)
   coeff_y[1][0] = sin_moins;
 
 
-  printf("Bonjour du LM32\n");
   init_poly();
   //print_poly();
   printf("Coeff OK\n");
+#else
+  printf("on n'utilise pas le copro\n");
+#endif
 
   irq_enable();
 
@@ -102,6 +116,7 @@ int main(void)
   nb_image_out = 0;
 
   first_image_processed = 1;
+  first_image = 1;
 
   RAM_FIRST_IMAGE = (uint32_t *) malloc( 10 * sizeof(uint32_t) * WIDTH * HEIGHT / NB_BYTE_IN_A_WORD );
   RAM_FIRST_IMAGE_PROCESSED = (uint32_t *) malloc(10 * sizeof(uint32_t) * WIDTH * HEIGHT / NB_BYTE_IN_A_WORD);
