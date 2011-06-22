@@ -56,7 +56,7 @@ soft:
 	$(MAKE) -C soft
 
 clean: soft_clean
-	$(SOCLIB_CC) -P $(SOCLIB_CC_ARGS) $(SOCLIB_CC_ADD_ARGS) 
+	#$(SOCLIB_CC) -P $(SOCLIB_CC_ARGS) $(SOCLIB_CC_ADD_ARGS) 
 	rm -f tty.log
 	rm -f vcd_traces.vcd
 	rm -f $(OUTPUT_LOG)

@@ -49,13 +49,12 @@
 #include "segmentation.h"
 
 #include "hdl/include/video_in.h"
+#include "hdl/include/video_out.h"
 //wb_slave
 #include "wb_simple_slave.h"
 
 //Video
 #include "video_gen.h"
-#include "video_in.h"
-#include "video_out.h"
 #include "video_calc.h"
 #include "display.h"
 
