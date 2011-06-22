@@ -48,6 +48,7 @@
 // locals
 #include "segmentation.h"
 
+#include "hdl/include/video_in.h"
 //wb_slave
 #include "wb_simple_slave.h"
 
@@ -62,7 +63,7 @@
 int _main(int argc, char *argv[])
 {
   using namespace sc_core;
-  using namespace soclib::caba;
+  //using namespace soclib::caba;
 
   // Avoid repeating these everywhere
   using soclib::common::IntTab;
@@ -83,10 +84,10 @@ int _main(int argc, char *argv[])
   maptab.add(Segment("wb_slave"  , WBS_BASE  , WBS_SIZE  , IntTab(3), false));
 
   // Global signals
-  sc_time	clk_periode_pixel(40, SC_NS); // clk period 25 MHz
+  sc_time   clk_periode_pixel(40, SC_NS); // clk period 25 MHz
   sc_time	clk_periode_system(10, SC_NS); // clk period 100 MHz
-  sc_clock	signal_clk("signal_clk", clk_periode_pixel);
-  sc_clock	system_clk("system_clk", clk_periode_system);
+  sc_clock	signal_clk("signal_clk",clk_periode_pixel);
+  sc_clock	system_clk("system_clk",clk_periode_system);
 
   sc_signal<bool> signal_resetn("signal_resetn");
 
@@ -106,6 +107,12 @@ int _main(int argc, char *argv[])
   soclib::caba::WbSignal<wb_param> signal_wb_vcalc_read  ("signal_wb_vcalc_read");
   soclib::caba::WbSignal<wb_param> signal_wb_vcalc_write  ("signal_wb_vcalc_write");
 
+  // WB slave data
+  sc_signal<sc_uint<32> > wb_data_0("wb_data_0");
+  sc_signal<sc_uint<32> > wb_data_1("wb_data_1");
+  sc_signal<sc_uint<32> > wb_data_2("wb_data_2");
+  sc_signal<sc_uint<32> > wb_data_3("wb_data_3");
+
   /**********************************************
    * IRQ
    *********************************************/
@@ -124,12 +131,12 @@ int _main(int argc, char *argv[])
   sc_signal<bool>        line_valid_in("line_val_in");
   sc_signal<bool>        frame_valid_in("frame_val_in");
 
-  sc_signal<unsigned char> pixel_in("pixel_val_in");
+  sc_signal<sc_uint<8> > pixel_in("pixel_val_in");
 
   sc_signal<bool>        line_valid_out("line_val_out");
   sc_signal<bool>        frame_valid_out("frame_val_out");
 
-  sc_signal<unsigned char> pixel_out("pixel_val_out");
+  sc_signal<sc_uint<8> > pixel_out("pixel_val_out");
 
   // Components
   // lm32 real cache configuration can be:
@@ -187,45 +194,75 @@ int _main(int argc, char *argv[])
   simple_slave.p_clk(system_clk);
   simple_slave.p_resetn(signal_resetn);
   simple_slave.p_wb(signal_wb_slave);
+  simple_slave.wb_data_0(wb_data_0);
+  simple_slave.wb_data_1(wb_data_1);
+  simple_slave.wb_data_2(wb_data_2);
+  simple_slave.wb_data_3(wb_data_3);
 
   ////////////////////////////////////////////////////////////
   ///////////////////Video modules ///////////////////////////
   ////////////////////////////////////////////////////////////
-  VideoGen my_videogen ("video_gen");
+  soclib::caba::VideoGen my_videogen ("video_gen");
+
   my_videogen.clk (signal_clk);
   my_videogen.reset_n(signal_resetn);
   my_videogen.line_valid(line_valid_in);
   my_videogen.frame_valid(frame_valid_in);
   my_videogen.pixel_out(pixel_in);
 
-  Video_in<wb_param> my_video_in ("video_in", simple_slave.data_tab);
-  my_video_in.p_clk (system_clk);
-  my_video_in.p_resetn(signal_resetn);
-  my_video_in.p_interrupt    (signal_video_in_irq);
-  my_video_in.pixel_clk (signal_clk);
-  my_video_in.pixel_in(pixel_in);
+  video_in my_video_in ("Video_in","video_in");
+
+  my_video_in.clk(system_clk);
+  my_video_in.clk_in(signal_clk);
+  my_video_in.reset_n(signal_resetn);
   my_video_in.line_valid(line_valid_in);
   my_video_in.frame_valid(frame_valid_in);
-  my_video_in.p_wb    (signal_wb_vin);
+  my_video_in.pixel_in(pixel_in);
+  //signaux wishbone
+  my_video_in.p_wb_STB_O(signal_wb_vin.STB);
+  my_video_in.p_wb_CYC_O (signal_wb_vin.CYC);
+  my_video_in.p_wb_LOCK_O(signal_wb_vin.LOCK);
+  my_video_in.p_wb_WE_O(signal_wb_vin.WE);
+  my_video_in.p_wb_SEL_O(signal_wb_vin.SEL);
+  my_video_in.p_wb_ADR_O(signal_wb_vin.ADR);
+  my_video_in.p_wb_ACK_I (signal_wb_vin.ACK);
+  my_video_in.p_wb_DAT_O (signal_wb_vin.MWDAT);
+  my_video_in.interrupt(signal_video_in_irq);
+  my_video_in.wb_reg_ctr (wb_data_1);
+  my_video_in.wb_reg_data (wb_data_0);
 
-  VideoOut<wb_param> my_video_out ("video_out", simple_slave.data_tab);
-  my_video_out.p_clk (system_clk);
-  my_video_out.p_resetn(signal_resetn);
-  my_video_out.p_interrupt    (signal_video_out_irq);
-  my_video_out.pixel_clk (signal_clk);
-  my_video_out.pixel_out(pixel_out);
+  video_out my_video_out ("Video_out", "video_out");
+
+  my_video_out.clk (system_clk);
+  my_video_out.clk_out   (signal_clk);
+  my_video_out.nRST (signal_resetn);
+
+  my_video_out.wb_reg_data(wb_data_2);
+  my_video_out.wb_reg_ctr(wb_data_3);
+
   my_video_out.line_valid(line_valid_out);
   my_video_out.frame_valid(frame_valid_out);
-  my_video_out.p_wb    (signal_wb_vout);
+  my_video_out.pixel_out(pixel_out);
 
-  VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
+  my_video_out.p_wb_STB_O    (signal_wb_vout.STB);
+  my_video_out.p_wb_CYC_O    (signal_wb_vout.CYC);
+  my_video_out.p_wb_LOCK_O    (signal_wb_vout.LOCK);
+  my_video_out.p_wb_SEL_O    (signal_wb_vout.SEL);
+  my_video_out.p_wb_WE_O    (signal_wb_vout.WE);
+  my_video_out.p_wb_ADR_O	(signal_wb_vout.ADR);
+  my_video_out.p_wb_ACK_I    (signal_wb_vout.ACK);
+  my_video_out.p_wb_DAT_I    (signal_wb_vout.MRDAT);
+  my_video_out.interrupt    (signal_video_out_irq);
+ 
+soclib::caba::VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
   my_video_calc.p_clk   (system_clk);
   my_video_calc.p_resetn(signal_resetn);
   my_video_calc.p_interrupt    (signal_video_calc_irq);
   my_video_calc.p_wb_read    (signal_wb_vcalc_read);
   my_video_calc.p_wb_write   (signal_wb_vcalc_write);
 
-  Display my_display ("My_display");
+  soclib::caba::Display my_display ("My_display");
+
   my_display.clk (signal_clk);
   my_display.reset_n(signal_resetn);
   my_display.line_valid(line_valid_out);
@@ -235,6 +272,7 @@ int _main(int argc, char *argv[])
   ////////////////////////////////////////////////////////////
   ///////////////////// WB Net List //////////////////////////
   ////////////////////////////////////////////////////////////
+
   wbinterco.p_clk(system_clk);
   wbinterco.p_resetn(signal_resetn);
 
@@ -332,7 +370,17 @@ int _main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
+// fake sc_man to catch exceptions
 int sc_main(int argc, char *argv[])
 {
-	return (_main(argc, argv));
+    try {
+        return _main(argc, argv);
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+    } catch (...) {
+        std::cout << "Unknown exception occured" << std::endl;
+        throw;
+    }
+    return 1;
 }
+

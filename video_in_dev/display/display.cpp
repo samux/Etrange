@@ -95,7 +95,12 @@ reset:
                     if (pixel_c < p_WIDTH && pixel_l < p_HEIGHT)
                     {
                         // image en niveau de gris => R, G, et B sont egaux
-                        color = SDL_MapRGB(fb_memory->format, pixel_in.read(),pixel_in.read(),pixel_in.read());
+                        color = SDL_MapRGB(
+								fb_memory->format, 
+								char(pixel_in.read()),
+								char(pixel_in.read()),
+								char(pixel_in.read())
+								);
                         buf  = (Uint32*) fb_memory->pixels + pixel_c + p_WIDTH*pixel_l;
                         *buf = (Uint32) color;
                         pixel_c++;
@@ -104,6 +109,10 @@ reset:
                     {
                         cout << name() << " WARNING: Too much pixels..!!!!!" 
                             << " lines : " << pixel_l << " col : " << pixel_c << endl;
+						//XXX TODO A Supprimer 
+						for (;;) {
+							wait();
+						}
                         exit(-1);
                     }
                 }
