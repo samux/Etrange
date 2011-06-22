@@ -59,7 +59,7 @@ assign new_addr = (~old_reg_ctr_0 & wb_reg_ctr[0]);
 //IMAGE_PROCESSED : l'image est finie, on l'indique par une interruption
 
 
-enum logic [2:0] {WAIT_ADDR, WAIT_ACK, BREAK, WRITE_FIFO, WAIT_FIFO, READ_RAM, IMAGE_PROCESSED} state, next_state;
+enum logic [2:0] {WAIT_ADDR, WAIT_ACK, WRITE_FIFO, READ_RAM, IMAGE_PROCESSED} state, next_state;
 
 //Adresse du début de l'image en RAM
 reg [31:0] deb_im;
@@ -114,23 +114,32 @@ case (state)
 	//On attend une nouvelle adresse pour commencer 
 	//la lecture
 	WAIT_ADDR:
+	begin
 		if (new_addr) next_state <= READ_RAM;
+		next_int_cnt <= 0;
+		next_pixel_count <= 0;
+		next_pack_count <= 0;
+
+	end
 	//On passe directement à l'état WAIT_ACK
 	READ_RAM:
 		next_state <= WAIT_ACK;
 	WAIT_ACK:
-		if (p_wb_ACK_I) next_state <= BREAK;
-	BREAK:
-		if (pack_count != NBPACK-4) 
-			next_state <= READ_RAM;
-		//Cas de la fin d'un paquet
-		else
-		begin
-			if (~full)
-				next_state <= WRITE_FIFO;
-			else
-				next_state <= WAIT_FIFO;
-		end
+		if (p_wb_ACK_I) 
+			begin
+				next_pack_count <= pack_count + 4;
+				next_pixel_count <= pixel_count + 4;
+				if (pack_count != NBPACK-4) 
+					begin
+						next_state <= READ_RAM;
+					end
+				//Cas de la fin d'un paquet
+				else
+				begin
+					next_pack_count <= 0;
+					next_state <= WRITE_FIFO;
+				end
+			end
 
 
 	//Si fin de l'écriture d'un paquet, on passe au paquet
@@ -138,28 +147,34 @@ case (state)
 	//Si fin de l'écriture d'un paquet et de l'image
 	//On passe dans l'état IMAGE_PROCESSED
 	WRITE_FIFO:
-		if (pack_count == NBPACK-1 & ~full) //Il faut que la fifo ne
-			//soit pas pleine pour que l'écriture se fasse
-			begin
-			next_state <= READ_RAM;
-			if (pixel_count == p_WIDTH * p_HEIGHT)
-				next_state <= IMAGE_PROCESSED;
-			end
-		else
-			if (~full)
-				next_state <= WRITE_FIFO;
-			else
-				next_state <= WAIT_FIFO;
-	WAIT_FIFO:
-		if (full)
-			next_state <= WAIT_FIFO;
-		else
-			next_state <= WRITE_FIFO;
+	//Si la fifo était pleine le cycle n'a servi a rien
+	//Il n'y a donc des changements que si la fifo n'était pas
+	//pleine
+	if (~full)
+		begin
+		next_pack_count <= pack_count + 1;
+			//Fin d'un paquet
+			if (pack_count == NBPACK-1)
+				begin
+				next_state <= READ_RAM;
+				//Fin d'une image
+				if (pixel_count == p_WIDTH * p_HEIGHT)
+					next_state <= IMAGE_PROCESSED;
+				end
+		end
 	IMAGE_PROCESSED:
 		if (int_cnt == 3)
-			next_state <= WAIT_ADDR;
+			begin
+				next_state <= WAIT_ADDR;
+				next_int_cnt <= 0;
+				next_pack_count <= 0;
+				next_pixel_count <= 0;
+			end
 		else 
-			next_state <= IMAGE_PROCESSED;
+			begin
+				next_state <= IMAGE_PROCESSED;
+				next_int_cnt <= int_cnt + 1;
+			end
 endcase
 
 //Calcul combinatoire des sorties
@@ -174,9 +189,6 @@ always_comb
 					p_wb_CYC_O <= 0;
 					interrupt <= 0;
 					deb_im <= wb_reg_data;
-					next_int_cnt <= 0;
-					next_pack_count <= 0;
-					next_pixel_count <= 0;
 				end
 
 			READ_RAM:
@@ -194,29 +206,14 @@ always_comb
 					pack[pack_count+3] <= p_wb_DAT_I[7:0];
 				end
 
-			BREAK:
+			WRITE_FIFO:
 				begin
 					p_wb_STB_O <= 0;
 					p_wb_CYC_O <= 0;
-					next_pack_count <= pack_count + 4;
-					next_pixel_count <= pixel_count + 4;
-				end
-
-			WRITE_FIFO:
-				begin
 					w_e <= 1;
-					if (~full)
-						next_pack_count <= pack_count + 1;
-				end
-
-			WAIT_FIFO:
-				begin
 				end
 			IMAGE_PROCESSED:
 				begin
-					next_pixel_count <= 0;
-					next_pack_count <= 0;
-					next_int_cnt <= int_cnt + 1;
 					interrupt <= 1;
 				end
 		endcase
