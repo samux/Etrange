@@ -61,13 +61,13 @@ int main(void)
 {
   mfixed cos_plus;
   cos_plus.h = 0;
-  cos_plus.l = (1<<15) + (1<<14) + (1<<13);
+  cos_plus.l = (1<<15) + (1<<14) + (1<<8) + (1<<6);
   mfixed sin_moins;
   sin_moins.h = -1;
-  sin_moins.l = (1<<15);
+  sin_moins.l = (1<<14) + (1<<12) + (1<<11);
   mfixed sin_plus;
   sin_plus.h = 0;
-  sin_plus.l = (1<<15);
+  sin_plus.l = (1<<15) + (1<<13) + (1<<11);
 
   coeff_x[1][0] = cos_plus;
   coeff_x[0][1] = sin_plus;

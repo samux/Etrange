@@ -232,8 +232,8 @@ namespace soclib { namespace caba {
                         << pixel_x
                         << std::endl;*/
 
-            if ((pixel_x < (uint16_t) cache_x) || (pixel_x > (uint16_t) (cache_x + C_W)) ||
-                (pixel_y < (uint16_t) cache_y) || (pixel_y > (uint16_t) (cache_y + C_H)))
+            if ((pixel_x <  cache_x) || (pixel_x >  (cache_x + C_W)) ||
+                (pixel_y <  cache_y) || (pixel_y >  (cache_y + C_H)))
               intensity_tab[count_pix] = (uint8_t) PIXEL_BLANC;
             else
             {
@@ -269,7 +269,7 @@ namespace soclib { namespace caba {
               else
                 I[0][1] = I[0][0];
               if (((coord_x + 1) < C_W) && ((coord_y + 1) < C_H))
-                I[1][1] = cache[coord_y + 1][coord_y + 1];
+                I[1][1] = cache[coord_y + 1][coord_x + 1];
               else
                 I[1][1] = I[0][0];
 
@@ -477,6 +477,9 @@ namespace soclib { namespace caba {
       uint32_t cache_w;
       uint32_t cache_h;
 
+		int32_t cache_x_img;
+		int32_t cache_y_img;
+
       // Décalage dans le cache de la zone dans l'image
       uint32_t decalage_w = 0;
       uint32_t decalage_h = 0;
@@ -502,6 +505,9 @@ namespace soclib { namespace caba {
       cache_w = C_W;
       cache_h = C_H;
 
+		cache_x_img = cache_x;
+		cache_y_img = cache_y;
+
       // std::cout << " VCALC PROCESS_TILE: BEFORE TILE NUMBER "
       //           << tile_nb
       //           << " cache_y : "
@@ -523,7 +529,7 @@ namespace soclib { namespace caba {
         {
           cache_w += cache_x;
           decalage_w = C_W - cache_w;
-          cache_x = 0;
+          cache_x_img = 0;
         }
       }
 
@@ -536,7 +542,7 @@ namespace soclib { namespace caba {
         {
           cache_h += cache_y;
           decalage_h = C_H - cache_h;
-          cache_y = 0;
+          cache_y_img = 0;
         }
       }
 
@@ -563,7 +569,7 @@ namespace soclib { namespace caba {
       // Remplissage du cache
       for (uint32_t line = 0; line < cache_h; line++)
       {
-        adr = deb_im_in + (cache_y + line) * p_WIDTH + cache_x;
+        adr = deb_im_in + (cache_y_img + line) * p_WIDTH + cache_x_img;
         master0.wb_read_blk(adr, cache_w / 4, buffer_line);
 
         /*std::cout << " VCALC PROCESS_TILE: adr TILE NUMBER "
