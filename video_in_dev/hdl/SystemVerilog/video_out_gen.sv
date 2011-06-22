@@ -1,7 +1,7 @@
 parameter p_WIDTH = 640;
 parameter p_HEIGHT = 480;
-parameter TIME_BREAK = 150;
-parameter IMAGE_TIME_BREAK = 150;
+parameter TIME_BREAK = 160;
+parameter IMAGE_TIME_BREAK = 40*(160+640);
 
 module video_out_gen (
 	input wire clk,
@@ -34,10 +34,6 @@ always_ff @(posedge clk)
 	else
 		r_ack <= 0;
 
-
-
-
-
 //Compteur de ligne
 reg [9:0] pixel_l;
 
@@ -47,7 +43,7 @@ reg [9:0] pixel_c;
 //Compteur pour la durée du break entre
 //lignes et entre image
 reg [9:0] line_break;
-reg [9:0] image_break;
+reg [15:0] image_break;
 
 enum logic [1:0] {WAIT, GEN, BREAK} state, next_state;
 
@@ -76,7 +72,10 @@ case (state)
 			image_break <= image_break + 1;
 		end
 	GEN:
-		pixel_c <= pixel_c + 1;
+		begin
+			pixel_c <= pixel_c + 1;
+			line_break <= 0;
+		end
 	BREAK:
 		begin
 			line_break <= line_break + 1;
