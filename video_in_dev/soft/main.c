@@ -60,14 +60,24 @@ uint32_t * RAM_FIRST_IMAGE_PROCESSED;
 int main(void)
 {
   mfixed cos_plus;
-  cos_plus.h = 0;
-  cos_plus.l = (1<<15) + (1<<14) + (1<<8) + (1<<6);
+  cos_plus.h = 1;
+  cos_plus.l =  (1<<14);
   mfixed sin_moins;
   sin_moins.h = -1;
-  sin_moins.l = (1<<14) + (1<<12) + (1<<11);
+  sin_moins.l = 0;
   mfixed sin_plus;
-  sin_plus.h = 0;
-  sin_plus.l = (1<<15) + (1<<13) + (1<<11);
+  sin_plus.h = 1;
+  sin_plus.l = 0;
+
+  mfixed decalage_x;
+  decalage_x.h = -10*16;
+  decalage_x.l = 0;
+  coeff_x[0][0] = decalage_x;
+
+  mfixed decalage_y;
+  decalage_y.h = 5*16;
+  decalage_y.l = 0;
+  coeff_y[0][0] = decalage_y;
 
   coeff_x[1][0] = cos_plus;
   coeff_x[0][1] = sin_plus;

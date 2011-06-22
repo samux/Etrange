@@ -198,8 +198,16 @@ namespace soclib { namespace caba {
          **********/
         // cache_x =  coeff[tile_nb].reg.Px[3] >> 16;
         // cache_y =  coeff[tile_nb].reg.Py[3] >> 16;
-        cache_x = (coeff[tile_nb].reg.cache_x >> 16);
-        cache_y = (coeff[tile_nb].reg.cache_y >> 16);
+		  /*if ( ((coeff[tile_nb].reg.cache_x << 16) >> 16) & 0x8000)
+			 cache_x = (coeff[tile_nb].reg.cache_x >> 16) - 1;
+		  else*/ 
+			 cache_x = (coeff[tile_nb].reg.cache_x >> 16);
+
+		  /*if ( ((coeff[tile_nb].reg.cache_y << 16) >> 16) & 0x8000)
+			 cache_y = (coeff[tile_nb].reg.cache_y >> 16) - 1;
+		  else*/ 
+			 cache_y = (coeff[tile_nb].reg.cache_y >> 16);
+
         std::cout << "cache_x : "
                   << cache_x
                   << " cache_y : "
@@ -221,8 +229,16 @@ namespace soclib { namespace caba {
         {
           for(int j = 0; j < T_W; j++)
           {
-            pixel_x = (coeff[tile_nb].reg.Px[3] >> 16);
-            pixel_y = (coeff[tile_nb].reg.Py[3] >> 16);
+				/*if ( ((coeff[tile_nb].reg.Px[3] << 16) >> 16) & 0x8000)
+				  pixel_x = (coeff[tile_nb].reg.Px[3] >> 16) + 1;
+				else*/
+				  pixel_x = (coeff[tile_nb].reg.Px[3] >> 16);
+
+				/*if ( ((coeff[tile_nb].reg.Py[3] << 16) >> 16) & 0x8000)
+				  pixel_y = (coeff[tile_nb].reg.Py[3] >> 16) + 1;
+				else*/
+				  pixel_y = (coeff[tile_nb].reg.Py[3] >> 16);
+
 
               /*std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
                         << tile_nb
@@ -232,9 +248,15 @@ namespace soclib { namespace caba {
                         << pixel_x
                         << std::endl;*/
 
-            if ((pixel_x <  cache_x) || (pixel_x >  (cache_x + C_W)) ||
-                (pixel_y <  cache_y) || (pixel_y >  (cache_y + C_H)))
+				  std::cout << "pixel_x " << pixel_x << " pixel_y " << pixel_y
+					 			<< " cache_x : " << cache_x
+								<< " cache_y : " << cache_y << std::endl;
+            if ((pixel_x <  cache_x) || (pixel_x >=  (cache_x + (int16_t)C_W)) ||
+                (pixel_y <  cache_y) || (pixel_y >=  (cache_y + (int16_t)C_H)))
+				{
+				  std::cout << "je rentre" << std::endl;
               intensity_tab[count_pix] = (uint8_t) PIXEL_BLANC;
+				}
             else
             {
               coord_x = (uint16_t) (pixel_x - cache_x);
@@ -248,8 +270,8 @@ namespace soclib { namespace caba {
                         << coord_x
                         << std::endl;*/
 
-              dx = coeff[tile_nb].reg.Px[3];
-              dy = coeff[tile_nb].reg.Px[3];
+              dx = (coeff[tile_nb].reg.Px[3] << 16) >> 16;
+              dy = (coeff[tile_nb].reg.Py[3] << 16) >> 16;
 
               /*std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
                         << tile_nb
@@ -272,6 +294,10 @@ namespace soclib { namespace caba {
                 I[1][1] = cache[coord_y + 1][coord_x + 1];
               else
                 I[1][1] = I[0][0];
+				  std::cout << "I[0][0] : " << (int)I[0][0] << std::endl;
+				  std::cout << "I[0][1] : " << (int)I[0][1] << std::endl;
+				  std::cout << "I[1][0] : " << (int)I[1][0] << std::endl;
+				  std::cout << "I[1][1] : " << (int)I[1][1] << std::endl;
 
 				  uint32_t dx_1 = (1 << 16) - dx;
 				  uint32_t dy_1 = (1 << 16) - dy;
@@ -282,13 +308,13 @@ namespace soclib { namespace caba {
 				  intensity = a1 + a2 + a3 + a4;
 
 
-              std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
+              /*std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
                         << tile_nb
                         << " intensity : "
                         << (intensity >> 16)
-                        << std::endl;
+                        << std::endl;*/
 
-              if ( (uint8_t) (intensity >> 16) > PIXEL_BLANC)
+              if ( (uint8_t) (intensity >> 16) >= PIXEL_BLANC)
                 intensity_tab[count_pix] = (uint8_t) PIXEL_BLANC;
               else
                 intensity_tab[count_pix] = (uint8_t) (intensity>>16);
@@ -493,8 +519,8 @@ namespace soclib { namespace caba {
           cache[i][j] = PIXEL_BLANC;
 
       // Cas où le cache est complétement en dehors de l'image
-      if (cache_x > (int32_t) p_WIDTH  ||
-          cache_y > (int32_t) p_HEIGHT
+      if (cache_x > ((int16_t) p_WIDTH - 1)  ||
+          cache_y > ((int16_t) p_HEIGHT - 1)
         )
         return;
 
@@ -523,7 +549,7 @@ namespace soclib { namespace caba {
       // Dépassement à gauche
       if (cache_x < 0)
       {
-        if (cache_x < (int32_t) -C_W)
+        if (cache_x + (int16_t) C_W - 1 < 0)
           return;
         else
         {
@@ -536,7 +562,7 @@ namespace soclib { namespace caba {
       // Dépassement en haut
       if (cache_y < 0)
       {
-        if (cache_y < (int32_t) -C_H)
+        if (cache_y + (int16_t)C_H - 1 < 0)
           return;
         else
         {
@@ -559,11 +585,11 @@ namespace soclib { namespace caba {
       //           << std::endl;
 
       // Dépassement à droite
-      if ((cache_x + C_W) > (int32_t) p_WIDTH)
+      if ((cache_x + C_W) > (int16_t) p_WIDTH)
         cache_w -= (cache_x + C_W - p_WIDTH);
 
       // Dépassement en bas
-      if (cache_y + C_H > (int32_t) p_HEIGHT)
+      if ((cache_y + C_H) > (int16_t) p_HEIGHT)
         cache_h -= (cache_y + C_H - p_HEIGHT);
 
       // Remplissage du cache
@@ -618,10 +644,10 @@ namespace soclib { namespace caba {
 										&coeff_image[tile_nb].raw[NB_COEFF / 2 + 1]);
 
 		}
-		// for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
-		// {
-		//   int16_t temp_Px3 = coeff_image[tile_nb].reg.Px[3] >> 16;
-		//   int16_t temp_Py3 = coeff_image[tile_nb].reg.Py[3] >> 16;
+		 /*for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
+		 {
+		   int16_t temp_Px3 = coeff_image[tile_nb].reg.Px[3] >> 16;
+		   int16_t temp_Py3 = coeff_image[tile_nb].reg.Py[3] >> 16;
 		//   int16_t temp_Px2 = coeff_image[tile_nb].reg.Px[2] >> 16;
 		//   int16_t temp_Py2 = coeff_image[tile_nb].reg.Py[2] >> 16;
 		//   int16_t temp_Px1 = coeff_image[tile_nb].reg.Px[1] >> 16;
@@ -634,13 +660,13 @@ namespace soclib { namespace caba {
 		//   int16_t temp_Qy2 = coeff_image[tile_nb].reg.Qy[2] >> 16;
 		//   int16_t temp_cache_x = coeff_image[tile_nb].reg.cache_x >> 16;
 		//   int16_t temp_cache_y = coeff_image[tile_nb].reg.cache_y >> 16;
-		//   std::cout << " VCALC GET_TILE: COEFF RAM : "
-                //             << " tile nb : "
-                //             << tile_nb
-                //             << " Px3 : "
-                //             << temp_Px3
-                //             << " Py3 : "
-                //             << temp_Py3
+		   std::cout << " VCALC GET_TILE: COEFF RAM : "
+                             << " tile nb : "
+                             << tile_nb
+                             << " Px3 : "
+                             << temp_Px3
+                             << " Py3 : "
+                             << temp_Py3
                 //             << " Px2 : "
                 //             << temp_Px2
                 //             << " Py2 : "
@@ -665,8 +691,8 @@ namespace soclib { namespace caba {
                 //             << temp_cache_x
                 //             << " cache_y : "
                 //             << temp_cache_y
-                //             << std::endl;
-		// }
+                             << std::endl;
+		 }*/
     }
 
 
