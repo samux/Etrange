@@ -32,6 +32,7 @@ module video_in_store (
 		);
 
 assign p_wb_SEL_O = 4'hf;
+assign p_wb_DAT_O = data_fifo;
 
 parameter p_WIDTH = 640;
 parameter p_HEIGHT = 480;
@@ -191,7 +192,6 @@ else
 		STORE:
 			begin
 				r_ack <= 1;
-				p_wb_DAT_O <= data_fifo;
 				p_wb_ADR_O <= deb_im + pixel_count;
 				p_wb_STB_O <= 1;
 				p_wb_CYC_O <= 1;
