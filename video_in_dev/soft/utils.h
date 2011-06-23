@@ -15,7 +15,7 @@
 
 
 
-#define USE_COPRO 1
+#define USE_COPRO 0
 /**< If USE_COPRO = 1, we use the coprocessor else there isn't transformation */
 
 

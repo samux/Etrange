@@ -22,14 +22,14 @@ module wb_simple_slave
                         input  [3:0]p_wb_SEL_I,
                         input  p_wb_STB_I,
                         input  p_wb_WE_I,
-								output [31:0] wb_data_0,
-								output [31:0] wb_data_1,
-								output [31:0] wb_data_2,
-								output [31:0] wb_data_3,
-								output [31:0] wb_data_4,
-								output [31:0] wb_data_5,
-								output [31:0] wb_data_6,
-								output [31:0] wb_data_7,
+						output [31:0] wb_data_0,
+						output [31:0] wb_data_1,
+						output [31:0] wb_data_2,
+						output [31:0] wb_data_3,
+						output [31:0] wb_data_4,
+						output [31:0] wb_data_5,
+						output [31:0] wb_data_6,
+						output [31:0] wb_data_7
                         );
 
 					

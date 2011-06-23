@@ -58,6 +58,10 @@
 #include "video_calc.h"
 #include "display.h"
 
+#define VIDEO_CALC 0
+
+
+
 // SystemC main
 int _main(int argc, char *argv[])
 {
@@ -103,18 +107,22 @@ int _main(int argc, char *argv[])
   soclib::caba::WbSignal<wb_param> signal_wb_slave("signal_wb_slave");
   soclib::caba::WbSignal<wb_param> signal_wb_vin  ("signal_wb_vin");
   soclib::caba::WbSignal<wb_param> signal_wb_vout  ("signal_wb_vout");
+#if VIDEO_CALC
   soclib::caba::WbSignal<wb_param> signal_wb_vcalc_read  ("signal_wb_vcalc_read");
   soclib::caba::WbSignal<wb_param> signal_wb_vcalc_write  ("signal_wb_vcalc_write");
+#endif
 
   // WB slave data
   sc_signal<sc_uint<32> > wb_data_0("wb_data_0");
   sc_signal<sc_uint<32> > wb_data_1("wb_data_1");
   sc_signal<sc_uint<32> > wb_data_2("wb_data_2");
   sc_signal<sc_uint<32> > wb_data_3("wb_data_3");
+#if VIDEO_CALC
   sc_signal<sc_uint<32> > wb_data_4("wb_data_4");
   sc_signal<sc_uint<32> > wb_data_5("wb_data_5");
   sc_signal<sc_uint<32> > wb_data_6("wb_data_6");
   sc_signal<sc_uint<32> > wb_data_7("wb_data_7");
+#endif
 
   /**********************************************
    * IRQ
@@ -162,8 +170,12 @@ int _main(int argc, char *argv[])
   soclib::caba::VciMultiTty<vci_param> vcitty("vcitty",	IntTab(2), maptab, "tty.log", NULL);
 
   // WB interconnect
-  //                                           sc_name    maptab  masters slaves
+  //sc_name    maptab  masters slaves
+#if VIDEO_CALC
   soclib::caba::WbInterco<wb_param> wbinterco("wbinterco",maptab, 5,4);
+#else
+  soclib::caba::WbInterco<wb_param> wbinterco("wbinterco",maptab, 3,4);
+#endif
 
   ////////////////////////////////////////////////////////////
   /////////////////// WB -> VCI Wrappers /////////////////////
@@ -267,13 +279,15 @@ int _main(int argc, char *argv[])
   my_video_out.p_wb_ACK_I    (signal_wb_vout.ACK);
   my_video_out.p_wb_DAT_I    (signal_wb_vout.MRDAT);
   my_video_out.interrupt    (signal_video_out_irq);
- 
+
+#if VIDEO_CALC
 soclib::caba::VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_t);
   my_video_calc.p_clk   (system_clk);
   my_video_calc.p_resetn(signal_resetn);
   my_video_calc.p_interrupt    (signal_video_calc_irq);
   my_video_calc.p_wb_read    (signal_wb_vcalc_read);
   my_video_calc.p_wb_write   (signal_wb_vcalc_write);
+#endif
 
   soclib::caba::Display my_display ("My_display");
 
@@ -293,8 +307,10 @@ soclib::caba::VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data
   wbinterco.p_from_master[0](signal_wb_lm32);
   wbinterco.p_from_master[1](signal_wb_vin);
   wbinterco.p_from_master[2](signal_wb_vout);
+#if VIDEO_CALC
   wbinterco.p_from_master[3](signal_wb_vcalc_read);
   wbinterco.p_from_master[4](signal_wb_vcalc_write);
+#endif
 
   wbinterco.p_to_slave[0](signal_wb_rom);
   wbinterco.p_to_slave[1](signal_wb_ram);
@@ -311,8 +327,12 @@ soclib::caba::VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data
   lm32.p_irq[0] (signal_tty_irq);
   lm32.p_irq[1] (signal_video_in_irq);
   lm32.p_irq[2] (signal_video_out_irq);
+#if VIDEO_CALC
   lm32.p_irq[3] (signal_video_calc_irq);
   for (int i = 4; i < 32; i++)
+#else
+  for (int i = 3; i<32; i++)
+#endif
     lm32.p_irq[i] (unconnected_irq);
 
   ////////////////////////////////////////////////////////////

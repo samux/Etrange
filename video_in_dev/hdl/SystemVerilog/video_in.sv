@@ -55,7 +55,8 @@ video_in_read video_in_read (
 );
 
 
-fifo fifo(
+fifo #(.NB_PACK(4)) fifo 
+	(
 	.clk(clk),
 	.nRST(nRST_im),
 	.data_in(pixels_fifo_in),
