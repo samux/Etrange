@@ -13,6 +13,13 @@
 #include <stdint.h>
 #include "mfixed.h"
 
+
+
+#define USE_COPRO 1
+/**< If USE_COPRO = 1, we use the coprocessor else there isn't transformation */
+
+
+
 #define WIDTH 640 										/**< Width of images   */
 #define HEIGHT 480 										/**< Height of images   */
 
@@ -26,6 +33,7 @@
 #define NB_TILE_WIDTH WIDTH/TILE_WIDTH 			/**< Number of tiles according to the width   */
 #define NB_TILE_HEIGHT HEIGHT/TILE_HEIGHT 		/**< Number of tiles according to the height   */
 #define NB_TILE NB_TILE_WIDTH*NB_TILE_HEIGHT 	/**< Number of tiles   */
+
 
 /**
  * \struct coeff_incr_t
