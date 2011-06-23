@@ -29,7 +29,7 @@ void init_poly();
  *
  * Compute the antecedant of a pixel and store it in two mfixed
  */
-void ante(int X_, int Y_, mfixed * X_ante, mfixed * Y_ante);
+void ante(float X_, float Y_, mfixed * X_ante, mfixed * Y_ante);
 
 /************
  * Pour le debug

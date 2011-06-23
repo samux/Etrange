@@ -26,3 +26,8 @@ inline mfixed fx_add (mfixed A, mfixed B)
 {
     return (mfixed)(A.all + B.all);
 }
+
+inline mfixed mf (float x)
+{
+  return (mfixed)( (int)(x * (1<<16)));
+}

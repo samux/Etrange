@@ -39,5 +39,6 @@ inline mfixed fx_mul  (mfixed A, mfixed B);
  */
 inline mfixed fx_add (mfixed A, mfixed B);
 
+inline mfixed mf (float x);
 #endif
 
