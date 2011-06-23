@@ -9,8 +9,8 @@ module fill_cache
 	parameter IM_HEIGHT = 640,
 	parameter ADDR_SIZE_W = 5, //Cache de largeur maximum 2**ADDR_SIZE_W
 	parameter ADDR_SIZE_H = 5, //Cache de hauteur maximum 2**ADDR_SIZE_H
-	parameter DATA_SIZE = 8,
-	parameter )
+	parameter DATA_SIZE = 32,
+	 )
 	(
 	//Signaux système
 	input wire clk,
@@ -39,10 +39,9 @@ module fill_cache
 	output reg p_wb_WE_O,
 	output reg [31:0] p_wb_ADR_O,
 
-	//Vers la RAM interne
-	//RAM de 
-	output reg [DATA_SIZE-1:0] pixel_out,
-	output reg [ADDR_SIZE_W +ADDR_SIZE_H -1 : 0] addr, 
+	//Vers la RAM interne qui contient le cache
+	output reg [DATA_SIZE-1:0] pixels_out,
+	output reg [ADDR_SIZE_W +ADDR_SIZE_H -1 : 0] ram_addr, 
 	output reg w_e
 	);
 
@@ -120,6 +119,8 @@ else
 							state <= IDLE;
 						end
 				end
+		CACHE_PROCESSED:
+			state <= IDLE;
 endcase
 
 /////////Calcul combinatoire des sorties///////////////////
@@ -129,12 +130,15 @@ begin
 	p_wb_SEL_O <= 4'hf;
 	p_wb_WE_O <= 0;
 	w_e <= 0;
+	pixels_out <= p_wb_DAT_I;
+	ram_addr <= line_cnt * 2**ADDR_SIZE_W + column_cnt;
 	case (state)
 		IDLE:
 		begin
 			p_wb_STB_O <= 0;
 			p_wb_CYC_O <= 0;
 			w_e <= 0;
+			cache_ready <= 0;
 		end
 		READ_RAM:
 		begin
@@ -142,13 +146,21 @@ begin
 			p_wb_CYC_O <= 1;
 			p_wb_ADR_O <= im_addr + (pixel_l + line_cnt)* WIDTH + pixel_c + column_cnt;
 			w_e <= 0;
+			cache_ready <= 0;
 		end
 		WAIT_ACK:
 			begin
 				p_wb_STB <= 1;
 				p_wb_CYC_O <= 1;
-				pixels_out <= p_wb_DAT_I;
 				w_e <= 1;
+				cache_ready <= 0;
+			end
+		CACHE_PROCESSED:
+			begin
+				p_wb_STB <= 0:
+				p_wb_CYC_O <= 0;
+				w_e <= 0;
+				cache_ready <= 1;
 			end
 	endcase
 end
