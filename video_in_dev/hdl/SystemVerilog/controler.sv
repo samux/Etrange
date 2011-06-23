@@ -4,7 +4,7 @@ module controler (
                   input logic p_resetn,
                   output logic p_interrupt,
                   // Connexion avec le bus
-                  // wishbone salve
+                  // wishbone slave
                   input logic [31:0] wb_reg_data,
                   input logic [31:0] wb_reg_ctr,
                   // Signaux wishbone master

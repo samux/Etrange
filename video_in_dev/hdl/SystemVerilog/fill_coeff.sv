@@ -40,30 +40,34 @@ module fill_coeff
 
 	//Vers la RAM interne qui contient le cache
 	output reg [DATA_SIZE-1:0] coeffs_out,
-	output reg [ADDR_SIZE_W +ADDR_SIZE_H -1 : 0] ram_addr, 
+	output reg [ADDR_SIZE_W +ADDR_SIZE_H -1 : 0] ram_addr,
 	output reg w_e
 	);
 
-	fill_cache #(
-				ADDR_SIZE_W = COEFF_ADDR_SIZE,
-				ADDR_SIZE_H = 1,
-				DATA_SIZE = 32
-				)
-				(.clk(clk)
-				.nRST(nRST,
-				.im_addr(coeff_addr),
-				.go(go),
-				.cache_ready(coeff_ready),
-				.p_wb_DAT_I(p_wb_DAT_I),
-				.p_wb_STB_O(p_wb_STB_O),
-				.p_wb_CYC_O(p_wb_CYC_O),
-				.p_wb_LOCK_O(p_wb_LOCK_O),
-				.p_wb_SEL_O(p_wb_SEL_O),
-				.p_wb_WE_O(p_wb_WE_O),
-				.p_wb_ADR_O(p_wb_ADR_O),
-				.coeffs_out(pixels_out),
-				.ram_addr(ram_addr)
-				);
+   fill_cache #(
+		ADDR_SIZE_W = COEFF_ADDR_SIZE,
+		ADDR_SIZE_H = 1,
+		DATA_SIZE = 32
+		)
+   (.clk(clk)
+    .nRST(nRST),
+    .pixel_c_I(0),
+    .pixel_l_I(0),
+    .cache_w_I(26),
+    .cache_h_I(0),
+    .im_addr(coeff_addr),
+    .go(go),
+    .cache_ready(coeff_ready),
+    .p_wb_DAT_I(p_wb_DAT_I),
+    .p_wb_STB_O(p_wb_STB_O),
+    .p_wb_CYC_O(p_wb_CYC_O),
+    .p_wb_LOCK_O(p_wb_LOCK_O),
+    .p_wb_SEL_O(p_wb_SEL_O),
+    .p_wb_WE_O(p_wb_WE_O),
+    .p_wb_ADR_O(p_wb_ADR_O),
+    .coeffs_out(pixels_out),
+    .ram_addr(ram_addr)
+    );
 
 
 endmodule;
