@@ -51,7 +51,7 @@
 #include "hdl/include/video_in.h"
 #include "hdl/include/video_out.h"
 //wb_slave
-#include "wb_simple_slave.h"
+#include "hdl/include/wb_simple_slave.h"
 
 //Video
 #include "video_gen.h"
@@ -111,6 +111,10 @@ int _main(int argc, char *argv[])
   sc_signal<sc_uint<32> > wb_data_1("wb_data_1");
   sc_signal<sc_uint<32> > wb_data_2("wb_data_2");
   sc_signal<sc_uint<32> > wb_data_3("wb_data_3");
+  sc_signal<sc_uint<32> > wb_data_4("wb_data_4");
+  sc_signal<sc_uint<32> > wb_data_5("wb_data_5");
+  sc_signal<sc_uint<32> > wb_data_6("wb_data_6");
+  sc_signal<sc_uint<32> > wb_data_7("wb_data_7");
 
   /**********************************************
    * IRQ
@@ -264,7 +268,7 @@ int _main(int argc, char *argv[])
   my_video_out.p_wb_DAT_I    (signal_wb_vout.MRDAT);
   my_video_out.interrupt    (signal_video_out_irq);
  
-soclib::caba::VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_tab);
+soclib::caba::VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_t);
   my_video_calc.p_clk   (system_clk);
   my_video_calc.p_resetn(signal_resetn);
   my_video_calc.p_interrupt    (signal_video_calc_irq);

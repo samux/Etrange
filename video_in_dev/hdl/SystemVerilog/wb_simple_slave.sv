@@ -4,7 +4,7 @@
 *********************************/
 
 parameter SLAVE_ADDR = 32'hb0000000;
-parameter SIZE = 4;
+parameter SIZE = 8;
 
 module wb_simple_slave 
                         (
@@ -22,10 +22,14 @@ module wb_simple_slave
                         input  [3:0]p_wb_SEL_I,
                         input  p_wb_STB_I,
                         input  p_wb_WE_I,
-						output [31:0] wb_data_0,
-						output [31:0] wb_data_1,
-						output [31:0] wb_data_2,
-						output [31:0] wb_data_3
+								output [31:0] wb_data_0,
+								output [31:0] wb_data_1,
+								output [31:0] wb_data_2,
+								output [31:0] wb_data_3,
+								output [31:0] wb_data_4,
+								output [31:0] wb_data_5,
+								output [31:0] wb_data_6,
+								output [31:0] wb_data_7,
                         );
 
 					
@@ -39,6 +43,10 @@ assign wb_data_0 = wb_data[0];
 assign wb_data_1 = wb_data[1];
 assign wb_data_2 = wb_data[2];
 assign wb_data_3 = wb_data[3];
+assign wb_data_4 = wb_data[4];
+assign wb_data_5 = wb_data[5];
+assign wb_data_6 = wb_data[6];
+assign wb_data_7 = wb_data[7];
 
 
 // always acknowledge requests
@@ -56,6 +64,8 @@ begin
 		//Remise à 0 des registres de contrôle
 		wb_data[1] <= 0;
 		wb_data[3] <= 0;
+		wb_data[5] <= 0;
+		wb_data[7] <= 0;
 		if (p_wb_STB_I ) 
 		begin
 		$display("strobe");
