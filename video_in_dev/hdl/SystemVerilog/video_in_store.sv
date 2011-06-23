@@ -32,6 +32,7 @@ module video_in_store (
 		);
 
 assign p_wb_SEL_O = 4'hf;
+assign p_wb_DAT_O = data_fifo;
 
 parameter p_WIDTH = 640;
 parameter p_HEIGHT = 480;
@@ -85,7 +86,7 @@ always_ff @(posedge clk)
 //		-on a fini de stocker une image on passe interrupt
 //		à 1 pendant un coup d'horloge
 
-enum logic [2:0] {WAIT_ADDR, WAIT_PACK_AVB, WAIT_ACK,BREAK, STORE, IMAGE_PROCESSED} state, next_state;
+enum logic [2:0] {WAIT_ADDR, WAIT_PACK_AVB, WAIT_ACK, STORE, IMAGE_PROCESSED} state, next_state;
 
 
 
@@ -119,17 +120,15 @@ begin
 			if (nb_pack_available) next_state <= STORE;
 		STORE:
 			next_state <= WAIT_ACK;
-		BREAK:
-			if (pixel_count == p_WIDTH * p_HEIGHT)
-			//Cas de fin d'image
-				next_state <= IMAGE_PROCESSED;
-			//Cas de fin d'un paquet mais pas d'une image
-			else if (counter_pack == 0)
-				next_state <= WAIT_PACK_AVB;
-			else next_state <= STORE;
 		WAIT_ACK:
 			if (p_wb_ACK_I) 
-				next_state <= BREAK;
+				if (pixel_count == p_WIDTH * p_HEIGHT)
+				//Cas de fin d'image
+					next_state <= IMAGE_PROCESSED;
+				//Cas de fin d'un paquet mais pas d'une image
+				else if (counter_pack == 0)
+					next_state <= WAIT_PACK_AVB;
+					else next_state <= STORE;
 		IMAGE_PROCESSED:
 			if (int_cnt == 3)
 				next_state <= WAIT_ADDR;
@@ -193,7 +192,6 @@ else
 		STORE:
 			begin
 				r_ack <= 1;
-				p_wb_DAT_O <= data_fifo;
 				p_wb_ADR_O <= deb_im + pixel_count;
 				p_wb_STB_O <= 1;
 				p_wb_CYC_O <= 1;
@@ -206,11 +204,6 @@ else
 		//du ack du wishbone
 		WAIT_ACK:
 			begin
-			end
-		BREAK:
-			begin
-				p_wb_STB_O <= 0;
-				p_wb_CYC_O <= 0;
 			end
 		IMAGE_PROCESSED:
 			begin

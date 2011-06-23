@@ -189,10 +189,21 @@ int _main(int argc, char *argv[])
   ////////////////////////////////////////////////////////////
   /////////////////////WB Slave //////////////////////////////
   ////////////////////////////////////////////////////////////
-  soclib::caba::WbSimpleSlave<wb_param> simple_slave ("WB_simple_slave", WBS_BASE, WBS_SIZE);
+  wb_simple_slave simple_slave ("WB_simple_slave", "wb_simple_slave");
+
   simple_slave.p_clk(system_clk);
   simple_slave.p_resetn(signal_resetn);
-  simple_slave.p_wb(signal_wb_slave);
+  simple_slave.p_wb_DAT_I(signal_wb_slave.MWDAT);
+  simple_slave.p_wb_DAT_O(signal_wb_slave.MRDAT);
+  simple_slave.p_wb_ADR_I(signal_wb_slave.ADR);
+  simple_slave.p_wb_ACK_O(signal_wb_slave.ACK);
+  simple_slave.p_wb_CYC_I(signal_wb_slave.CYC);
+  simple_slave.p_wb_ERR_O(signal_wb_slave.ERR);
+  simple_slave.p_wb_LOCK_I(signal_wb_slave.LOCK);
+  simple_slave.p_wb_RTY_O(signal_wb_slave.RTY);
+  simple_slave.p_wb_SEL_I(signal_wb_slave.SEL);
+  simple_slave.p_wb_STB_I(signal_wb_slave.STB);
+  simple_slave.p_wb_WE_I(signal_wb_slave.WE);
   simple_slave.wb_data_0(wb_data_0);
   simple_slave.wb_data_1(wb_data_1);
   simple_slave.wb_data_2(wb_data_2);
