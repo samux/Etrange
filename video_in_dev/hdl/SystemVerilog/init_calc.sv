@@ -18,6 +18,9 @@ module init_calc
 
     // signaux de validité de ce qui se trouve
     // en cache
+    input logic [31:0] cache_x_in;
+    input logic [31:0] cache_y_in;
+
     output logic [9:0] decalage_w;
     output logic [9:0] decalage_h;
     output logic [9:0] cache_w;
