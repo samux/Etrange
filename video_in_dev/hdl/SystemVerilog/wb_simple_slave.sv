@@ -4,7 +4,7 @@
 *********************************/
 
 parameter SLAVE_ADDR = 32'hb0000000;
-parameter SIZE = 8;
+parameter SIZE = 9;
 
 module wb_simple_slave 
                         (
@@ -29,7 +29,9 @@ module wb_simple_slave
 						output [31:0] wb_data_4,
 						output [31:0] wb_data_5,
 						output [31:0] wb_data_6,
-						output [31:0] wb_data_7
+						output [31:0] wb_data_7,
+						output [31:0] wb_data_8
+
                         );
 
 					
@@ -47,6 +49,7 @@ assign wb_data_4 = wb_data[4];
 assign wb_data_5 = wb_data[5];
 assign wb_data_6 = wb_data[6];
 assign wb_data_7 = wb_data[7];
+assign wb_data_8 = wb_data[8];
 
 
 // always acknowledge requests
