@@ -199,13 +199,13 @@ namespace soclib { namespace caba {
         // cache_x =  coeff[tile_nb].reg.Px[3] >> 16;
         // cache_y =  coeff[tile_nb].reg.Py[3] >> 16;
 		  /*if ( ((coeff[tile_nb].reg.cache_x << 16) >> 16) & 0x8000)
-			 cache_x = (coeff[tile_nb].reg.cache_x >> 16) - 1;
-		  else*/ 
+			 cache_x = (coeff[tile_nb].reg.cache_x >> 16) + 1;
+		  else*/
 			 cache_x = (coeff[tile_nb].reg.cache_x >> 16);
 
 		  /*if ( ((coeff[tile_nb].reg.cache_y << 16) >> 16) & 0x8000)
-			 cache_y = (coeff[tile_nb].reg.cache_y >> 16) - 1;
-		  else*/ 
+			 cache_y = (coeff[tile_nb].reg.cache_y >> 16) + 1;
+		  else*/
 			 cache_y = (coeff[tile_nb].reg.cache_y >> 16);
 
         std::cout << "cache_x : "
@@ -254,7 +254,6 @@ namespace soclib { namespace caba {
             if ((pixel_x <  cache_x) || (pixel_x >=  (cache_x + (int16_t)C_W)) ||
                 (pixel_y <  cache_y) || (pixel_y >=  (cache_y + (int16_t)C_H)))
 				{
-				  std::cout << "je rentre" << std::endl;
               intensity_tab[count_pix] = (uint8_t) PIXEL_BLANC;
 				}
             else
@@ -296,10 +295,10 @@ namespace soclib { namespace caba {
                 I[1][1] = cache[coord_y + 1][coord_x + 1];
               else
                 I[1][1] = I[0][0];
-				  std::cout << "I[0][0] : " << (int)I[0][0] << std::endl;
+				  /*std::cout << "I[0][0] : " << (int)I[0][0] << std::endl;
 				  std::cout << "I[0][1] : " << (int)I[0][1] << std::endl;
 				  std::cout << "I[1][0] : " << (int)I[1][0] << std::endl;
-				  std::cout << "I[1][1] : " << (int)I[1][1] << std::endl;
+				  std::cout << "I[1][1] : " << (int)I[1][1] << std::endl;*/
 
 				  uint32_t dx_1 = (1 << 16) - dx;
 				  uint32_t dy_1 = (1 << 16) - dy;
@@ -308,15 +307,20 @@ namespace soclib { namespace caba {
 				  int32_t a3 = fx_mul(dx, fx_mul(dy_1, (I[1][0] << 16)));
 				  int32_t a4 = fx_mul(dx, fx_mul(dy, (I[1][1] << 16)));
 				  intensity = a1 + a2 + a3 + a4;
+				  wait();
+				  wait();
+				  wait();
 
-
-              /*std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
+              std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
                         << tile_nb
                         << " intensity : "
-                        << (intensity >> 16)
-                        << std::endl;*/
+                        << (intensity)
+                        << " intensity : "
+                        << (intensity>>16)
+                        << std::endl;
 
               if ( (uint8_t) (intensity >> 16) >= PIXEL_BLANC)
+
                 intensity_tab[count_pix] = (uint8_t) PIXEL_BLANC;
               else
                 intensity_tab[count_pix] = (uint8_t) (intensity>>16);
@@ -375,11 +379,11 @@ namespace soclib { namespace caba {
 		std::cout << " B decale : " << (B & 0x0000ffff) << std::endl;
 		std::cout << " A decale : " << ((A & 0xffff0000) >> 16)<< std::endl;
 		std::cout << " B decale : " << ((B & 0xffff0000) >> 16) << std::endl;*/
-		uint32_t tmp_l = ((A & 0x0000ffff) * (B & 0x0000ffff)) >> 16;
-		int32_t tmp_lh = ( (A & 0xffff0000) >> 16) * (B & 0x0000ffff);
-		int32_t tmp_hl = ( (B & 0xffff0000) >> 16) * (A & 0x0000ffff);
-		int32_t tmp_h = (((B & 0xffff0000) >> 16) * ((A & 0xffff0000)>>16)) << 16;
-		int32_t result = (int32_t) tmp_l + tmp_lh + tmp_hl + tmp_h;
+		uint32_t tmp_l = ((uint32_t)(A & 0x0000ffff) * (uint32_t)(B & 0x0000ffff)) >> 16;
+		int32_t tmp_lh = ((int32_t)(A & 0xffff0000) >> 16) * (uint32_t)(B & 0x0000ffff);
+		int32_t tmp_hl = ( (int32_t)(B & 0xffff0000) >> 16) * (uint32_t)(A & 0x0000ffff);
+		int32_t tmp_h = (((int32_t)(B & 0xffff0000) >> 16) * ((int32_t)(A & 0xffff0000)>>16)) << 16;
+		int32_t result = (int32_t) (tmp_l + tmp_lh + tmp_hl + tmp_h);
 		/*std::cout 	<< "A : " << A
 		  				<< " B : " << B
 						<< " tmp_l : " << tmp_l
