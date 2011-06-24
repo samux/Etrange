@@ -280,8 +280,6 @@ namespace soclib { namespace caba {
                         << dx
                         << std::endl;*/
 
-				  coord_x *= p_WIDTH;
-				  coord_y *= p_WIDTH;
               I[0][0] = cache[coord_y][coord_x];
               if ((coord_x + 1) < C_W)
                 I[1][0] = cache[coord_y][coord_x + 1];
