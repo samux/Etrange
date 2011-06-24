@@ -14,7 +14,7 @@
 // Hauteur du cache
 # define C_H 48
 // Taille FIFO en nb de tuiles
-# define F_SIZE 2
+# define F_SIZE 10
 // Nb tuiles de sortie
 # define T_NB (640 * 480) / (16 * 16)
 // Nb tuiles de sortie par ligne
@@ -39,7 +39,8 @@ typedef union
 } cic_u;
 
 using namespace sc_core;
-using namespace std;
+using namespace std;	
+using namespace sc_dt;
 
 //Pour l'instant on se contente de lire puis de stocker les
 //tules en ram sans effectuer aucune operation.
@@ -57,12 +58,18 @@ namespace soclib { namespace caba {
       soclib::caba::WbMaster<wb_param> p_wb_read;
       soclib::caba::WbMaster<wb_param> p_wb_write;
 
+	  sc_in<sc_uint<32> > wb_data_4;
+	  sc_in<sc_uint<32> > wb_data_5;
+	  sc_in<sc_uint<32> > wb_data_6;
+	  sc_in<sc_uint<32> > wb_data_7;
+	  sc_in<sc_uint<32> > wb_data_8;
+	  
+
       /////////////////////////////////////
       // Constructeur
       /////////////////////////////////////
 
       VideoCalc (sc_core::sc_module_name insname,
-                 uint32_t * tab,
                  const int w = 640,		//largeur d'image par défaut
                  const int h = 480		//hauteur d'image par défaut
         );
@@ -90,9 +97,6 @@ namespace soclib { namespace caba {
       // variable contenant l'adresse des images
       uint32_t deb_im_in;
       uint32_t deb_im_out;
-
-      // Adresse de lecture et ecriture en RAM
-      uint32_t * wb_tab;
 
       // Cache
       uint8_t cache[C_H][C_W];

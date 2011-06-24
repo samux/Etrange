@@ -58,7 +58,7 @@
 #include "video_calc.h"
 #include "display.h"
 
-#define VIDEO_CALC 0
+#define VIDEO_CALC 1
 
 
 
@@ -122,6 +122,7 @@ int _main(int argc, char *argv[])
   sc_signal<sc_uint<32> > wb_data_5("wb_data_5");
   sc_signal<sc_uint<32> > wb_data_6("wb_data_6");
   sc_signal<sc_uint<32> > wb_data_7("wb_data_7");
+  sc_signal<sc_uint<32> > wb_data_8("wb_data_8");
 #endif
 
   /**********************************************
@@ -224,6 +225,11 @@ int _main(int argc, char *argv[])
   simple_slave.wb_data_1(wb_data_1);
   simple_slave.wb_data_2(wb_data_2);
   simple_slave.wb_data_3(wb_data_3);
+  simple_slave.wb_data_4(wb_data_4);
+  simple_slave.wb_data_5(wb_data_5);
+  simple_slave.wb_data_6(wb_data_6);
+  simple_slave.wb_data_7(wb_data_7);
+  simple_slave.wb_data_8(wb_data_8);
 
   ////////////////////////////////////////////////////////////
   ///////////////////Video modules ///////////////////////////
@@ -281,12 +287,17 @@ int _main(int argc, char *argv[])
   my_video_out.interrupt    (signal_video_out_irq);
 
 #if VIDEO_CALC
-soclib::caba::VideoCalc<wb_param> my_video_calc ("video_calc", simple_slave.data_t);
+soclib::caba::VideoCalc<wb_param> my_video_calc ("video_calc");
   my_video_calc.p_clk   (system_clk);
   my_video_calc.p_resetn(signal_resetn);
   my_video_calc.p_interrupt    (signal_video_calc_irq);
   my_video_calc.p_wb_read    (signal_wb_vcalc_read);
   my_video_calc.p_wb_write   (signal_wb_vcalc_write);
+  my_video_calc.wb_data_4 (wb_data_4);
+  my_video_calc.wb_data_5 (wb_data_5);
+  my_video_calc.wb_data_6 (wb_data_6);
+  my_video_calc.wb_data_7 (wb_data_7);
+  my_video_calc.wb_data_8 (wb_data_8);
 #endif
 
   soclib::caba::Display my_display ("My_display");

@@ -17,7 +17,6 @@ namespace soclib { namespace caba {
     ////////////////////////////////////////////////////////////////////
 
     tmpl(/**/)::VideoCalc(sc_core::sc_module_name insname,
-                          uint32_t * tab,
                           int w,
                           int h):
                sc_core::sc_module(insname),
@@ -26,7 +25,6 @@ namespace soclib { namespace caba {
                p_WIDTH(w),
                p_HEIGHT(h),
                fifo(F_SIZE * T_W * T_H),
-               wb_tab(tab),
                master0(p_clk,p_resetn,p_wb_read),
                master1(p_clk,p_resetn,p_wb_write)
     {
@@ -64,7 +62,7 @@ namespace soclib { namespace caba {
       int tile_nb = 0;
       int nb_frame = 0;
 
-      std::cout << " VCALC GET_TILE: START "  << std::endl;
+      //std::cout << " VCALC GET_TILE: START "  << std::endl;
 
       cache_rdy = false;
 
@@ -77,13 +75,13 @@ namespace soclib { namespace caba {
         {
           tile_nb = 0;
           cache_rdy = false;
-          std::cout << " VCALC GET_TILE: RESET " << std::endl;
+          //std::cout << " VCALC GET_TILE: RESET " << std::endl;
         }
 
         /**********
          * On attend une nouvelle addresse ou l'on va stocker l'image
          **********/
-        while(!wb_tab[5] && !get_ok)
+        while(wb_data_5.read()==0 && !get_ok)
           wait();
 
         /**********
@@ -109,9 +107,8 @@ namespace soclib { namespace caba {
         if (!get_ok)
         {
           get_ok = true;
-          deb_im_in = wb_tab[4];
-          wb_tab[5] = 0;
-          std::cout << " VCALC GET_TILE: NOUVELLE ADRESSE: " << deb_im_in << std::endl;
+          deb_im_in = wb_data_4.read();
+          //std::cout << " VCALC GET_TILE: NOUVELLE ADRESSE: " << deb_im_in << std::endl;
         }
 
         if (get_ok)
@@ -119,7 +116,7 @@ namespace soclib { namespace caba {
           /**********
            * On attend de pouvoir remplir le cache
            **********/
-          std::cout << " VCALC GET_TILE: ATTENTE ASK CACHE" << std::endl;
+          //std::cout << " VCALC GET_TILE: ATTENTE ASK CACHE" << std::endl;
           while(!ask_cache)
             wait();
 
@@ -127,7 +124,7 @@ namespace soclib { namespace caba {
            * On remplit le cache
            **********/
           fill_cache(deb_im_in, tile_nb);
-          std::cout << " VCALC GET_TILE: CACHE REMPLI " << std::endl;
+          //std::cout << " VCALC GET_TILE: CACHE REMPLI " << std::endl;
 
           cache_rdy = true;
           ask_cache = false;
@@ -166,7 +163,7 @@ namespace soclib { namespace caba {
       int count_pix = 0;
       int tile_nb = T_NB;
 
-      std::cout << " VCALC PROCESS_TILE: START "  << std::endl;
+      //std::cout << " VCALC PROCESS_TILE: START "  << std::endl;
 
       ask_cache = false;
 
@@ -187,7 +184,7 @@ namespace soclib { namespace caba {
          * *************/
         if (!p_resetn)
         {
-          std::cout << " VCALC PROCESS_TILE: RESET " << std::endl;
+          //std::cout << " VCALC PROCESS_TILE: RESET " << std::endl;
           tile_nb = 0;
           ask_cache = false;
           count_pix = 0;
@@ -208,18 +205,18 @@ namespace soclib { namespace caba {
 		  else*/ 
 			 cache_y = (coeff[tile_nb].reg.cache_y >> 16);
 
-        std::cout << "cache_x : "
-                  << cache_x
-                  << " cache_y : "
-                  << cache_y
-                  << std::endl;
+        //std::cout << "cache_x : "
+                  //<< cache_x
+                  //<< " cache_y : "
+                  //<< cache_y
+                  //<< std::endl;
 
         ask_cache = true;
 
         /**********
          * On attend que le cache soit remplit
          **********/
-        std::cout << " VCALC PROCESS_TILE: ATTENTE CACHE RDY " << std::endl;
+        //std::cout << " VCALC PROCESS_TILE: ATTENTE CACHE RDY " << std::endl;
         while(!cache_rdy)
           wait();
 
@@ -248,13 +245,13 @@ namespace soclib { namespace caba {
                         << pixel_x
                         << std::endl;*/
 
-				  std::cout << "pixel_x " << pixel_x << " pixel_y " << pixel_y
-					 			<< " cache_x : " << cache_x
-								<< " cache_y : " << cache_y << std::endl;
+				  //std::cout << "pixel_x " << pixel_x << " pixel_y " << pixel_y
+								 //<< " cache_x : " << cache_x
+								//<< " cache_y : " << cache_y << std::endl;
             if ((pixel_x <  cache_x) || (pixel_x >=  (cache_x + (int16_t)C_W)) ||
                 (pixel_y <  cache_y) || (pixel_y >=  (cache_y + (int16_t)C_H)))
 				{
-				  std::cout << "je rentre" << std::endl;
+				  //std::cout << "je rentre" << std::endl;
               intensity_tab[count_pix] = (uint8_t) PIXEL_BLANC;
 				}
             else
@@ -294,10 +291,10 @@ namespace soclib { namespace caba {
                 I[1][1] = cache[coord_y + 1][coord_x + 1];
               else
                 I[1][1] = I[0][0];
-				  std::cout << "I[0][0] : " << (int)I[0][0] << std::endl;
-				  std::cout << "I[0][1] : " << (int)I[0][1] << std::endl;
-				  std::cout << "I[1][0] : " << (int)I[1][0] << std::endl;
-				  std::cout << "I[1][1] : " << (int)I[1][1] << std::endl;
+				  //std::cout << "I[0][0] : " << (int)I[0][0] << std::endl;
+				  //std::cout << "I[0][1] : " << (int)I[0][1] << std::endl;
+				  //std::cout << "I[1][0] : " << (int)I[1][0] << std::endl;
+				  //std::cout << "I[1][1] : " << (int)I[1][1] << std::endl;
 
 				  uint32_t dx_1 = (1 << 16) - dx;
 				  uint32_t dy_1 = (1 << 16) - dy;
@@ -361,7 +358,7 @@ namespace soclib { namespace caba {
         }
 
       tile_nb++;
-      std::cout << " VCALC PROCESS_TILE: TILE NUMBER " << tile_nb  <<std::endl;
+      //std::cout << " VCALC PROCESS_TILE: TILE NUMBER " << tile_nb  <<std::endl;
 
       }
     }
@@ -411,7 +408,7 @@ namespace soclib { namespace caba {
       for (int i = 0; i < T_W/4; i++)
         mask[i] = 0xf;
 
-      std::cout << " VCALC STORE_TILE: START "  << std::endl;
+      //std::cout << " VCALC STORE_TILE: START "  << std::endl;
 
       for(;;)
       {
@@ -420,7 +417,7 @@ namespace soclib { namespace caba {
          *********/
         if (!p_resetn)
         {
-          std::cout << " VCALC STORE_TILE: RESET " << std::endl;
+          //std::cout << " VCALC STORE_TILE: RESET " << std::endl;
           nb_line_stored = 0;
           p_interrupt = 0;
         }
@@ -428,7 +425,7 @@ namespace soclib { namespace caba {
         /**********
          * On attend une nouvelle addresse ou l'on va stocker l'image
          **********/
-        while(!wb_tab[7] && !store_ok)
+        while(wb_data_7.read()==0 && !store_ok)
         {
           //std::cout << "j'attends une addresse ou l'on va stocker une image" << std::endl;
           wait();
@@ -437,9 +434,8 @@ namespace soclib { namespace caba {
         if(!store_ok)
         {
           store_ok = true;
-          deb_im_out = wb_tab[6];
-          wb_tab[7] = 0;
-          std::cout << " VCALC STORE_TILE: NOUVELLE ADRESSE: " << deb_im_out << std::endl;
+          deb_im_out = wb_data_6.read();
+          //std::cout << " VCALC STORE_TILE: NOUVELLE ADRESSE: " << deb_im_out << std::endl;
         }
 
         if ((uint32_t) fifo.num_available() >= T_W)
@@ -451,7 +447,7 @@ namespace soclib { namespace caba {
             {
               to_store[i] = to_store[i] << 8;
               if (!fifo.nb_read(pixel_temp))
-                std::cout << " VCALC STORE_TILE: bloque sur FIFO " << std::endl;
+				std::cout << " VCALC STORE_TILE: bloque sur FIFO " << std::endl;
               else
                 to_store[i] += pixel_temp;
             }
@@ -465,7 +461,7 @@ namespace soclib { namespace caba {
           {
             nb_line_stored = 0;
             nb_tile++;
-            std::cout << " VCALC STORE_TILE: TILE NUMBER " << nb_tile << std::endl;
+            //std::cout << " VCALC STORE_TILE: TILE NUMBER " << nb_tile << std::endl;
           }
 
           /**********************
@@ -475,7 +471,7 @@ namespace soclib { namespace caba {
           if((uint32_t) nb_tile == T_NB)
           {
             store_ok = false;
-            std::cout << " VCALC STORE_TILE: INTERRUPTION SENT " << std::endl;
+            //std::cout << " VCALC STORE_TILE: INTERRUPTION SENT " << std::endl;
             nb_line_stored = 0;
             nb_tile = 0;
             p_interrupt = 1;
@@ -631,7 +627,7 @@ namespace soclib { namespace caba {
 
     tmpl(void)::init_coeff()
     {
-		uint32_t addr = wb_tab[8];
+		uint32_t addr = wb_data_8.read();
 		for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
 		{
 		  master0.wb_read_blk(	addr + tile_nb * 14 * 4,
