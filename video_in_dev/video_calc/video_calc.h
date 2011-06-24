@@ -10,9 +10,9 @@
 // Hauteur tuile traitée
 # define T_H 16
 // Largeur du cache
-# define C_W 32
+# define C_W 48
 // Hauteur du cache
-# define C_H 32
+# define C_H 48
 // Taille FIFO en nb de tuiles
 # define F_SIZE 2
 // Nb tuiles de sortie
@@ -41,8 +41,6 @@ typedef union
 using namespace sc_core;
 using namespace std;
 
-//Pour l'instant on se contente de lire puis de stocker les
-//tules en ram sans effectuer aucune operation.
 
 namespace soclib { namespace caba {
     template<typename wb_param>

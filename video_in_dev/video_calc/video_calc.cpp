@@ -309,13 +309,13 @@ namespace soclib { namespace caba {
 				  wait();
 				  wait();
 
-              std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
+              /*std::cout << " VCALC PROCESS_TILE: TILE NUMBER "
                         << tile_nb
                         << " intensity : "
                         << (intensity)
                         << " intensity : "
                         << (intensity>>16)
-                        << std::endl;
+                        << std::endl;*/
 
               if ( (uint8_t) (intensity >> 16) >= PIXEL_BLANC)
 
