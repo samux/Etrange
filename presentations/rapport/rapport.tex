@@ -68,6 +68,39 @@ Cette architecture a l'avantage d'être modulaire. Par exemple, on peut ne pas u
     \section*{VidéoIn}
     \addcontentsline{toc}{section}{VidéoIn}
 
+\begin{figure}[!h]
+	\centering
+	\includegraphics[scale = 0.5]{video_in.png}
+	\caption{Architecture de VidéoIn}
+\end{figure}
+
+Le rôle du module VidéoIn est de lire le flux vidéo entrant puis de stocker les images correspondantes en RAM à l'adresse spécifiée par le processeur.
+VidéoIn est constitué de deux sous-modules qui correspondent à ces deux fonctions et qui permettent de les exécuter en parallèle. 
+
+
+\subsection*{Module read}
+Le premier, read, prend en entrée le flux vidéo constitué du pixel à lire sur 8 bits et des signaux de synchronisation line\_valid et frame\_valid.
+Lorsqu'il a détecté un pixel valide, il le place dans une fifo pour le mettre à disposition du module store.
+La synchronisation entre le module read et le module store est un point délicat. 
+En effet la fifo contient uniquement des pixels et ne transportent aucune information concernant leur position dans l'image. 
+
+\paragraph*{SystemC}
+En systemC store est implémenté avec un sc\_thread. Il peut ainsi disposer de ses propres compteurs qui lui permettent de se souvenir de la position
+du pixel courant dans le flux vidéo.
+
+\paragraph*{SystemVerilog}
+
+\subsection*{Module store}
+Pour commencer, le module store attend que le processeur lui ait fourni une adresse. Pour ce faire il surveille le registre de contrôle du module wb\_slave
+qui lui est dédié. Quand celui-ci passe à 1, le module échantillone le contenu du registre d'adresse réservé à VidéoIn. 
+Store rentre ensuite dans la phase de stockage d'une image.
+Il attend que NB\_PACK pixels soient présents dans la fifo. Dès que c'est le cas, il les lit et les regroupe par paquets de 4, soit 32 bits,
+pour les stocker dans la RAM par une écriture wishbone bloc. 
+Lorsqu'il a fini d'écrire une image, le module envoie une interruption au CPU et se met en attente d'une nouvelle adresse.
+//TODO à vérifier, peut-être à implémenter
+//TODO Mettre les mêmes noms de constantes et les mêmes valeurs entre systemC et systemVerilog//
+
+
 {}
 
 \newpage
