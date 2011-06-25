@@ -41,8 +41,8 @@ un module de traitement vidéo. Plus précisément, ce module doit être capable
 
 {///////TODO : explication de l'algo backward machin}
 
-	\part{Architecture retenue}
-	\section*{Architecture retenue}
+	\part*{Architecture retenue}
+	\section{Architecture retenue}
 	\addcontentsline{toc}{section}{Architecture retenue}
 {Pour réaliser ce module de traîtement vidéo, nous avons décidé d'utiliser l'architecture suivante :
  
@@ -65,7 +65,7 @@ Cette architecture a l'avantage d'être modulaire. Par exemple, on peut ne pas u
 
     \part{VidéoIn / VidéoOut}
 
-    \section*{VidéoIn}
+    \section{VidéoIn}
     \addcontentsline{toc}{section}{VidéoIn}
 
 \begin{figure}[!h]
@@ -78,19 +78,36 @@ Le rôle du module VidéoIn est de lire le flux vidéo entrant puis de stocker l
 VidéoIn est constitué de deux sous-modules qui correspondent à ces deux fonctions et qui permettent de les exécuter en parallèle. 
 
 
-\subsection*{Module read}
-Le premier, read, prend en entrée le flux vidéo constitué du pixel à lire sur 8 bits et des signaux de synchronisation line\_valid et frame\_valid.
-Lorsqu'il a détecté un pixel valide, il le place dans une fifo pour le mettre à disposition du module store.
+\subsection{Module read}
+Ce module prend en entrée le flux vidéo constitué du pixel à lire sur 8 bits et des signaux de synchronisation line\_valid et frame\_valid.
+Lorsqu'il a détecté un pixel valide, il le place dans une fifo pour le mettre à disposition du module store.\\
 La synchronisation entre le module read et le module store est un point délicat. 
 En effet la fifo contient uniquement des pixels et ne transportent aucune information concernant leur position dans l'image. 
 
-\paragraph*{SystemC}
-En systemC store est implémenté avec un sc\_thread. Il peut ainsi disposer de ses propres compteurs qui lui permettent de se souvenir de la position
+\paragraph{SystemC}
+En systemC read est implémenté à l'aide d'un SC\_THREAD. 
+Il peut ainsi disposer de ses propres compteurs qui lui permettent de se souvenir de la position
 du pixel courant dans le flux vidéo.
+Il peut ainsi détecter une incohérence sur le flux entrant (trop de pixels sur une ligne par exemple).\\ 
+La synchronisation avec store se fait à l'aide d'une variable de classe, first\_address. 
+Lorsque store a reçu sa première adresse, il passe ce booléen à vrai.
+Le thread read sait alors qu'il pourra commencer à stocker le flux entrant dans la fifo à partir du début de la prochaine image.\\
+La fifo est implémenté par une sc\_fifo. 
+L'écriture est donc un simple appel à la méthode d'écriture non bloquante nb\_write().
+VidéoIn ne peut pas attendre,
+si la fifo est pleine au moment de la tentative d'écriture, on sait que l'on ne tient pas le temps réel. 
 
-\paragraph*{SystemVerilog}
+//TODO changer first\_interrupt en first\_address
+//TODO changer le nom des sc\_thread
 
-\subsection*{Module store}
+\paragraph{SystemVerilog}
+La fonction read est implémentée en SystemVerilog par le module video\_in\_read qui est instancié dans le module video\_in.
+Son implémentation est très semblable au SystemC.\\
+On pourra noter que l'écriture en fifo se fait par le passage à 1 du
+signal w\_e (ie. write\_enable) et que l'on ne détecte plus les écritures ratées.
+Il faut se référer aux chronogrammes pour détecter ces erreurs.
+
+\subsection{Module store}
 Pour commencer, le module store attend que le processeur lui ait fourni une adresse. Pour ce faire il surveille le registre de contrôle du module wb\_slave
 qui lui est dédié. Quand celui-ci passe à 1, le module échantillone le contenu du registre d'adresse réservé à VidéoIn. 
 Store rentre ensuite dans la phase de stockage d'une image.
@@ -101,6 +118,27 @@ Lorsqu'il a fini d'écrire une image, le module envoie une interruption au CPU e
 //TODO Mettre les mêmes noms de constantes et les mêmes valeurs entre systemC et systemVerilog//
 
 
+\paragraph{SystemC}
+Store est implémenté en SystemC par un SC\_THREAD.
+Ceci permet de se souvenir de l'état précédent du module. 
+On peut donc décrire le comportement de store de façon séquentielle.
+Le fait de rester dans un état jusqu'à un certain événement est matérialisé par une boucle while contenant un ou plusieurs appels à wait(). 
+
+La lecture dans la fifo est simple et se fait à l'aide de la méthode read() appliquée à la sc\_fifo.
+//TODO compléter sur le fait que la simu n'est pas parfaite car 4 lectures fifo en un temps, où mettre des wait() pour faire une modélisation correcte.
+
+\paragraph{SystemVerilog}
+En SystemVerilog, il est nécessaire de changer complètement de paradigme. 
+On ne peux pas attendre un événement à l'aide d'une boucle while ! 
+Cela ne serait pas synthétisable.
+Pour décrire un comportement similaire à celui réalisé en SystemC, on a donc mis en place une machine à états.
+
+
+
+
+
+
+
 {}
 
 \newpage
@@ -108,10 +146,47 @@ Lorsqu'il a fini d'écrire une image, le module envoie une interruption au CPU e
     \section*{VidéoOut}
     \addcontentsline{toc}{section}{VidéoOut}
 
-{}
-     
+\begin{figure}[!h]
+	\centering
+	\includegraphics[scale = 0.5]{video_out.png}
+	\caption{Architecture de VidéoOut}
+\end{figure}
 
+Le rôle de VidéoOut est inverse à celui de VidéoIn.
+Il va chercher une image en RAM à une adresse indiquée par le processeur
+et génère le flux vidéo correspondant. 
+Ces deux fonctions sont effectuées en parallèle par les deux parties de VidéoOut reliées par une fifo.
 
+\subsection{Le module read}
+Ce module va chercher les images en RAM et pose les pixels dans une fifo. 
+Il attend que le processeur lui indique qu'une nouvelle adresse RAM est disponible dans le registre d'adresse de VidéoOut sur wb\_slave en passant le registre de contrôle à 1.
+Une fois cette adresse obtenue, il va lire en RAM par paquets de NB\_PACK pixels, soit NB\_PACK/4 mots.
+A chaque paquet obtenu, les mots de 32 bits, découpés en pixel de 8 bits, sont placés dans la fifo dès qu'ily a de la place dans celle-ci.
+Une fois la lecture d'une image terminée, read se met en attente d'une nouvelle adresse.
+
+\paragraph{SystemC}
+Le module est implémenté à l'aide d'un SC\_THREAD.
+Il effectue des écritures bloquantes sur la fifo. 
+Sa vitesse est donc limitée par les lectures en RAM et
+par le rythme auquel le SC\_THREAD gen vide la fifo.
+
+\paragraph{SystemVerilog}
+La problématique est la même que pour le module store de VidéoIn. 
+Le style d'écriture en SystemC ne peut pas être reproduit en SystemVerilog.
+Le SC\_THREAD a été traduit sous la forme d'une machine à états dans le module video\_out\_read instancié par le module video\_out.
+
+\subsection{le module gen}
+Gen prend les pixels dans la fifo et génère le flux vidéo correspondant.
+
+\paragraph{SystemC}
+Le code systemC est essentiellement une reprise de video\_gen.
+On réalise une lecture non bloquante de la fifo. 
+Si la fifo est vide, on le détecte. 
+On en déduit que l'on ne tient pas le temps réel.
+
+\paragraph{SystemVerilog}
+Le module est implémenté à l'aide d'une machine à états.
+Celle-ci fonctionne avec l'horloge du flux vidéo, à 25 MHz.
 
 
 
