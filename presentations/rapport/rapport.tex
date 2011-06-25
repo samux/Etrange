@@ -224,20 +224,66 @@ du signal r\_ack\_slow contrôlé à 25 MHz.
     \section*{Soft (LM32)}
     \addcontentsline{toc}{section}{Soft (LM32)}
 
+
+		\subsection*{Les interruptions}
+    \addcontentsline{toc}{subsection}{Les interruptions}
 {Le processeur a la charge d'indiquer aux différents modules les adresses à aller lire et écrire les images. Plus précisément :
 
 \begin{itemize}
-	\item VidéoIn : envoie de l'adresse où l'image entrante sera stockée
-	\item VidéoCalc : \begin{itemize}
+	\item à Video\_In : envoie de l'adresse où l'image entrante sera stockée
+	\item à Video\_Calc : \begin{itemize}
 								\item envoie de l'adresse où sera lue l'image à traitée
 								\item envoie de l'adresse où sera stockée l'image traîtée
 								\item envoie de l'adresse du début des coefficients pour le calcul incrémental
 							\end{itemize}
-	\item VidéoOut : envoie de l'adresse où sera lue l'image traîtée
+	\item à Video\_Out : envoie de l'adresse où sera lue l'image traîtée
 \end{itemize}
 
 Toutes ces adresses sont envoyées suites à des interruptions.
-Il y a donc trois principaux handlers d'interruptions : VideoInHandler, VideoOutHandler et VideoCalcHandler.
+Il y a donc trois principaux handlers d'interruptions : Video\_In\_Handler, Video\_Out\_Handler et Video\_Calc\_Handler.
+
+Le processeur reçoit une interruption de Video\_In lorsque ce dernier a terminé de stocker une image en RAM. Le processeur lui envoit donc une nouvelle adresse pour stocker l'image suivante. Lors de cette interruption, il envoit aussi una adresse de lecture et de stockage à Video\_Calc.
+Le processeur reçoit une interruption de Video\_Calc lorsque ce module a terminé de traîter une image. Si l'image traîtée était la première, l'adresse de lecture de l'image traîtée est envoyée à Video\_Out.
+Le processeur reçoit une interruption de Video\_Out lorsque ce dernier a terminé de lire une image traitée en RAM. À ce moment là, il envoie une nouvelle adresse à Video\_Out.
+
+Cet enchaînement fonctionne bien en SystemC car le module Video\_Calc est plus rapide que Video\_In et Video\_Out.
+
+//TODO: expliquer les pb que l'on a en Verilog
+}
+			\subsection*{Gestion de la RAM}
+    		\addcontentsline{toc}{subsection}{Gestion de la RAM}
+{
+	Pour stocker toutes ces images en RAM, on utilise un premier espace contenant les images stockées par Video\_In et un deuxième pour les images stockées par Video\_Calc. Nous pouvons illustrer l'état de la RAM par ce schéma :
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[scale = 0.3]{ram_management.png}
+	\caption{État de la RAM}
+\end{figure}
+
+}
+
+			\subsection*{Initialisation des coefficients pour le calcul incrémental}
+    		\addcontentsline{toc}{subsection}{Initialisation des coefficients pour le calcul incrémental}
+
+{La seconde fonctionnalité du processeur est de calculer tous les coefficients nécessaires au calcul incrémental fait par le module Video\_Calc. Pour ceci, nous avons utilisé la représentation en virgule fixe pour que Video\_Calc puisse les récupérer en RAM et faire des calculs avec. Nous utilisons 16 bits pour représenter la partie entière et 16 bits pour la partie fractionnaire. Il y a plusieurs avantages à utiliser la représentation en virgule fixe. La première est que nous connaissons parfaitement la signification de chaque bits du nombre. La seconde est la rapidité des calculs comparé à l'utilisation de flottants.
+
+
+Pour que le module Video\_Calc puisse récupérer les coefficients en RAM calculé par le processeur, ce dernier lui envoit l'adresse de début de ces coefficients lorsqu'il envoit les adresses de lecture et d'écriture d'images dans Video\_Calc\_Handler.
+}
+
+			\subsection*{Calculs pour le chargement du cache}
+    		\addcontentsline{toc}{subsection}{Calculs pour le chargement du cache}
+{La dernière fonctionnalité du processeur est de calculer les quatre antécédents de chaque tuile et d'en déduire les coordonnées du pixel en haut à gauche du rectangle circonscrit à la partie de l'image qui représente l'antécédent de la tuile en question.
+Cette information est envoyée en même temps que les coefficients pour le calcul incrémental.
+
+Ce calcul ne nous permet pas de gérer toutes les transformations possibles : ici, la première transformation se déroulera bien mais la deuxième échouera.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[scale = 0.3]{cache_proc.png}
+	\caption{Chargement du cache}
+\end{figure}
+
 }
 
 
@@ -245,7 +291,23 @@ Il y a donc trois principaux handlers d'interruptions : VideoInHandler, VideoOut
  
     \chapter*{Conclusion}
     \addcontentsline{toc}{chapter}{Conclusion}
-{}
+{ L'architecture décrite ci-dessus a été implémentée en SystemC dans un premier temps et nous avons arrivons à faire des transformations dans la limite du cache.
+
+//TODO mettre une photo d'une transfo
+
+La traduction en System Verilog n'est pas terminée. Vidéo\_In et Video\_Out sont fonctionnels en System Verilog mais Video\_Calc n'a pas été traduit.
+
+Perspectives et améliorations : 
+
+\begin{itemize}
+	\item Traduction de Video\_Calc en System Verilog
+	\item	Meilleure gestion du cache pour supporter des transformations plus complexes
+	\item Améliorer la partie interpolation car pour l'instant, elle prend 4 cycles
+	\item La capacité de changer les coefficients pour le calcul incrémental par le clavier 
+\end{itemize}
+}
+
+
 
 
 % Fin du document
