@@ -15,6 +15,8 @@
  * \fn static mfixed P_0(mfixed coeff[4][4])
  * \brief Compute P_0 coefficient according to coeff
  *
+ * \param coeff: coefficients array
+ *
  * \return P_0 in mfixed representation
  *
  */
@@ -24,6 +26,10 @@ static mfixed P_0(mfixed coeff[4][4]);
  * \fn static mfixed P_1(int X, int Y, mfixed coeff[4][4])
  * \brief Compute P_1 coefficient according to the pixel (X, Y) and coeff
  *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
+ *
  * \return P_1 in mfixed representation
  *
  */
@@ -31,6 +37,10 @@ static mfixed P_1(int X, int Y, mfixed coeff[4][4]);
 /**
  * \fn static mfixed P_2(int X, int Y, mfixed coeff[4][4])
  * \brief Compute P_2 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
  *
  * \return P_2 in mfixed representation
  *
@@ -40,6 +50,10 @@ static mfixed P_2(int X, int Y, mfixed coeff[4][4]);
 /**
  * \fn static mfixed P_3(int X, int Y, mfixed coeff[4][4])
  * \brief Compute P_3 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
  *
  * \return P_3 in mfixed representation
  *
@@ -54,6 +68,8 @@ static mfixed P_3(int X, int Y, mfixed coeff[4][4]);
  * \fn static mfixed Q_0(mfixed coeff[4][4])
  * \brief Compute Q_0 coefficient according to coeff
  *
+ * \param coeff: coefficients array
+ *
  * \return Q_0 in mfixed representation
  *
  */
@@ -63,6 +79,10 @@ static mfixed Q_0(mfixed coeff[4][4]);
  * \fn static mfixed Q_1(int X, int Y, mfixed coeff[4][4])
  * \brief Compute Q_1 coefficient according to the pixel (X, Y) and coeff
  *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
+ *
  * \return Q_1 in mfixed representation
  *
  */
@@ -71,6 +91,10 @@ static mfixed Q_1(int X, int Y, mfixed coeff[4][4]);
 /**
  * \fn static mfixed Q_2(int X, int Y, mfixed coeff[4][4])
  * \brief Compute Q_2 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
  *
  * \return Q_2 in mfixed representation
  *
@@ -87,6 +111,8 @@ static mfixed Q_2(int X, int Y, mfixed coeff[4][4]);
  * \fn static mfixed R_0(mfixed coeff[4][4])
  * \brief Compute R_0 coefficient according to coeff
  *
+ * \param coeff: coefficients array
+ *
  * \return R_0 in mfixed representation
  *
  */
@@ -95,6 +121,10 @@ static mfixed R_0(mfixed coeff[4][4]);
 /**
  * \fn static mfixed R_1(int X, int Y, mfixed coeff[4][4])
  * \brief Compute R_1 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
  *
  * \return R_1 in mfixed representation
  *
@@ -110,6 +140,8 @@ static mfixed R_1(int X, int Y, mfixed coeff[4][4]);
  * \fn static mfixed S_0(mfixed coeff[4][4])
  * \brief Compute S_0 coefficient according to coeff
  *
+ * \param coeff: coefficients array
+ *
  * \return S_0 in mfixed representation
  *
  */
@@ -121,7 +153,6 @@ static mfixed S_0(mfixed coeff[4][4]);
 
 static mfixed P_0(mfixed coeff[4][4])
 {
-  // 6*a30
   return 	fx_mul((mfixed) (6 << 16), coeff[3][0]);
 
 }
@@ -140,10 +171,23 @@ static mfixed P_1(int X, int Y, mfixed coeff[4][4])
 
 static mfixed P_2(int X, int Y, mfixed coeff[4][4])
 {
-  mfixed t1 = fx_mul( (mfixed)( (3*X*X + 3*X + 1) << 16), coeff[3][0]);
+  mfixed a0 = fx_mul(coeff[3][0], (mfixed)( (3*X) << 16));
+  mfixed a1 = fx_mul(a0, (mfixed) (X << 16));
+
+  mfixed t1 = fx_add(a1, fx_mul(coeff[3][0], (mfixed)( (3*X + 1) << 16)));
+
   mfixed t2 = fx_add( t1, fx_mul( (mfixed)( (1 + 2*X) << 16), coeff[2][0]));
-  mfixed t3 = fx_add( t2, fx_mul( (mfixed)( (2*X*Y + Y) << 16), coeff[2][1]));
-  mfixed t4 = fx_add( t3, fx_mul( (mfixed)( (Y*Y) << 16), coeff[1][2]));
+
+  a0 = fx_mul(coeff[2][1], (mfixed)((2*X) << 16));
+  a1 = fx_mul(a0, (mfixed)(Y << 16));
+  mfixed a2 = fx_add(a1, fx_mul(coeff[2][1], (mfixed)(Y << 16)));
+
+  mfixed t3 = fx_add(t2, a2);
+
+  mfixed a3 = fx_mul(coeff[1][2], (mfixed)(Y << 16));
+  mfixed a4 = fx_mul(a3, (mfixed)(Y << 16));
+
+  mfixed t4 = fx_add( t3, a4);
   mfixed t5 = fx_add( t4, fx_mul( (mfixed)( (Y) << 16), coeff[1][1]));
   return fx_add ( t5, coeff[1][0] );
   /*
@@ -158,14 +202,32 @@ static mfixed P_2(int X, int Y, mfixed coeff[4][4])
 
 static mfixed P_3(int X, int Y, mfixed coeff[4][4])
 {
-  mfixed t1 = fx_mul( (mfixed)( (X*X*X) << 16), coeff[3][0]);
-  mfixed t2 = fx_add( t1, fx_mul( (mfixed)( (Y*Y*Y) << 16), coeff[0][3]));
-  mfixed t3 = fx_add( t2, fx_mul( (mfixed)( (X*X*Y) << 16), coeff[2][1]));
-  mfixed t4 = fx_add( t3, fx_mul( (mfixed)( (X*Y*Y) << 16), coeff[1][2]));
-  mfixed t5 = fx_add( t4, fx_mul( (mfixed)( (X*X) << 16), coeff[2][0]));
-  mfixed t6 = fx_add( t5, fx_mul( (mfixed)( (X*Y) << 16), coeff[1][1]));
-  mfixed t7 = fx_add( t6, fx_mul( (mfixed)( (Y*Y) << 16), coeff[0][2]));
-  mfixed t8 = fx_add( t7, fx_mul( (mfixed)( (X) << 16), coeff[1][0]));
+  mfixed a0 = fx_mul(coeff[3][0], (mfixed) (X << 16));
+  mfixed a1 = fx_mul(a0, (mfixed) (X << 16));
+  mfixed a2 = fx_mul(a1, (mfixed) (X << 16));
+
+  mfixed a3 = fx_mul(coeff[0][3], (mfixed) (Y << 16));
+  mfixed a4 = fx_mul(a3, (mfixed) (Y << 16));
+  mfixed a5 = fx_add(a2, fx_mul(a4, (mfixed) (Y << 16)));
+
+  mfixed a6 = fx_mul(coeff[2][1], (mfixed) (X << 16));
+  mfixed a7 = fx_mul(a6, (mfixed) (X << 16));
+  mfixed a8 = fx_add(a5, fx_mul(a7, (mfixed) (Y << 16)));
+
+  mfixed a9 = fx_mul(coeff[1][2], (mfixed) (X << 16));
+  mfixed a10 = fx_mul(a9, (mfixed) (Y << 16));
+  mfixed a11 = fx_add(a8, fx_mul(a10, (mfixed) (Y << 16)));
+
+  mfixed a12 = fx_mul(coeff[2][0], (mfixed) (X << 16));
+  mfixed a13 = fx_add(a11, fx_mul(a12, (mfixed) (X << 16)));
+
+  mfixed a14 = fx_mul(coeff[1][1], (mfixed) (X << 16));
+  mfixed a15 = fx_add(a13, fx_mul(a14, (mfixed) (Y << 16)));
+
+  mfixed a16 = fx_mul(coeff[0][2], (mfixed) (Y << 16));
+  mfixed a17 = fx_add(a15, fx_mul(a16, (mfixed) (Y << 16)));
+
+  mfixed t8 = fx_add( a17, fx_mul( (mfixed)( (X) << 16), coeff[1][0]));
   mfixed t9 = fx_add( t8, fx_mul( (mfixed)( (Y) << 16), coeff[0][1]));
   return fx_add ( t9, coeff[0][0] );
   /*
@@ -205,10 +267,21 @@ static mfixed Q_1(int X, int Y, mfixed coeff[4][4])
 
 static mfixed Q_2(int X, int Y, mfixed coeff[4][4])
 {
-  mfixed t1 = fx_mul( (mfixed)( (X*X) << 16), coeff[2][1]);
-  mfixed t2 = fx_add( t1, fx_mul( (mfixed)( (2*X*Y + X) << 16), coeff[1][2]));
-  mfixed t3 = fx_add( t2, fx_mul( (mfixed)( (3*Y*Y + 3*Y + 1) << 16), coeff[0][3]));
-  mfixed t4 = fx_add( t3, fx_mul( (mfixed)( (X) << 16), coeff[1][1]));
+  mfixed a0 = fx_mul(coeff[2][1], (mfixed) (X<<16));
+  mfixed a1 = fx_mul(a0, (mfixed) (X<<16));
+
+  mfixed a2 = fx_mul(coeff[1][2], (mfixed) ((2*X) << 16));
+  mfixed a3 = fx_mul(a2, (mfixed) (Y << 16));
+  mfixed a4 = fx_add(a3, fx_mul(coeff[1][2], (mfixed)((X<<16))));
+  mfixed a5 = fx_add(a1, a4);
+
+  mfixed a6 = fx_mul(coeff[0][3], (mfixed)((3*Y) << 16));
+  mfixed a7 = fx_mul(a6, (mfixed)(Y << 16));
+  mfixed a8 = fx_add(a7, fx_mul(coeff[0][3], (mfixed) ((3*Y + 1) << 16)));
+  mfixed a9 = fx_add(a8, a5); 
+
+
+  mfixed t4 = fx_add( a9, fx_mul( (mfixed)( (X) << 16), coeff[1][1]));
   mfixed t5 = fx_add( t4, fx_mul( (mfixed)( (2*Y + 1) << 16), coeff[0][2]));
   return fx_add ( t5, coeff[0][1] );
   /*return 	coeff[2][1] * (X * X) +
@@ -413,6 +486,4 @@ void print_poly()
 		printf("begin_cache.y = %d,%d\n", coeff_incr_array[1][i][j].begin_cache.h, coeff_incr_array[1][i][j].begin_cache.l);
 	 }
   }
-  printf("ADR du tableau putain : %ld", (uint32_t)&coeff_incr_array[0][0][0].P0.all);
-
 }

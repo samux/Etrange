@@ -44,15 +44,15 @@ COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
 /** Coefficients for the transformation in x-direction */
 
-mfixed coeff_x[4][4] = { 	{(mfixed)0,(mfixed)0 , (mfixed)0, (mfixed)0},
-                                {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
-                                {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+mfixed coeff_x[4][4] = { 	{(mfixed)0,(mfixed)0 , (mfixed)(2<<4), (mfixed)0},
+                                {(mfixed)(1<<16), (mfixed)0, (mfixed)0, (mfixed)0},
+                                {(mfixed)(2<<4), (mfixed)0, (mfixed)0, (mfixed)0},
                                 {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}
 };
 /** Coefficients for the transformation in y-direction */
-mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+mfixed coeff_y[4][4] = { 	{(mfixed)0, (mfixed)(1<<16), (mfixed)(2<<4), (mfixed)0},
                                 {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
-                                {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0},
+                                {(mfixed)(2<<4), (mfixed)0, (mfixed)0, (mfixed)0},
                                 {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}
 };
 
@@ -82,12 +82,12 @@ int main(void)
   sin_plus.l = 0;
 
   mfixed decalage_x;
-  decalage_x.h = -10*16;
+  decalage_x.h = -9*16;
   decalage_x.l = 0;
   coeff_x[0][0] = decalage_x;
 
   mfixed decalage_y;
-  decalage_y.h = 5*16;
+  decalage_y.h = 7*16;
   decalage_y.l = 0;
   coeff_y[0][0] = decalage_y;
 

@@ -12,7 +12,7 @@
 #define _MFIXED_H_
 
 /**
- * \struct coeff_incr_t
+ * \union mfixed
  * \brief Fixed point type definition
  *
  * Fixed point type definition: 16 bits for entire
@@ -21,10 +21,10 @@
  */
 typedef union {
     struct {
-        short h;
-        unsigned short l;
+        short h; /**< the entire part (16 bits)*/
+        unsigned short l; /**< The fractionnal part (16 bits)*/
     } ;
-    int all;
+    int all; /**< all the number (32 bits)*/
 }mfixed;
 
 /**
@@ -39,5 +39,6 @@ inline mfixed fx_mul  (mfixed A, mfixed B);
  */
 inline mfixed fx_add (mfixed A, mfixed B);
 
+inline mfixed mf (float x);
 #endif
 
