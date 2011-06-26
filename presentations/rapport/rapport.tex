@@ -1,39 +1,35 @@
-%\begin{scriptsize}
-%•
-%\end{scriptsize}
-
 \documentclass[a4paper,12pt]{report}
- 
+
 % Différentes options pour la classe :
 % - taille de la fonte    : 10pt, 11pt, 12pt
 % - recto ou recto-verso    : oneside, twoside
 % - stade de développement    : draft, final
- 
+
 % Chargement d'extensions
 \usepackage[latin1,utf8]{inputenc}    % Pour utiliser les lettres accentuées
 \usepackage[francais]{babel}    % Pour la langue française
 \usepackage{graphicx}
- 
+
 % Informations le titre, le(s) auteur(s), la date
 \title{Rapport de projet : Etrange}
 \author {Caroline Keramsi, Florian Thorey, Samuel Mokrani}
 \date{\today}
- 
+
 % Début du document
 \begin{document}
- 
+
 \maketitle
 \tableofcontents    % Table des matières
 \listoffigures        % Liste des figures
 
     \part{Introduction}
     \addcontentsline{toc}{part}{Introduction}
-    
+
     \subsection{Généralités}
-    
+
 {Dans le cadre du cours de System On Chips à Télécom Paristech, nous avons du réaliser
 un module de traitement vidéo. Plus précisément, ce module devait être capable à partir d'un flux vidéo d'entrée dont les intensités des pixels sont représentées en 256 niveaux de gris, donc codés sur 8 bits, d'établir une transformation géométrique d'ordre 3. Voici les images que nous pouvons obtenir suite à une telle transformation :}
- 
+
 \begin{figure}[!h]
 	\centering
 	\includegraphics[scale = 0.5]{bogart.png}
@@ -49,7 +45,7 @@ un module de traitement vidéo. Plus précisément, ce module devait être capab
 \newpage
 
 	\subsection{Le backward wrapping}
-	
+
 {Afin d'implémenter les transformations géométrique d'ordre 3 à appliquer au flux vidéo transitant par le module Etrange, la technique dite du "backward wrapping" est utilisée. Cette technique est très simple. Elle consiste à calculer, pour chaque pixel de coordonnées (X,Y) de l'image transformée les coordonnées (x,y) de son antécédent dans l'image d'origine.
 \newline
 \newline
@@ -61,8 +57,8 @@ x = a_{30}X^3 + a_{21}X^2Y + a_{12}XY^2 + a_{30}Y^3
 $$
 $$
 y = b_{30}X^3 + b_{21}X^23Y + b_{12}XY^2 + b_{30}Y^2
-  + b_{20}X^2 + b_{11}XY  + b_{02}Y^2 
-  + b_{10}X  + b_{01}Y 
+  + b_{20}X^2 + b_{11}XY  + b_{02}Y^2
+  + b_{10}X  + b_{01}Y
   + b_{00}
 $$
 
@@ -89,7 +85,7 @@ Ainsi, on dispose de 1/60ème de seconde pour traiter une image et donc 1/72000�
 	\section{Architecture retenue}
 	\addcontentsline{toc}{section}{Architecture retenue}
 {Pour réaliser ce module de traîtement vidéo, nous avons décidé d'utiliser l'architecture suivante :
- 
+
 \begin{figure}[!h]
 	\centering
 	\includegraphics[scale = 0.1]{hardware-arch.png}
@@ -98,7 +94,7 @@ Ainsi, on dispose de 1/60ème de seconde pour traiter une image et donc 1/72000�
 
 Le module Vidéo\_In se charge de mettre le flux entrant en RAM. Vidéo\_Calc se charge d'aller lire en RAM une image à traiter et à mettre à un autre endroit de la RAM l'image traitée. Enfin, le module Vidéo\_Out se charge d'aller lire l'image traitée et de générer un nouveau flux vidéo. Tous ces modules seront pilotés par le processeur (LM32) par le biais d'interruptions. Il enverra aux différents modules les bonnes adresses pour aller lire et écrire en RAM.
 
-Toutes les informations qui s'échange entre les différentes composantes, le processeur, vidéo\_in, vidéo\_out et vidéo\_calc transitent via le bus Wishbone qui peut fonctionner à une cadence maximale de 100Mhz. 
+Toutes les informations qui s'échange entre les différentes composantes, le processeur, vidéo\_in, vidéo\_out et vidéo\_calc transitent via le bus Wishbone qui peut fonctionner à une cadence maximale de 100Mhz.
 
 Cette architecture a l'avantage d'être modulaire. Par exemple, on peut ne pas utiliser le module de transformation géométrique juste en changeant le programme tournant sur le processeur.
 }
@@ -119,27 +115,27 @@ Cette architecture a l'avantage d'être modulaire. Par exemple, on peut ne pas u
 \end{figure}
 
 Le rôle du module VidéoIn est de lire le flux vidéo entrant puis de stocker les images correspondantes en RAM à l'adresse spécifiée par le processeur.
-VidéoIn est constitué de deux sous-modules qui correspondent à ces deux fonctions et qui permettent de les exécuter en parallèle. 
+VidéoIn est constitué de deux sous-modules qui correspondent à ces deux fonctions et qui permettent de les exécuter en parallèle.
 
 
 \subsection{Module read}
 Ce module prend en entrée le flux vidéo constitué du pixel à lire sur 8 bits et des signaux de synchronisation line\_valid et frame\_valid.
 Lorsqu'il a détecté un pixel valide, il le place dans une fifo pour le mettre à disposition du module store.\\
-La synchronisation entre le module read et le module store est un point délicat. 
-En effet la fifo contient uniquement des pixels et ne transportent aucune information concernant leur position dans l'image. 
+La synchronisation entre le module read et le module store est un point délicat.
+En effet la fifo contient uniquement des pixels et ne transportent aucune information concernant leur position dans l'image.
 
 \paragraph{SystemC}
-En systemC, read est implémenté à l'aide d'un SC\_THREAD. 
+En systemC, read est implémenté à l'aide d'un SC\_THREAD.
 Il peut ainsi disposer de ses propres compteurs qui lui permettent de se souvenir de la position
 du pixel courant dans le flux vidéo.
-Il peut ainsi détecter une incohérence sur le flux entrant (trop de pixels sur une ligne par exemple).\\ 
-La synchronisation avec store se fait à l'aide d'une variable de classe, first\_address. 
+Il peut ainsi détecter une incohérence sur le flux entrant (trop de pixels sur une ligne par exemple).\\
+La synchronisation avec store se fait à l'aide d'une variable de classe, first\_address.
 Lorsque store a reçu sa première adresse, il passe ce booléen à vrai.
 Le thread read sait alors qu'il pourra commencer à stocker le flux entrant dans la fifo à partir du début de la prochaine image.\\
-La fifo est implémenté par une sc\_fifo. 
+La fifo est implémenté par une sc\_fifo.
 L'écriture est donc un simple appel à la méthode d'écriture non bloquante nb\_write().
 VidéoIn ne peut pas attendre,
-si la fifo est pleine au moment de la tentative d'écriture, on sait que l'on ne tient pas le temps réel. 
+si la fifo est pleine au moment de la tentative d'écriture, on sait que l'on ne tient pas le temps réel.
 
 //TODO changer first\_interrupt en first\_address
 //TODO changer le nom des sc\_thread
@@ -148,12 +144,12 @@ si la fifo est pleine au moment de la tentative d'écriture, on sait que l'on ne
 La fonction read est implémentée en SystemVerilog par le module video\_in\_read qui est instancié dans le module video\_in.
 Son implémentation est très semblable au SystemC.\\
 On pourra noter une petite difficulté liée à l'utilisation de deux domaines d'horloge différents.
-La lecture des pixels entrant se fait sur l'horloge du flux vidéo à 25MHz. 
-La fifo, quant à elle fonctionne sur l'horloge système à 100MHz. 
-Une écriture dans la fifo se fait par le passage à 1 du signal w\_e. 
+La lecture des pixels entrant se fait sur l'horloge du flux vidéo à 25MHz.
+La fifo, quant à elle fonctionne sur l'horloge système à 100MHz.
+Une écriture dans la fifo se fait par le passage à 1 du signal w\_e.
 Si on générait ce signal dans le bloc séquentiel chargé de la lecture et fonctionnant à 25 MHz,
 on risquerait d'écrire 4 fois dans la fifo au lieu d'une.
-Pour régler cette difficulté, on génère dans ce bloc un signal write\_fifo\_slow. 
+Pour régler cette difficulté, on génère dans ce bloc un signal write\_fifo\_slow.
 Un autre bloc séquentiel, fonctionnant sur l'horloge système, se charge de générer w\_e lors de la
 détection d'un front montant de write\_fifo\_slow.
 
@@ -163,7 +159,7 @@ Pour commencer, le module store attend que le processeur lui ait fourni une adre
 qui lui est dédié. Quand celui-ci passe à 1, le module échantillone le contenu du registre d'adresse réservé à VidéoIn. \\
 Store rentre ensuite dans la phase de stockage d'une image.
 Il attend que NB\_PACK pixels soient présents dans la fifo. Dès que c'est le cas, il les lit et les regroupe par paquets de 4, soit 32 bits,
-pour les stocker dans la RAM par une écriture wishbone bloc. 
+pour les stocker dans la RAM par une écriture wishbone bloc.
 Lorsqu'il a fini d'écrire une image, le module envoie une interruption au CPU et se met en attente d'une nouvelle adresse.
 //TODO à vérifier, peut-être à implémenter
 //TODO Mettre les mêmes noms de constantes et les mêmes valeurs entre systemC et systemVerilog//
@@ -171,16 +167,16 @@ Lorsqu'il a fini d'écrire une image, le module envoie une interruption au CPU e
 
 \paragraph{SystemC}
 Store est implémenté en SystemC par un SC\_THREAD.
-Ceci permet de se souvenir de l'état précédent du module. 
+Ceci permet de se souvenir de l'état précédent du module.
 On peut donc décrire le comportement de store de façon séquentielle.
 Le fait de rester dans un état jusqu'à un certain événement est matérialisé par une boucle while contenant un ou plusieurs appels à wait(). \\
 La lecture dans la fifo est simple et se fait à l'aide de la méthode read() appliquée à la sc\_fifo.
 //TODO compléter sur le fait que la simu n'est pas parfaite car 4 lectures fifo en un temps, où mettre des wait() pour faire une modélisation correcte.
 
 \paragraph{SystemVerilog}
-En SystemVerilog, il est nécessaire de changer complètement de paradigme. 
-On ne peux pas attendre un événement à l'aide d'une boucle while, 
-cela ne serait pas synthétisable! 
+En SystemVerilog, il est nécessaire de changer complètement de paradigme.
+On ne peux pas attendre un événement à l'aide d'une boucle while,
+cela ne serait pas synthétisable!
 Pour décrire un comportement similaire à celui réalisé en SystemC, on a donc mis en place une machine à états.
 
 
@@ -189,7 +185,7 @@ Pour décrire un comportement similaire à celui réalisé en SystemC, on a donc
 {}
 
 \newpage
- 
+
     \section*{VidéoOut}
     \addcontentsline{toc}{section}{VidéoOut}
 
@@ -201,12 +197,12 @@ Pour décrire un comportement similaire à celui réalisé en SystemC, on a donc
 
 Le fonctionnement de VidéoOut est exactement inverse à celui de VidéoIn.
 Il va chercher une image en RAM à une adresse indiquée par le processeur
-et génère le flux vidéo correspondant. 
+et génère le flux vidéo correspondant.
 Ces deux fonctions sont effectuées en parallèle par les deux sous-modules de VidéoOut qui se passent
 les pixels par une fifo.
 
 \subsection{Le module read}
-Ce module va chercher les images en RAM et pose les pixels dans une fifo. 
+Ce module va chercher les images en RAM et pose les pixels dans une fifo.
 Il attend que le processeur lui indique qu'une nouvelle adresse RAM est disponible en passant le registre de contrôle de wb\_slave, dédié à VidéoOut, à 1.
 Il échantillonne alors le registre d'adresse de VidéoOut.
 Une fois cette adresse obtenue, il va lire en RAM par paquets de NB\_PACK pixels, soit NB\_PACK/4 mots.
@@ -215,12 +211,12 @@ Une fois la lecture d'une image terminée, read se met en attente d'une nouvelle
 
 \paragraph{SystemC}
 Le module est implémenté à l'aide d'un SC\_THREAD.
-Il effectue des écritures bloquantes sur la fifo. 
+Il effectue des écritures bloquantes sur la fifo.
 Sa vitesse est donc limitée par les lectures en RAM et
 par le rythme auquel le SC\_THREAD gen vide la fifo.
 
 \paragraph{SystemVerilog}
-La problématique est la même que pour le module store de VidéoIn. 
+La problématique est la même que pour le module store de VidéoIn.
 Le style d'écriture en SystemC ne peut pas être reproduit en SystemVerilog.
 Le SC\_THREAD a donc été traduit sous la forme d'une machine à états dans le module video\_out\_read instancié par le module video\_out.
 
@@ -230,8 +226,8 @@ Il génère ensuite le flux vidéo correspondant.
 
 \paragraph{SystemC}
 Le code systemC est essentiellement une reprise de video\_gen.
-On réalise une lecture non bloquante de la fifo. 
-Si la fifo est vide, on le détecte. 
+On réalise une lecture non bloquante de la fifo.
+Si la fifo est vide, on le détecte.
 On en déduit que l'on ne tient pas le temps réel.
 
 \paragraph{SystemVerilog}
@@ -243,33 +239,33 @@ Celui-ci génère le signal r\_ack lorsqu'elle détecte le front montant
 du signal r\_ack\_slow contrôlé à 25 MHz.
 
 
-    \part{Vidéo\_Calc} 
+    \part{Vidéo\_Calc}
     \section*{Vidéo\_Calc}
     \addcontentsline{toc}{section}{Vidéo\_Calc}
-    
+
     \subsection{Généralités}
-    
+
 Comme annoncé dans l'introduction, la transformation géométrique à appliquer au flux vidéo transitant par le module Etrange doit pouvoir être effectuée en temps réel, c'est à dire que tous les 1/60 de secondes il faut qu'une nouvelle image puisse sortir du module. Le traitement par le processeur de la transformation d'ordre 3 par la technique du backward wrapping  à appliquer à l'image ne permet pas de tenir de tels timings. C'est pourquoi un coprocesseur est ajouté au module Etrange. Ce coprocesseur que nous avons désigné sous le terme vidéo\_calc est chargé d'implémenter cette technique présentée de manière détaillée dans l'introduction.
 \\
 \\
-Pour chaque tuile de taille 16x16 pixels de l'image de sortie, on peut montrer que si on connait les coordonnées (x,y) du pixel antécédent de celui de coordonnées (X,Y) dans l'image de sortie, il est possible de déduire les coordonnées de l'antécédent de celui de coordonnées (X+1,Y) en se basant uniquement sur les coordonnées de celui en (X,Y). De plus, ce calcul peux s'effectuer à chaque cycle d'horloge. 
+Pour chaque tuile de taille 16x16 pixels de l'image de sortie, on peut montrer que si on connait les coordonnées (x,y) du pixel antécédent de celui de coordonnées (X,Y) dans l'image de sortie, il est possible de déduire les coordonnées de l'antécédent de celui de coordonnées (X+1,Y) en se basant uniquement sur les coordonnées de celui en (X,Y). De plus, ce calcul peux s'effectuer à chaque cycle d'horloge.
 Ainsi, une fois connu les coordonnées (x,y) de l'antécédent du pixel supérieur gauche d'une tuile de l'image de sortie, il est possible de calculer à chaque nouveau cycle d'horloge les coordonnées de tous les antécédents de la tuile. C'est la base du calcul incrémental.
 
 	\subsection{Stockage}
-	
+
 		\subsubsection*{Les coefficients}
-		
+
 Les coefficients pour chaque tuile de la transformation géométrique à appliquer au flux vidéo sont stockés en RAM à une adresse prédéfinie. Il y a donc 26 coefficients par tuile
 ce qui donne 26x1200 = 31200 coefficients stockés en RAM. De plus pour chaque tuile, le processeur a placé en RAM les coordonnnées de l'antécédent le plus en haut à gauche parmis les antécédents des 4 coins d'une tuile. Il y a donc en plus 2x1200 = 2400 coordonnées.
 Les coefficients et les coordonnées sont stockés en RAM sur 32bits. Ce qui nous donne une place totale occupée de (31200 + 2400)x4 = 134 Ko
 
 	\subsubsection*{Les images}
-	
+
 Les différents modules lisent et écrivent en RAM dans une zone occupant en tout 10 images. ce qui correspond à 10x640x480 = 3Mo.
 
 	\subsection{Fonctionnement}
 
-Le module vidéo\_calc fonctionne selon le principe suivant : 
+Le module vidéo\_calc fonctionne selon le principe suivant :
 
 \begin{enumerate}
 
@@ -284,9 +280,9 @@ Le module vidéo\_calc fonctionne selon le principe suivant :
 \item Les pixels traités sont ensuite placés dans une FIFO pour ensuite être stockés à nouveau en RAM à l'adresse spécifiée par le processeur lors de l'initialisation. L'utilisation d'une FIFO permet de pipeliner d'une part les calculs et d'autre part le stockage en RAM.
 
 \end{enumerate}
-	
+
 	\subsection{Architecture SystemC}
-L'architecture en SystemC suit globalement le principe de fonctionnement. Ce module est constitué de 3 SC\_THREADs : 
+L'architecture en SystemC suit globalement le principe de fonctionnement. Ce module est constitué de 3 SC\_THREADs :
 
 \begin{enumerate}
 
@@ -296,18 +292,21 @@ L'architecture en SystemC suit globalement le principe de fonctionnement. Ce mod
 \item Le SC\_THREAD process\_tile() : C'est le processus de calcul de la transformation géométrique à proprement parlé : Pour chaque tuile de l'image de sortie, ce processus va demander à get\_tile() de charger le cache. Une fois le cache chargé, process\_tile() va effectué le calcul incrémental sur chaque pixel de la tuile de sortie, va regarder si ce pixel se trouve dans le cache, si oui il procède à l'interpolation puis place le pixel dans la FIFO, sinon un pixel noir est placé dans la FIFO.
 
 
-\item Le SC\_THREAD store\_tile() : Comme son nom l'indique, la seule et unique tache de ce processus est de récupérer les tuiles dans la FIFO et de les stocker en RAM à la bonne place. Comme les  pixels font 8 bits et la taille du bus Wishbone ainsi que la taille des mots en mémoire  est de 32 bits, ce processus va faire des paquets de 4 pixels puis va aller écrire ces paquets en RAM 4 par 4. 
-\end{enumerate} 
+\item Le SC\_THREAD store\_tile() : Comme son nom l'indique, la seule et unique tache de ce processus est de récupérer les tuiles dans la FIFO et de les stocker en RAM à la bonne place. Comme les  pixels font 8 bits et la taille du bus Wishbone ainsi que la taille des mots en mémoire  est de 32 bits, ce processus va faire des paquets de 4 pixels puis va aller écrire ces paquets en RAM 4 par 4.
+\end{enumerate}
 
 TO DO inclure schéma machine à états
-	
-	\subsection{Verilog} 
-Nous n'avons pas eu le temps de terminer l'écriture du module vidéo\_calc, toutefois est présentée ici sous la forme d'un schéma l'architecture telle que nous l'avions imaginée. La problématique principale étant que le style d'écriture en SystemC n'est pas directement transcriptible en SystemVerilog. Il est donc nécessaire de traduire sous la forme d'une machine à états les différentes intéractions se déroulant entre les 3 SC\_THREADs du SystemC.
-\\
-\\
-TO DO inclure schéma vérilog
 
-    \part{Soft (LM32)} 
+	\subsection{Verilog}
+Nous n'avons pas eu le temps de terminer l'écriture du module vidéo\_calc, toutefois est présentée ici sous la forme d'un schéma l'architecture telle que nous l'avions imaginée. La problématique principale étant que le style d'écriture en SystemC n'est pas directement transcriptible en SystemVerilog. Il est donc nécessaire de traduire sous la forme d'une machine à états les différentes intéractions se déroulant entre les 3 SC\_THREADs du SystemC.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[scale = 0.15]{video_calc_verilog.png}
+	\caption{Architecture de VidéoOut}
+\end{figure}
+
+    \part{Soft (LM32)}
 
     \section*{Soft (LM32)}
     \addcontentsline{toc}{section}{Soft (LM32)}
@@ -376,7 +375,7 @@ Ce calcul ne nous permet pas de gérer toutes les transformations possibles : ic
 
 
 
- 
+
     \chapter*{Conclusion}
     \addcontentsline{toc}{chapter}{Conclusion}
 { L'architecture décrite ci-dessus a été implémentée en SystemC dans un premier temps et nous arrivons à faire des transformations dans la limite du cache.
@@ -385,14 +384,14 @@ Ce calcul ne nous permet pas de gérer toutes les transformations possibles : ic
 
 La traduction en System Verilog n'est pas terminée. Vidéo\_In et Video\_Out sont fonctionnels en System Verilog mais Video\_Calc n'a pas été traduit.
 
-Perspectives et améliorations : 
+Perspectives et améliorations :
 
 \begin{itemize}
 	\item Traduction de Video\_Calc en System Verilog
 	\item	Meilleure gestion du cache pour supporter des transformations plus complexes
 	\item Améliorer la partie interpolation car pour l'instant, elle prend 4 cycles
 	\item Avoir des coefficients différents pour chaque tuile
-	\item La capacité de changer les coefficients pour le calcul incrémental par le clavier 
+	\item La capacité de changer les coefficients pour le calcul incrémental par le clavier
 \end{itemize}
 }
 

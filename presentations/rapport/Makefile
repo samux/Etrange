@@ -6,6 +6,7 @@ all: $(OBJ)
 %.pdf: %.tex
 	pdflatex $< $@
 	pdflatex $< $@
+	pdflatex $< $@
 
 
 clean:
