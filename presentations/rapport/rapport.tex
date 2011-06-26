@@ -103,6 +103,19 @@ Cette architecture a l'avantage d'être modulaire. Par exemple, on peut ne pas u
 
     \part{Wb\_Slave / VidéoIn / VidéoOut}
     \section{Wb\_Slave}
+\begin{figure}[!h]
+	\centering
+	\includegraphics[scale = 0.5]{wb_slave.png}
+	\caption{Architecture}
+\end{figure}
+
+Les modules de traitement vidéo que nous avons conçus ont besoin de communiquer avec le processeur pour obtenir les adresses des images en RAM. 
+Cette communication se fait par l'intermédaire d'interruptions et du protocole wishbone.\\
+Plutôt que d'intégrer un contrôleur wishbone dans chacun de nos modules, 
+nous avons choisi de réaliser une entité dédiée, wb\_slave.
+Wb\_slave se comporte comme un esclave wishbone, il contient des registres internes dans lesquels le processeur écrit. \\
+Les modules vidéo surveillent ces registres. Il récupère les adresses dans les registres d'adresse qui leur sont attribués lorsque le registre de contrôle est à 1.
+
 
 
     \section{VidéoIn}
