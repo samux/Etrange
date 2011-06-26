@@ -1,3 +1,16 @@
+/*
+*	Caroline Kéramsi
+*	Projet Etrange INF342
+*	Télécom ParisTech
+*/
+
+/*
+*	Fifo qui permet de stocker 2**ADDR_SIZE données de DATA_SIZE bits. 
+*	nb_pack_available vaut 1 quand la fifo contient au moins NB_PACK données
+*/
+
+
+
 module fifo
 	#(
 		parameter ADDR_SIZE = 6,
@@ -18,12 +31,12 @@ module fifo
 
 reg [ADDR_SIZE-1:0] addr_first;
 reg [ADDR_SIZE-1:0] addr_last;
-reg [ADDR_SIZE:0] fifo_cnt; //Pas addr_size -1 car fifo_cnt peut valoir 2**ADDR_SIZE
+reg [ADDR_SIZE:0] fifo_cnt;
 
 wire empty;
 
 //////////////////////////////////
-//	RAM
+//	Une RAM double-port
 ///////////////////////////////////
 
 ram #(.ADDR_SIZE(ADDR_SIZE), .DATA_SIZE(DATA_SIZE)) ram 

@@ -50,4 +50,4 @@
 #define	TTY_BASE    0xA0000000
 #define	TTY_SIZE    0x00000100
 #define	WBS_BASE    0xB0000000
-#define	WBS_SIZE    0x00100000 // 1M
+#define	WBS_SIZE    0x00100000 

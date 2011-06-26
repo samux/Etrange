@@ -1,26 +1,35 @@
-/******************************************************
-* Ce module lit les signaux envoyés par video_gen et 
-* place les pixels correspondants dans la fifo
-*
-******************************************************/
+/*
+*	Caroline Kéramsi
+*	Projet Etrange INF342
+*	Telecom ParisTech
+*/
 
-
+/*
+*	Ce module lit le flux vidéo et
+*	place les pixels correspondants 
+*	dans la fifo.
+*/
 
 module video_in_read 
-	#(parameter WIDTH = 640,
-      parameter HEIGHT = 480
-	  )
+	#(
+	parameter WIDTH = 640,
+    parameter HEIGHT = 480
+	)
 	(
+	//horloge système, 100 MHz
 	input wire clk,
+
+	//horloge du flux vidéo, 25 MHz
 	input wire clk_in,
+
 	input wire nRST,
 
-	//Signaux en provenance de video_gen
+	//Signaux du flux_vidéo
 	input wire line_valid,
 	input wire frame_valid,
 	input [7:0] pixel_in,
 
-	//Signal de video_store
+	//Signal en provenance de video_in_store
 	input wire new_addr,
 
 	//Signaux en direction de la fifo
@@ -28,37 +37,38 @@ module video_in_read
 	output reg [31:0] pixels_out
 	);
 
-//Compteurs pour situer la position courante au sein de l'image
-reg [9:0] pixel_c; //Colonne
-reg [9:0] pixel_l; //Ligne
 
-//Il faut attendre la première adresse du processeur
-//pour démarrer video_in. 
-//First_interrupt passe à 1 quand la première adresse 
-//est envoyée.
-//Ready passe à 1 pendant la première période "inter-image"
-//qui suit le passage à 1 de first_interrupt. On peut alors
-//commencer le stockage.
+/*
+*	Il faut attendre la première adresse du processeur pour démarrer video_in. 
+*	First_addr passe à 1 quand la première adresse 	est envoyée.
+*	Ready passe à 1 pendant la première période "inter-image" qui suit le passage à 1 de first_interrupt. 
+*	On peut alors commencer le stockage.
+*/
+
 reg ready;
-reg first_interrupt;
+reg first_addr;
 
 always_ff @(posedge clk or negedge nRST)
 if (~nRST)
 	begin
 		ready <= 0;
-		first_interrupt <= 0;
+		first_addr <= 0;
 	end
 else 
 	begin
 		if (new_addr)
-			first_interrupt <= 1;
-		if (first_interrupt & ~frame_valid) 
+			first_addr <= 1;
+		if (first_addr & ~frame_valid) 
 			ready <= 1;
 	end
 	
 
 
-//Processus de stockage dans la fifo à 100 MHz
+/********************************************************************
+*	Processus de stockage dans la fifo à 100 MHz.
+*	On génère w_e à partir de write_fifo_slow
+*******************************************************************/
+
 reg write_fifo_slow;
 reg old_write_fifo_slow;
 wire write_fifo_posedge;
@@ -67,11 +77,6 @@ assign write_fifo_posedge = (~old_write_fifo_slow & write_fifo_slow);
 
 always @(posedge clk or negedge nRST)
 	old_write_fifo_slow <= write_fifo_slow;
-
-
-
-
-
 
 always @(posedge clk or negedge nRST)
 if (~nRST)
@@ -84,11 +89,20 @@ begin
 		w_e <= 0;
 end
 
-//Processus de lecture à 25 Mhz
+
+
+/**************************************************************
+*		Processus de lecture des pixels à 25 MHz
+*		On générère write_fifo_slow
+**************************************************************/
+
+//Compteurs pour situer la position courante au sein de l'image
+reg [9:0] pixel_c; 
+reg [9:0] pixel_l; 
+
 always @(posedge clk_in)
 begin
-	//write_fifo_slow vaut 0 sauf
-	//si le contraire est précisé
+	//write_fifo_slow vaut 0 sauf si le contraire est précisé
 	write_fifo_slow <= 0;
 	if (~nRST)
 		begin
@@ -99,15 +113,11 @@ begin
 	else
 	begin
 	//Stockage d'un pixel dans la fifo
-	//Attention, contrairement au module systemC, les
-	//différents types d'erreurs ne génèrent qu'un
-	//seul type de message d'erreur.
 		if (line_valid && frame_valid)
 		begin
 			if (pixel_c < WIDTH && pixel_l < HEIGHT)
 			begin
-				//On regroupe les pixels par 4 pour 
-				//les stocker dans la fifo 32 bits
+				//On regroupe les pixels par 4 pour les stocker dans la fifo 32 bits
 				case (pixel_c%4)
 					0:
 						pixels_out[31:24] <= pixel_in;

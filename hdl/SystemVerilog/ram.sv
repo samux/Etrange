@@ -1,3 +1,11 @@
+/*
+*	Caroline Kéramsi
+*	Projet Etrange INF342
+*/
+
+/*
+*	Une ram synchrone, double-port de 2**ADDR_SIZE données de DATA_SIZE bits
+*/
 
 module ram
 		#(
@@ -18,7 +26,6 @@ module ram
 
 
 reg  [DATA_SIZE-1:0] internal_data[2**ADDR_SIZE-1:0];
-
 
 always_ff@(posedge clk) 
 	begin

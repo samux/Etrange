@@ -4,25 +4,45 @@
 *  Telecom ParisTech
 */
 
+/*
+*	Ce module prend les pixels
+*	dans la fifo et les stocke
+*	en RAM
+*/
+
+
+
 module video_in_store
-		#(parameter WIDTH = 640,
+		#(
+		parameter WIDTH = 640,
 		parameter HEIGHT = 480,
-		parameter NB_PACK = 16
+		//Nombre de pixels que l'on stocke en une fois
+		parameter NB_PACK = 16  
 		)
+
 		(
 		input wire clk,
 		input wire nRST,
+
+		//Connexion avec le module wishbone slave
 		input wire [31:0] wb_reg_ctr,
 		input wire [31:0] wb_reg_data,
+
+		//Connexion avec la fifo
 		input wire nb_pack_available,
 		input wire [31:0] data_fifo,
 		output reg r_ack,
+
+		//Interruption
 		output reg interrupt,
+
+
 		//new_addr vaut 1 pendant un cycle d'horloge lorsqu'une 
 		//nouvelle addresse a été fournie par le processeur
 		//Ce signal déclenche un reset des autres modules
 		output wire new_addr, 
-		//Signaux wishbone
+
+		//Signaux wishbone master
 		output reg p_wb_STB_O,
 		output reg p_wb_CYC_O,
 		output reg p_wb_LOCK_O,
@@ -67,7 +87,7 @@ WAIT_ADDR :
 		
 WAIT_PACK_AVB : 
 		On attend que NB_PACK pixels soient disponibles dans la fifo. 
-		Attention la fifo stocke déjà des mots de 32 bits (4 pixels).
+		Attention la fifo stocke des mots de 32 bits (4 pixels).
 
 BREAK : 
 		Entre deux stockages au sein d'un même paquet 
@@ -88,9 +108,6 @@ enum logic [2:0] {WAIT_ADDR, WAIT_PACK_AVB, WAIT_ACK, BREAK, IMAGE_PROCESSED} st
 //Pour maintenir l'interruption pendant 3 cycles d'horloge
 reg [1:0] int_cnt;
 
-//Pour rester deux temps dans le break
-reg hold_break;
-
 //Pour se situer dans l'image
 reg [19:0] pixel_count;
 
@@ -102,39 +119,41 @@ if (~nRST)
 		state <= WAIT_ADDR;
 		pixel_count <= 0;
 		int_cnt <= 0;
-		hold_break <= 1;
 	end
 else
 	case (state)
+
 		WAIT_ADDR:
 			begin
 				if (new_addr) state <= WAIT_PACK_AVB;
 				int_cnt <= 0;
 			end
+
 		WAIT_PACK_AVB:
 			if (nb_pack_available) state <= WAIT_ACK;
+
 		BREAK:
 			state <= WAIT_ACK;
+
 		WAIT_ACK:
-			begin
-			if (p_wb_ACK_I)
-				begin
-					//Incrémentation des compteurs
-					pixel_count <= pixel_count + 4;
-					state <= BREAK;
-					//Cas de la fin d'un paquet
-					if (pixel_count%NB_PACK == NB_PACK - 4)
-						begin
-							state <= WAIT_PACK_AVB;
-							//Cas de fin d'une image
-							if (pixel_count == (WIDTH*HEIGHT) - 4)
-								begin
-									pixel_count <= 0;
-									state <= IMAGE_PROCESSED;
-								end
+				if (p_wb_ACK_I)
+					begin
+						//Incrémentation des compteurs
+						pixel_count <= pixel_count + 4;
+						state <= BREAK;
+						//Cas de la fin d'un paquet
+						if (pixel_count%NB_PACK == NB_PACK - 4)
+							begin
+								state <= WAIT_PACK_AVB;
+								//Cas de fin d'une image
+								if (pixel_count == (WIDTH*HEIGHT) - 4)
+									begin
+										pixel_count <= 0;
+										state <= IMAGE_PROCESSED;
+									end
+							end
 						end
-					end
-				end
+
 		IMAGE_PROCESSED:
 			begin 
 				int_cnt <= int_cnt + 1;
@@ -151,11 +170,12 @@ begin
 	p_wb_LOCK_O <= 0;
 	p_wb_WE_O <= 1;
 
-	//Vrai sauf si le contraire est indiqué ci-dessous
+	//Vrai sauf si le contraire est indiqué dans le case
 	p_wb_STB_O <= 0;
 	p_wb_CYC_O <= 0;
 	r_ack <= 0;
 	interrupt = 0;
+
 	case (state)
 		WAIT_ADDR:
 			deb_im <= wb_reg_data;
