@@ -71,15 +71,11 @@ begin
 		wb_data[7] <= 0;
 		if (p_wb_STB_I ) 
 		begin
-		$display("strobe");
 			if (p_wb_CYC_I ) 
 			begin
-				$display("and cycle %x", p_wb_ADR_I);
 				if (p_wb_WE_I && p_wb_ADR_I >= SLAVE_ADDR && p_wb_ADR_I < SLAVE_ADDR + 4*SIZE)
 					begin
-					$display("JKJLJ");
 					i = (p_wb_ADR_I - SLAVE_ADDR)/4;
-					$display("i : %x",(p_wb_ADR_I -SLAVE_ADDR)/4);
 					wb_data[i] <= p_wb_DAT_I; 
 //pragma translate_off
 			$display ("SLAVE recieved Write REQ 0x%08X @cycle %d",p_wb_DAT_I,cycle);

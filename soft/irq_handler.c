@@ -60,7 +60,7 @@ void video_calc_handler()
 {
   nb_image_processed++;
   printf(" VCALC a fini l'mage n°%ld\n", nb_image_processed);
-  if(nb_image_processed == 2)
+  if(nb_image_processed == 1)
   {	
 	printf("VOUT commence l'image %ld\n", (uint32_t) RAM_FIRST_IMAGE_PROCESSED);
     VOUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED;

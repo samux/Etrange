@@ -11,12 +11,12 @@
 
 module video_out_gen 
 	#(
-	parameter WIDTH = 640;
-	parameter HEIGHT = 480;
+	parameter WIDTH = 640,
+	parameter HEIGHT = 480,
 	//Temps de pause entre 2 lignes
-	parameter TIME_BREAK = 160;
+	parameter TIME_BREAK = 160,
 	//Temps de pause entre 2 images
-	parameter IMAGE_TIME_BREAK = 40*(160+640);
+	parameter IMAGE_TIME_BREAK = 40*(160+640)
 	)
 	(
 	input wire clk,
