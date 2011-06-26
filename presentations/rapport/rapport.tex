@@ -1,4 +1,6 @@
-\documentclass[a4paper,12pt]{report}
+\begin{scriptsize}
+•
+\end{scriptsize}\documentclass[a4paper,12pt]{report}
  
 % Différentes options pour la classe :
 % - taille de la fonte    : 10pt, 11pt, 12pt
@@ -24,8 +26,11 @@
  
     \chapter*{Introduction}
     \addcontentsline{toc}{chapter}{Introduction}
+    
+    \subsection*{Généralités}
+    
 {Dans le cadre du cours de System On Chips à Télécom Paristech, nous avons du réaliser
-un module de traitement vidéo. Plus précisément, ce module doit être capable à partir d'un flux vidéo d'entrée représentée en 256 niveaux de gris, d'établir une transformation géométrique d'ordre 3. Voici les images que nous pouvons obtenir suite à une telle transformation :}
+un module de traitement vidéo. Plus précisément, ce module devait être capable à partir d'un flux vidéo d'entrée dont les intensités des pixels sont représentées en 256 niveaux de gris, donc codés sur 8 bits, d'établir une transformation géométrique d'ordre 3. Voici les images que nous pouvons obtenir suite à une telle transformation :}
  
 \begin{figure}[!h]
 	\centering
@@ -39,7 +44,60 @@ un module de traitement vidéo. Plus précisément, ce module doit être capable
 	\caption{Image transformée}
 \end{figure}
 
-{///////TODO : explication de l'algo backward machin}
+\newpage
+
+	\subsection*{Le backward wrapping}
+	
+{Afin d'implémenter les transformations géométrique d'ordre 3 à appliquer au flux vidéo transitant par le module Etrange, la technique dite du "backward wrapping" est utilisée. Cette technique est très simple. Elle consiste à calculer, pour chaque pixel de coordonnées (X,Y) de l'image transformée les coordonnées (x,y) de son antécédent dans l'image d'origine.
+{
+\newline
+\newline
+$
+y = b_{30}X³ + b_{21}X²Y + b_{12}XY² + b_{30}Y³
+
+  + b_{20}X² + b_{11}XY  + b_{02}Y²
+  
+  + b_{10}X  + b_{01}Y
+  
+  + b_{00}
+$
+\newline
+$
+x = a_{30}X³ + a_{21}X²Y + a_{12}XY² + a_{30}Y³
+
+  + a_{20}X² + a_{11}XY  + a_{02}Y²
+ 
+  + a_{10}X  + a_{01}Y
+  
+  + a_{00}
+$
+}
+\newline
+
+{Dans ces formules, les $a_{ij}$ et $b_{ij}$ sont des coefficients réels, positifs ou négatifs. Ce qui implique que les coordonnées (x,y) de l'antécédent dans l'image d'origine sont réels, positifs, négatifs aussi. Il s'agit d'un pixel fictif.
+Il est donc nécessaire de procéder à une deuxième étape dite d'interpolation afin de calculer l'intensité lumineuse que prendra le pixel de coordonnées (X,Y) dans l'image transformée. Pour cela, on utilise les intensités lumineuses des quatre pixel les plus proches ainsi que les parties entières et décimales des coordonnées (x,y) du pixel antécédent. Ce qui nous donne la formule :
+\newline
+$$
+I = (1-dx).(1-dy).I_{00} + (1-dx).dy.I_{01} + dx.(1-dy).I_{10} + dx.dy.I_{11}
+$$
+\newline
+Où les dx, dy représentent respectivement les parties décimales de x et y et où les $I_{ij}$ représentent les intensités des 4 pixels voisins. Comme toute interpolation elle altère l'image mais nous jugeons que la qualité résultante est acceptable.
+\newline
+\newline
+}
+	\subsection*{Quelques précisions}
+{
+
+
+
+}
+
+
+
+	\begin{itemize}
+\item Le calcul incrémental : En supposant connu les coordonnées (x,y) de l'antécédent d'un pixel de coordonnées (X,Y), il est possible de calculer, en se basant sur les coordonnées de ce dernier pixel, le pixel antécédent de celui de coordonnées (X+1,Y) et ainsi de suite. 
+\item l'interpolation : Comme les coordonnées (x,y) du pixel antécédent ne sont pas forcément entières après le calcul incrémental, il est donc nécessaire de mettre en place une interpolation pour calculer l'intensité du pixel résultant. Cette intensité est obtenue en moyennant les valeurs des intensités des 4 pixels voisins du pixel traité. 
+\end{itemize}
 
 	\part*{Architecture retenue}
 	\section{Architecture retenue}
@@ -204,9 +262,17 @@ du signal r\_ack\_slow contrôlé à 25 MHz.
 
 
 
-    \part{VidéoCalc} 
-    \section*{VidéoCalc}
-    \addcontentsline{toc}{section}{VidéoCalc}
+    \part{Vidéo\_Calc} 
+    \section*{Vidéo\_Calc}
+    \addcontentsline{toc}{section}{Vidéo\_Calc}
+    
+    \subsection{Principe}
+{La transformation géométrique à appliquer au flux vidéo transitant par le module Etrange doit pouvoir être effectuée en temps réel, c'est à dire que tous les 1/60 de secondes il faut qu'une nouvelle image puisse sortir du module. Le traitement par le processeur de la transformation d'ordre 3 par la technique du backward wraping  à appliquer à l'image ne permet pas de tenir de tels timings. C'est pourquoi un coprocesseur est ajouté au module. Ce coprocesseur que nous avons désigné sous le terme vidéo\_calc est chargé d'implémenter cette technique du backward wraping qui est présentée de manière détaillée dans l'introduction.
+
+
+
+}   	
+    	Le module Vidéo\_Calc est le module chpaargé d'effectuer la transformation géométrique d'ordre 3 sutr le flux vidéo. Ce traitement doit pouvoir être effectué en temps réel, ce qui implique des contraintes de timing importantes. C'es
 
 {}
 
