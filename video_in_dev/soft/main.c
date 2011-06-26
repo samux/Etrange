@@ -31,8 +31,7 @@ volatile uint32_t nb_image_out;
  * To indicate if we have already processed a picture coming from V_IN.
  * Useful to send to V_CALC the signal that the first picture is ready
  * */
-uint8_t first_image_processed;
-
+volatile uint32_t nb_image_processed;
 /**  
  * To indicate if this is the first image stored by V_IN
  * Useful to send to V_OUT the signal that the first image is ready (if USE_COPRO = 0).
@@ -115,7 +114,7 @@ int main(void)
   nb_image_in = 0;
   nb_image_out = 0;
 
-  first_image_processed = 1;
+  nb_image_processed = 0;
   first_image = 1;
 
   RAM_FIRST_IMAGE = (uint32_t *) malloc( 10 * sizeof(uint32_t) * WIDTH * HEIGHT / NB_BYTE_IN_A_WORD );
@@ -124,6 +123,7 @@ int main(void)
   //First address to store the image
   VIN = (uint32_t) RAM_FIRST_IMAGE;
   VIN_CRL = 1;
+  printf(" VIN  commence l'image : %ld\n", (uint32_t) RAM_FIRST_IMAGE);
 
   while(1);
 

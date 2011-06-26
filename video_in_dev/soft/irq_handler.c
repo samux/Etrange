@@ -21,15 +21,15 @@ void video_in_handler()
   uint32_t addr_v_calc_in = 0;
   uint32_t addr_v_calc_out = 0;
 
-  if ( nb_image_in - nb_image_out < 2)
-	 nb_image_in++;
-
+  nb_image_in ++;
 
   addr_v_in = 	(uint32_t) RAM_FIRST_IMAGE + 
 					(nb_image_in % NB_MAX_IMAGES) * WIDTH * HEIGHT;
   VIN = addr_v_in;
   VIN_CRL = 1;
-  printf(" Coucou de VIN handler : %ld\n", addr_v_in);
+
+  printf(" Coucou de VIN handler, commence l'image : %ld\n", addr_v_in);
+
 
 #if USE_COPRO
   addr_v_calc_in =  	(uint32_t) RAM_FIRST_IMAGE + 
@@ -44,6 +44,7 @@ void video_in_handler()
   VCALC_IN_CRL = 1;
   VCALC_OUT = addr_v_calc_out;
   VCALC_OUT_CRL = 1;
+  printf(" VCALC commence IN: %ld, OUT:%ld\n", addr_v_calc_in,addr_v_calc_out);
 #else
   if ( first_image )
   {
@@ -57,9 +58,11 @@ void video_in_handler()
 
 void video_calc_handler()
 {
-  if(first_image_processed)
-  {
-    first_image_processed = 0;
+  nb_image_processed++;
+  printf(" VCALC a fini l'mage n°%ld\n", nb_image_processed);
+  if(nb_image_processed == 2)
+  {	
+	printf("VOUT commence l'image %ld\n", (uint32_t) RAM_FIRST_IMAGE_PROCESSED);
     VOUT = (uint32_t) RAM_FIRST_IMAGE_PROCESSED;
     VOUT_CRL = 1;
   }
@@ -69,8 +72,7 @@ void video_calc_handler()
 void video_out_handler()
 {
   uint32_t addr_v_out = 0;
-  if(nb_image_out < nb_image_in - 1)
-	 nb_image_out++;
+  nb_image_out++;
 #if USE_COPRO
   addr_v_out = 	(uint32_t) RAM_FIRST_IMAGE_PROCESSED + 
 	 					(nb_image_out % NB_MAX_IMAGES) * WIDTH * HEIGHT; 

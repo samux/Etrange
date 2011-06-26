@@ -43,8 +43,8 @@ extern char inbyte();
 
 extern volatile uint32_t nb_image_in;
 extern volatile uint32_t nb_image_out;
+extern volatile uint32_t nb_image_processed;
 extern uint8_t first_image;
-extern uint8_t first_image_processed;
 
 extern uint32_t * RAM_FIRST_IMAGE;
 extern uint32_t * RAM_FIRST_IMAGE_PROCESSED;
