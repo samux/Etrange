@@ -117,7 +117,7 @@ namespace soclib { namespace caba {
               {
                 pixel_c = 0;
                 pixel_l = 0;
-                if(first_interrupt)
+                if(first_address)
                   start_fifo = true;
               }
             }
@@ -134,7 +134,7 @@ namespace soclib { namespace caba {
     {
       uint32_t pixel_stored_l = 0;
       uint32_t pixel_stored_c = 0;
-      first_interrupt = false;
+      first_address = false;
 
 		//beginning in RAM of the image which will be stored
       uint32_t deb_im;
@@ -158,7 +158,7 @@ namespace soclib { namespace caba {
           pixel_stored_c = 0;
           pixel_stored_l = 0;
           p_interrupt = 0;
-          first_interrupt = false;
+          first_address = false;
           std::cout << " VIN STORE_PIXEL: RESET " << std::endl;
           while(fifo.read());
         }
@@ -173,8 +173,8 @@ namespace soclib { namespace caba {
           deb_im = wb_tab[0];
           wb_tab[1] = 0;
           stockage_ok = true;
-          if(!first_interrupt)
-            first_interrupt = true;
+          if(!first_address)
+            first_address = true;
           std::cout << " VIN STORE_PIXEL: NOUVELLE ADRESSE: " << deb_im << std::endl;
         }
 

@@ -87,7 +87,7 @@ namespace soclib { namespace caba {
       unsigned int pixel_l;
 		/*<! pixel line */
 
-      bool first_interrupt;
+      bool first_address;
 		/*<! To synchronize the processor with Video_In */
 
       sc_fifo<unsigned char> fifo;
