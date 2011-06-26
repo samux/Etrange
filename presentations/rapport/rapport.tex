@@ -377,8 +377,12 @@ Ce calcul ne nous permet pas de gérer toutes les transformations possibles : ic
     \chapter*{Conclusion}
     \addcontentsline{toc}{chapter}{Conclusion}
 { L'architecture décrite ci-dessus a été implémentée en SystemC dans un premier temps et nous arrivons à faire des transformations dans la limite du cache.
-
-//TODO mettre une photo d'une transfo
+On peut voir sur l'image ci-dessous un exmeple de transformation comprenant un zoom, une translation, une rotation ainsi que des termes d'ordres 2. Le résultat est plutôt satisfaisasnt même s'il reste quelques petits décalages de certaines lignes de tuiles. Toute la partie blanche de l'image correspond aux antécédents qui ne sont pas dans le cache ou des caches qui ont une intersection vide avec l'image.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[scale = 0.3]{transfo.png}
+	\caption{Une transformation}
+\end{figure}
 
 La traduction en System Verilog n'est pas terminée. Vidéo\_In et Video\_Out sont fonctionnels en System Verilog mais Video\_Calc n'a pas été traduit.
 
