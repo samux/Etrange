@@ -1,16 +1,20 @@
-/************************************************************
+/*!
+ * \file video_in.cpp
+ * \brief Store in RAM the incoming stream
+ * \author Caroline Keramsi
+ * \date 20/06/2011
  *
- *      Acquisition du flux video entrant, stockage dans une
- *      fifo puis dans un tableau.
+ * Two threads: 	- one which reads the pixels from the incoming stream and stores them in a fifo
+ * 					- one which reads the fifo and store the pixels in RAM
  *
- ***********************************************************/
+ */
 
 #include "video_in.h"
 
 #define tmpl(x) template<typename wb_param> x Video_in<wb_param>
 namespace soclib { namespace caba {
 
-    // Le constructeur
+    // The constructor
     tmpl(/**/)::Video_in (sc_core::sc_module_name insname,
                           uint32_t * tab,
                           const int w ,
@@ -29,19 +33,15 @@ namespace soclib { namespace caba {
                fifo(48*5)
     {
 
-      // Lecture des pixels entrants
-      // Et stockage dans la fifo
       SC_THREAD(read_pixels);
       sensitive << pixel_clk.pos();
       dont_initialize();
 
-      //Récupération des pixels de la fifo
-      //et mise en RAM
       SC_THREAD(store_pixels);
       sensitive << p_clk.pos();
       dont_initialize();
 
-      // debut de l'image
+      // beginning of the image
       pixel_c = 0;
       pixel_l = 0;
 
@@ -49,7 +49,6 @@ namespace soclib { namespace caba {
 		<< " was created successfully " << std::endl;
     }
 
-    // Lit les pixels reçus et les place dans la fifo
     tmpl(void)::read_pixels()
     {
       std::cout << " VIN READ_PIXELS: START " << std::endl;
@@ -69,10 +68,9 @@ namespace soclib { namespace caba {
 
         else
         {
-          // image valide
+          // valid image
           if (line_valid && frame_valid)
           {
-            // std::cout << name() << " valid ..." <<  " lines : " << pixel_l << "col :" << pixel_c << std::endl;
             if (pixel_c < p_WIDTH && pixel_l < p_HEIGHT)
             {
               if (start_fifo)
@@ -93,7 +91,7 @@ namespace soclib { namespace caba {
           }
           else
           {
-            // Synchro horizontale
+            // horizontal synchro
             if (frame_valid && !line_valid)
             {
               if (pixel_c == p_WIDTH)
@@ -112,7 +110,7 @@ namespace soclib { namespace caba {
                           << std::endl;
               }
             }
-            // Synchro verticale
+            // vertical synchro
             else if (!frame_valid)
             {
               if((pixel_c == p_WIDTH) && (pixel_l == p_HEIGHT -1))
@@ -132,17 +130,13 @@ namespace soclib { namespace caba {
       }
     }
 
-    // Ce Thread surveille la fifo.
-    // Dès que celle-ci contient au moins p_NB_PACK pixels
-    // il les lit et les mets dans un tableau
-    // TO DO remplacer le tableau par une écriture en RAM via wishbone
     tmpl(void)::store_pixels()
     {
       uint32_t pixel_stored_l = 0;
       uint32_t pixel_stored_c = 0;
       first_interrupt = false;
 
-      //Adresse de début de stockage de l'image
+		//beginning in RAM of the image which will be stored
       uint32_t deb_im;
       uint32_t to_store[p_NB_PACK/4];
       uint8_t mask[p_NB_PACK/4];
@@ -170,10 +164,7 @@ namespace soclib { namespace caba {
         }
 
         while (!wb_tab[1] && !stockage_ok)
-        {
-          //std::cout << "J'attends une nouvelle addr" << std::endl;
           wait();
-        }
 
         if (!stockage_ok)
         {
@@ -202,25 +193,11 @@ namespace soclib { namespace caba {
 
           master0.wb_write_blk(deb_im + (p_WIDTH * pixel_stored_l + pixel_stored_c), mask, to_store, p_NB_PACK/4);
 
-          // std::cout << " VIN STORE_PIXELS: "
-          //           << pixel_stored_c
-          //           << " ADRESSE PIXEL "
-          //           << deb_im + p_WIDTH * pixel_stored_l + pixel_stored_c
-          //           << std::endl;
-
           pixel_stored_c = pixel_stored_c + p_NB_PACK;
           if (pixel_stored_c == p_WIDTH)
           {
-
             pixel_stored_c = 0;
             pixel_stored_l++;
-
-            // std::cout << " VIN STORE_PIXELS: NOUVELLE LIGNE "
-            //           << pixel_stored_l
-            //           << " ADRESSE LIGNE "
-            //           << deb_im + p_WIDTH * pixel_stored_l + pixel_stored_c
-            //           << std::Fendl;
-
           }
         }
         else
