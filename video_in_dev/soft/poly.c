@@ -15,6 +15,8 @@
  * \fn static mfixed P_0(mfixed coeff[4][4])
  * \brief Compute P_0 coefficient according to coeff
  *
+ * \param coeff: coefficients array
+ *
  * \return P_0 in mfixed representation
  *
  */
@@ -24,6 +26,10 @@ static mfixed P_0(mfixed coeff[4][4]);
  * \fn static mfixed P_1(int X, int Y, mfixed coeff[4][4])
  * \brief Compute P_1 coefficient according to the pixel (X, Y) and coeff
  *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
+ *
  * \return P_1 in mfixed representation
  *
  */
@@ -31,6 +37,10 @@ static mfixed P_1(int X, int Y, mfixed coeff[4][4]);
 /**
  * \fn static mfixed P_2(int X, int Y, mfixed coeff[4][4])
  * \brief Compute P_2 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
  *
  * \return P_2 in mfixed representation
  *
@@ -40,6 +50,10 @@ static mfixed P_2(int X, int Y, mfixed coeff[4][4]);
 /**
  * \fn static mfixed P_3(int X, int Y, mfixed coeff[4][4])
  * \brief Compute P_3 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
  *
  * \return P_3 in mfixed representation
  *
@@ -54,6 +68,8 @@ static mfixed P_3(int X, int Y, mfixed coeff[4][4]);
  * \fn static mfixed Q_0(mfixed coeff[4][4])
  * \brief Compute Q_0 coefficient according to coeff
  *
+ * \param coeff: coefficients array
+ *
  * \return Q_0 in mfixed representation
  *
  */
@@ -63,6 +79,10 @@ static mfixed Q_0(mfixed coeff[4][4]);
  * \fn static mfixed Q_1(int X, int Y, mfixed coeff[4][4])
  * \brief Compute Q_1 coefficient according to the pixel (X, Y) and coeff
  *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
+ *
  * \return Q_1 in mfixed representation
  *
  */
@@ -71,6 +91,10 @@ static mfixed Q_1(int X, int Y, mfixed coeff[4][4]);
 /**
  * \fn static mfixed Q_2(int X, int Y, mfixed coeff[4][4])
  * \brief Compute Q_2 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
  *
  * \return Q_2 in mfixed representation
  *
@@ -87,6 +111,8 @@ static mfixed Q_2(int X, int Y, mfixed coeff[4][4]);
  * \fn static mfixed R_0(mfixed coeff[4][4])
  * \brief Compute R_0 coefficient according to coeff
  *
+ * \param coeff: coefficients array
+ *
  * \return R_0 in mfixed representation
  *
  */
@@ -95,6 +121,10 @@ static mfixed R_0(mfixed coeff[4][4]);
 /**
  * \fn static mfixed R_1(int X, int Y, mfixed coeff[4][4])
  * \brief Compute R_1 coefficient according to the pixel (X, Y) and coeff
+ *
+ * \param X: x-coordinate to compute the coefficient
+ * \param Y: y-coordinate to compute the coefficient
+ * \param coeff: coefficients array
  *
  * \return R_1 in mfixed representation
  *
@@ -110,6 +140,8 @@ static mfixed R_1(int X, int Y, mfixed coeff[4][4]);
  * \fn static mfixed S_0(mfixed coeff[4][4])
  * \brief Compute S_0 coefficient according to coeff
  *
+ * \param coeff: coefficients array
+ *
  * \return S_0 in mfixed representation
  *
  */
@@ -121,7 +153,6 @@ static mfixed S_0(mfixed coeff[4][4]);
 
 static mfixed P_0(mfixed coeff[4][4])
 {
-  // 6*a30
   return 	fx_mul((mfixed) (6 << 16), coeff[3][0]);
 
 }
@@ -140,16 +171,23 @@ static mfixed P_1(int X, int Y, mfixed coeff[4][4])
 
 static mfixed P_2(int X, int Y, mfixed coeff[4][4])
 {
-  //3*X*coeff[3][0]*X
   mfixed a0 = fx_mul(coeff[3][0], (mfixed)( (3*X) << 16));
   mfixed a1 = fx_mul(a0, (mfixed) (X << 16));
 
-  //3*X*coeff[3][0]*X + (3*X + 1)*coeff[3][0]
-  mfixed a2 = fx_add(a1, fx_mul(coeff[3][0], (mfixed)( (3*X + 1) << 16)));
+  mfixed t1 = fx_add(a1, fx_mul(coeff[3][0], (mfixed)( (3*X + 1) << 16)));
 
-  mfixed t2 = fx_add( a2, fx_mul( (mfixed)( (1 + 2*X) << 16), coeff[2][0]));
-  mfixed t3 = fx_add( t2, fx_mul( (mfixed)( (2*X*Y + Y) << 16), coeff[2][1]));
-  mfixed t4 = fx_add( t3, fx_mul( (mfixed)( (Y*Y) << 16), coeff[1][2]));
+  mfixed t2 = fx_add( t1, fx_mul( (mfixed)( (1 + 2*X) << 16), coeff[2][0]));
+
+  a0 = fx_mul(coeff[2][1], (mfixed)((2*X) << 16));
+  a1 = fx_mul(a0, (mfixed)(Y << 16));
+  mfixed a2 = fx_add(a1, fx_mul(coeff[2][1], (mfixed)(Y << 16)));
+
+  mfixed t3 = fx_add(t2, a2);
+
+  mfixed a3 = fx_mul(coeff[1][2], (mfixed)(Y << 16));
+  mfixed a4 = fx_mul(a3, (mfixed)(Y << 16));
+
+  mfixed t4 = fx_add( t3, a4);
   mfixed t5 = fx_add( t4, fx_mul( (mfixed)( (Y) << 16), coeff[1][1]));
   return fx_add ( t5, coeff[1][0] );
   /*
