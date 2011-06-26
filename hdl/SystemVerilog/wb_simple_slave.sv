@@ -1,5 +1,5 @@
 /********************************
-* source sen.enst.fr
+* Source sen.enst.fr
 * Modifié par Caroline Kéramsi
 *********************************/
 

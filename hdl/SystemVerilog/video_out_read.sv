@@ -1,17 +1,22 @@
-//ATTENTION Ce code ne marche que pour NBPACK = 16
-//Pour d'autres valeurs il faut changer la taille du compteur
-//pack_count
-//TODO Changer ça
-parameter NBPACK = 16; //Par paquet de 32 bits
-
-parameter p_WIDTH = 640;
-parameter p_HEIGHT = 480;
+/*
+*	Caroline Kéramsi
+*	Projet Étrange INF342
+*	Télécom ParisTech
+*/
 
 
-//Ce module lit les pixels une image en RAM
-//et le place dans la fifo
 
-module video_out_read (
+/*
+*	Ce module lit les pixels une image en RAM et
+*	place les pixels dans la fifo
+*/
+
+module video_out_read
+	#(parameter NBPACK = 16,
+	parameter WIDTH = 640,
+	HEIGHT = 480
+	)
+	(
 	input wire clk,
 	input wire nRST,
 	input wire [31:0] wb_reg_data,
@@ -34,12 +39,15 @@ module video_out_read (
 	output reg [7:0] pixel_out
 	);
 
-assign p_wb_LOCK_O = 0;
 //On utilise le wishbone en lecture seule
 assign p_wb_WE_O = 0;
 assign p_wb_SEL_O = 4'hf;
+assign p_wb_LOCK_O = 0;
 
-//Détection de l'arrivée d'une nouvelle adresse
+/*************************************************
+*	Détection de l'arrivée d'une nouvelle adresse
+***************************************************/
+
 wire new_addr;
 reg old_reg_ctr_0;
 
@@ -49,29 +57,32 @@ always_ff @(posedge clk)
 assign new_addr = (~old_reg_ctr_0 & wb_reg_ctr[0]);
 
 
-//WAIT_ADDR : attend que le processeur fournisse une
-//adresse RAM
-//WRITE_FIFO : écrit les pixels lus en RAM dans la fifo
-//WAIT_FIFO : attend quand la fifo est pleine
-//READ_RAM : lecture en RAM
-//WAIT_ACK : attend le ack de la RAM
-//BREAK : temps d'arrêt entre chaque lecture
-//IMAGE_PROCESSED : l'image est finie, on l'indique par une interruption
+/***************************************************
+*			Machine à états
+***************************************************/
 
+/*
+*	WAIT_ADDR :			On attend que le processeur fournisse une
+*						adresse RAM
+*	WRITE_FIFO :		On écrit les pixels lus en RAM dans la fifo
+*	WAIT_FIFO :			On attend quand la fifo est pleine
+*	READ_RAM :			Lecture en RAM
+*	WAIT_ACK :			On attend le ack de la RAM
+*	BREAK :				Temps d'arrêt entre chaque lecture
+*	IMAGE_PROCESSED :	L'image est finie, on l'indique par une interruption
+*/
 
 enum logic [2:0] {WAIT_ADDR, WAIT_ACK, WRITE_FIFO, READ_RAM, IMAGE_PROCESSED} state, next_state;
 
 //Adresse du début de l'image en RAM
 reg [31:0] deb_im;
 
-//Buffer pour les données à placer en fifo :
+//Buffer pour les données à placer en fifo
 reg [7:0] pack [NBPACK];
 
 ///////////////////////////////////////////
 //			Compteurs
 //////////////////////////////////////////
-
-
 
 //Compteur pour se situer dans l'image
 reg [19:0] next_pixel_count;
@@ -101,18 +112,17 @@ begin
 	pack_count <= next_pack_count;
 end
 
-
+//////////////Mise à jour de l'état/////////////////
 always_ff @(posedge clk or negedge nRST)
 if (~nRST)
 	state <= WAIT_ADDR;
 else
 	state <= next_state;
 
-//Calcul combinatoire de l'état suivant
+///////////Calcul combinatoire de l'état suivant////////////////
 always_comb
 case (state)
-	//On attend une nouvelle adresse pour commencer 
-	//la lecture
+	//On attend une nouvelle adresse pour commencer la lecture
 	WAIT_ADDR:
 	begin
 		if (new_addr) next_state <= READ_RAM;
@@ -142,14 +152,9 @@ case (state)
 			end
 
 
-	//Si fin de l'écriture d'un paquet, on passe au paquet
-	//suivant
-	//Si fin de l'écriture d'un paquet et de l'image
-	//On passe dans l'état IMAGE_PROCESSED
 	WRITE_FIFO:
-	//Si la fifo était pleine le cycle n'a servi a rien
-	//Il n'y a donc des changements que si la fifo n'était pas
-	//pleine
+	//Si la fifo était pleine le cycle n'a servi a rien.
+	//Il n'y a donc des changements que si la fifo n'était pas pleine
 	if (~full)
 		begin
 		next_pack_count <= pack_count + 1;
@@ -158,7 +163,7 @@ case (state)
 				begin
 				next_state <= READ_RAM;
 				//Fin d'une image
-				if (pixel_count == p_WIDTH * p_HEIGHT)
+				if (pixel_count == WIDTH * HEIGHT)
 					next_state <= IMAGE_PROCESSED;
 				end
 		end
@@ -177,7 +182,7 @@ case (state)
 			end
 endcase
 
-//Calcul combinatoire des sorties
+///////////////Calcul combinatoire des sorties/////////////////
 always_comb 
 	begin
 		//W_e vaut 0 presque partout
@@ -219,10 +224,6 @@ always_comb
 		endcase
 	end
 	
-	
-
-
-
-endmodule;
+endmodule
 
 
