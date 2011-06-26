@@ -333,9 +333,7 @@ Le processeur reçoit une interruption de Video\_In lorsque ce dernier a termin�
 Le processeur reçoit une interruption de Video\_Calc lorsque ce module a terminé de traîter une image. Si l'image traîtée était la première, l'adresse de lecture de l'image traîtée est envoyée à Video\_Out.
 Le processeur reçoit une interruption de Video\_Out lorsque ce dernier a terminé de lire une image traitée en RAM. À ce moment là, il envoie une nouvelle adresse à Video\_Out.
 
-Cet enchaînement fonctionne bien en SystemC car le module Video\_Calc est plus rapide que Video\_In et Video\_Out.
-
-//TODO: expliquer les pb que l'on a en Verilog
+Cet enchaînement fonctionne bien car le module Video\_Calc est plus rapide que Video\_In pour stocker une image.
 }
 			\subsection*{Gestion de la RAM}
     		\addcontentsline{toc}{subsection}{Gestion de la RAM}
