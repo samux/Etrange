@@ -21,9 +21,9 @@
 /*!< Tile width */
 # define T_H 16
 /*!< Tile height */
-# define C_W 32
+# define C_W 48
 /*!< Cache width */
-# define C_H 32
+# define C_H 48
 /*!< Cache height */
 # define F_SIZE 2
 /*!< Number of tiles that can contain the fifo */
@@ -129,11 +129,12 @@ namespace soclib { namespace caba {
       void fill_cache();
 
 		/*!
-		 * \brief Coefficient initialization
+		 * \brief Load from RAM coefficients of the tile processed
 		 * 
+		 * \param tile_nb: tile which is processed
 		 * Read in RAM the coefficients sent by the processor
 		 */
-      void init_coeff();
+      void fill_coeff(int tile_nb);
 
 		/*!
 		 * \brief Compute the multiplication between two int32_t which are interpretated as fixed point (16.16)
@@ -144,6 +145,11 @@ namespace soclib { namespace caba {
 		int32_t fx_mul(int32_t A, int32_t B);
 
       private:
+
+
+
+		bool dummy;
+
 
       const uint32_t p_WIDTH ;
 		/*!< Image width */
@@ -157,6 +163,8 @@ namespace soclib { namespace caba {
 		/*!< The address of the image which will be processed */
       uint32_t deb_im_out;
 		/*!< The address where will be stored the processed image */
+		uint32_t deb_coeff;
+		/*!< The address where is stored coefficients and cache information */
 
       uint32_t * wb_tab;
 		/*!< To communicate with the processor */
@@ -175,7 +183,7 @@ namespace soclib { namespace caba {
       bool cache_rdy;
 		/*!< The cache is loaded */
 
-      cic_u coeff[T_NB];
+      cic_u coeff;
 		/*!< array containing coefficients of each tile */
       cic_u coeff_image[T_NB];
 		/*!< Copy of the coefficients array */

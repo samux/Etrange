@@ -486,6 +486,4 @@ void print_poly()
 		printf("begin_cache.y = %d,%d\n", coeff_incr_array[1][i][j].begin_cache.h, coeff_incr_array[1][i][j].begin_cache.l);
 	 }
   }
-  printf("ADR du tableau putain : %ld", (uint32_t)&coeff_incr_array[0][0][0].P0.all);
-
 }
