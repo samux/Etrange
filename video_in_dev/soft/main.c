@@ -82,12 +82,12 @@ int main(void)
   sin_plus.l = 0;
 
   mfixed decalage_x;
-  decalage_x.h = -9*16;
+  decalage_x.h = -20*16;
   decalage_x.l = 0;
   coeff_x[0][0] = decalage_x;
 
   mfixed decalage_y;
-  decalage_y.h = 7*16;
+  decalage_y.h = 4*16;
   decalage_y.l = 0;
   coeff_y[0][0] = decalage_y;
 
