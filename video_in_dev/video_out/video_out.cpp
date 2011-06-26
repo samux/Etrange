@@ -27,7 +27,7 @@ namespace soclib { namespace caba {
 		p_clk("p_clk"),
 		p_resetn("p_resetn"),
 		master0(p_clk,p_resetn, p_wb),
-		fifo(10000)
+		fifo(48*5)
 	{
 		// Lecture des pixels en RAM
 		SC_THREAD(read_image);

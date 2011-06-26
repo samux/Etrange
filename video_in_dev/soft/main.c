@@ -44,7 +44,7 @@ COEFF_INCR coeff_incr_array[2][NB_TILE_HEIGHT][NB_TILE_WIDTH];
 
 /** Coefficients for the transformation in x-direction */
 
-mfixed coeff_x[4][4] = { 	{(mfixed)0,(mfixed)0 , (mfixed)(2<<4), (mfixed)0},
+mfixed coeff_x[4][4] = { 	{(mfixed)0,(mfixed)(0) , (mfixed)(2<<4), (mfixed)0},
                                 {(mfixed)(1<<16), (mfixed)0, (mfixed)0, (mfixed)0},
                                 {(mfixed)(2<<4), (mfixed)0, (mfixed)0, (mfixed)0},
                                 {(mfixed)0, (mfixed)0, (mfixed)0, (mfixed)0}
