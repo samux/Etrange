@@ -1,6 +1,8 @@
-\begin{scriptsize}
-•
-\end{scriptsize}\documentclass[a4paper,12pt]{report}
+%\begin{scriptsize}
+%•
+%\end{scriptsize}
+
+\documentclass[a4paper,12pt]{report}
  
 % Différentes options pour la classe :
 % - taille de la fonte    : 10pt, 11pt, 12pt
@@ -23,11 +25,11 @@
 \maketitle
 \tableofcontents    % Table des matières
 \listoffigures        % Liste des figures
- 
-    \chapter*{Introduction}
-    \addcontentsline{toc}{chapter}{Introduction}
+
+    \part{Introduction}
+    \addcontentsline{toc}{part}{Introduction}
     
-    \subsection*{Généralités}
+    \subsection{Généralités}
     
 {Dans le cadre du cours de System On Chips à Télécom Paristech, nous avons du réaliser
 un module de traitement vidéo. Plus précisément, ce module devait être capable à partir d'un flux vidéo d'entrée dont les intensités des pixels sont représentées en 256 niveaux de gris, donc codés sur 8 bits, d'établir une transformation géométrique d'ordre 3. Voici les images que nous pouvons obtenir suite à une telle transformation :}
@@ -46,33 +48,23 @@ un module de traitement vidéo. Plus précisément, ce module devait être capab
 
 \newpage
 
-	\subsection*{Le backward wrapping}
+	\subsection{Le backward wrapping}
 	
 {Afin d'implémenter les transformations géométrique d'ordre 3 à appliquer au flux vidéo transitant par le module Etrange, la technique dite du "backward wrapping" est utilisée. Cette technique est très simple. Elle consiste à calculer, pour chaque pixel de coordonnées (X,Y) de l'image transformée les coordonnées (x,y) de son antécédent dans l'image d'origine.
-{
 \newline
 \newline
-$
-y = b_{30}X³ + b_{21}X²Y + b_{12}XY² + b_{30}Y³
-
-  + b_{20}X² + b_{11}XY  + b_{02}Y²
-  
-  + b_{10}X  + b_{01}Y
-  
-  + b_{00}
-$
-\newline
-$
-x = a_{30}X³ + a_{21}X²Y + a_{12}XY² + a_{30}Y³
-
-  + a_{20}X² + a_{11}XY  + a_{02}Y²
- 
+$$
+x = a_{30}X^3 + a_{21}X^2Y + a_{12}XY^2 + a_{30}Y^3
+  + a_{20}X^2 + a_{11}XY  + a_{02}Y^2
   + a_{10}X  + a_{01}Y
-  
   + a_{00}
-$
-}
-\newline
+$$
+$$
+y = b_{30}X^3 + b_{21}X^23Y + b_{12}XY^2 + b_{30}Y^2
+  + b_{20}X^2 + b_{11}XY  + b_{02}Y^2 
+  + b_{10}X  + b_{01}Y 
+  + b_{00}
+$$
 
 {Dans ces formules, les $a_{ij}$ et $b_{ij}$ sont des coefficients réels, positifs ou négatifs. Ce qui implique que les coordonnées (x,y) de l'antécédent dans l'image d'origine sont réels, positifs, négatifs aussi. Il s'agit d'un pixel fictif.
 Il est donc nécessaire de procéder à une deuxième étape dite d'interpolation afin de calculer l'intensité lumineuse que prendra le pixel de coordonnées (X,Y) dans l'image transformée. Pour cela, on utilise les intensités lumineuses des quatre pixel les plus proches ainsi que les parties entières et décimales des coordonnées (x,y) du pixel antécédent. Ce qui nous donne la formule :
@@ -82,24 +74,18 @@ I = (1-dx).(1-dy).I_{00} + (1-dx).dy.I_{01} + dx.(1-dy).I_{10} + dx.dy.I_{11}
 $$
 \newline
 Où les dx, dy représentent respectivement les parties décimales de x et y et où les $I_{ij}$ représentent les intensités des 4 pixels voisins. Comme toute interpolation elle altère l'image mais nous jugeons que la qualité résultante est acceptable.
-\newline
-\newline
 }
-	\subsection*{Quelques précisions}
+	\subsection{Quelques précisions}
 {
+Le flux à traiter est de 60 images par seconde au format 800x520 pixels pour un format effectif de l'image de 640x480 pixels en niveaux de gris codés sur 8bits. Par un court calcul, on déduit que le débit entrant est de $800x520x60 = 25 Mo/s$
 
 
-
-}
-
+Une contrainte supplémentaire est que la transformation de l'image doit s'effectuer tuiles par tuiles de taille 16x16 pixels. Ainsi, il doit être possible de faire subir une transformation différente à chaque tuile présente dans l'image. L'image est donc composée de 40x30 tuiles au format 16x16 pixels, ce qui correspond à 1200 tuiles par image.
 
 
-	\begin{itemize}
-\item Le calcul incrémental : En supposant connu les coordonnées (x,y) de l'antécédent d'un pixel de coordonnées (X,Y), il est possible de calculer, en se basant sur les coordonnées de ce dernier pixel, le pixel antécédent de celui de coordonnées (X+1,Y) et ainsi de suite. 
-\item l'interpolation : Comme les coordonnées (x,y) du pixel antécédent ne sont pas forcément entières après le calcul incrémental, il est donc nécessaire de mettre en place une interpolation pour calculer l'intensité du pixel résultant. Cette intensité est obtenue en moyennant les valeurs des intensités des 4 pixels voisins du pixel traité. 
-\end{itemize}
+Toutes les transformations opérées par le module Etrange doivent pouvoir être opérés en temps réel. Il s'agit d'une contrainte forte, le débit du flux vidéo entrant (25Mo/s) ne doit pas être altéré par les différentes opérations que subit l'image à travers Etrange.
+Ainsi, on dispose de 1/60ème de seconde pour traiter une image et donc 1/72000ème de seconde, soit $14 \mu s$ pour traiter une tuile.
 
-	\part*{Architecture retenue}
 	\section{Architecture retenue}
 	\addcontentsline{toc}{section}{Architecture retenue}
 {Pour réaliser ce module de traîtement vidéo, nous avons décidé d'utiliser l'architecture suivante :
@@ -110,13 +96,12 @@ Où les dx, dy représentent respectivement les parties décimales de x et y et 
 	\caption{Architecture}
 \end{figure}
 
-Le module VidéoIn se charge de mettre le flux entrant en RAM. VidéoCalc se charge d'aller lire en RAM une image à traîter et à mettre à un autre endroit de la RAM l'image traîtée. Enfin, le module VidéoOut se charge d'aller lire l'image traîtée et de générer un nouveau flux vidéo. Tous ces modules seront pilotés par le processeur (LM32) par le biais d'interruptions. Il enverra aux différents modules les bonnes adresses pour aller lire et écrire en RAM.
+Le module Vidéo\_In se charge de mettre le flux entrant en RAM. Vidéo\_Calc se charge d'aller lire en RAM une image à traiter et à mettre à un autre endroit de la RAM l'image traitée. Enfin, le module Vidéo\_Out se charge d'aller lire l'image traitée et de générer un nouveau flux vidéo. Tous ces modules seront pilotés par le processeur (LM32) par le biais d'interruptions. Il enverra aux différents modules les bonnes adresses pour aller lire et écrire en RAM.
 
+Toutes les informations qui s'échange entre les différentes composantes, le processeur, vidéo\_in, vidéo\_out et vidéo\_calc transitent via le bus Wishbone qui peut fonctionner à une cadence maximale de 100Mhz. 
 
-Cette architecture a l'avantage d'être modulaire. Par exemple, on peut ne pas utiliser le module de transformation juste en changeant le programme tournant sur le processeur.
+Cette architecture a l'avantage d'être modulaire. Par exemple, on peut ne pas utiliser le module de transformation géométrique juste en changeant le programme tournant sur le processeur.
 }
-
-
 
 
 
@@ -258,32 +243,69 @@ Celui-ci génère le signal r\_ack lorsqu'elle détecte le front montant
 du signal r\_ack\_slow contrôlé à 25 MHz.
 
 
-
-
-
-
     \part{Vidéo\_Calc} 
     \section*{Vidéo\_Calc}
     \addcontentsline{toc}{section}{Vidéo\_Calc}
     
-    \subsection{Principe}
-{La transformation géométrique à appliquer au flux vidéo transitant par le module Etrange doit pouvoir être effectuée en temps réel, c'est à dire que tous les 1/60 de secondes il faut qu'une nouvelle image puisse sortir du module. Le traitement par le processeur de la transformation d'ordre 3 par la technique du backward wraping  à appliquer à l'image ne permet pas de tenir de tels timings. C'est pourquoi un coprocesseur est ajouté au module. Ce coprocesseur que nous avons désigné sous le terme vidéo\_calc est chargé d'implémenter cette technique du backward wraping qui est présentée de manière détaillée dans l'introduction.
+    \subsection{Généralités}
+    
+Comme annoncé dans l'introduction, la transformation géométrique à appliquer au flux vidéo transitant par le module Etrange doit pouvoir être effectuée en temps réel, c'est à dire que tous les 1/60 de secondes il faut qu'une nouvelle image puisse sortir du module. Le traitement par le processeur de la transformation d'ordre 3 par la technique du backward wrapping  à appliquer à l'image ne permet pas de tenir de tels timings. C'est pourquoi un coprocesseur est ajouté au module Etrange. Ce coprocesseur que nous avons désigné sous le terme vidéo\_calc est chargé d'implémenter cette technique présentée de manière détaillée dans l'introduction.
+\\
+\\
+Pour chaque tuile de taille 16x16 pixels de l'image de sortie, on peut montrer que si on connait les coordonnées (x,y) du pixel antécédent de celui de coordonnées (X,Y) dans l'image de sortie, il est possible de déduire les coordonnées de l'antécédent de celui de coordonnées (X+1,Y) en se basant uniquement sur les coordonnées de celui en (X,Y). De plus, ce calcul peux s'effectuer à chaque cycle d'horloge. 
+Ainsi, une fois connu les coordonnées (x,y) de l'antécédent du pixel supérieur gauche d'une tuile de l'image de sortie, il est possible de calculer à chaque nouveau cycle d'horloge les coordonnées de tous les antécédents de la tuile. C'est la base du calcul incrémental.
+
+	\subsection{Stockage}
+	
+		\subsubsection*{Les coefficients}
+		
+Les coefficients pour chaque tuile de la transformation géométrique à appliquer au flux vidéo sont stockés en RAM à une adresse prédéfinie. Il y a donc 26 coefficients par tuile
+ce qui donne 26x1200 = 31200 coefficients stockés en RAM. De plus pour chaque tuile, le processeur a placé en RAM les coordonnnées de l'antécédent le plus en haut à gauche parmis les antécédents des 4 coins d'une tuile. Il y a donc en plus 2x1200 = 2400 coordonnées.
+Les coefficients et les coordonnées sont stockés en RAM sur 32bits. Ce qui nous donne une place totale occupée de (31200 + 2400)x4 = 134 Ko
+
+	\subsubsection*{Les images}
+	
+Les différents modules lisent et écrivent en RAM dans une zone occupant en tout 10 images. ce qui correspond à 10x640x480 = 3Mo.
+
+	\subsection{Fonctionnement}
+
+Le module vidéo\_calc fonctionne selon le principe suivant : 
+
+\begin{enumerate}
+
+\item  Lorsqu'une nouvelle image est disponible en RAM. Le processeur envoie un signal ainsi qu'une adresse valide pour stocker l'image transformée afin d'initier le fonctionnement de vidéo\_calc.
+
+\item Vidéo\_calc va chercher en RAM les coefficients ainsi que les coordonnées de l'antécédent du coin supérieur gauche de la plus grande zone contenant les 4 antécédents des pixels des 4 coins de la tuile de l'image de sortie en cours de traitement.
+
+\item Vidéo\_calc charge dans son cache une zone de 32x32 = 1024 pixels ayant pour coin supérieur gauche les coordonnées récupérées au préalable. On considère que tous les antécédents se trouvent dans cette zone. Si malheureusement un des antécédents ne s'y trouve pas, alors il est perdu.
+
+\item En se basant sur le calcul incrémental déjà présenté, vidéo\_calc va calculer les antécédents de tous les pixels de la tuile en cours de traitement, si un pixel se trouve dans le cache alors on le récupère et  on effectue l'interpolation. Sinon on remplace ce pixel par un pixel noir.
+
+\item Les pixels traités sont ensuite placés dans une FIFO pour ensuite être stockés à nouveau en RAM à l'adresse spécifiée par le processeur lors de l'initialisation. L'utilisation d'une FIFO permet de pipeliner d'une part les calculs et d'autre part le stockage en RAM.
+
+\end{enumerate}
+	
+	\subsection{Architecture SystemC}
+L'architecture en SystemC suit globalement le principe de fonctionnement. Ce module est constitué de 3 SC\_THREADs : 
+
+\begin{enumerate}
+
+\item Le SC\_THREAD get\_tile() : Ce processus est celui qui est chargé d'aller chercher les tuiles et de les charger dans le cache sur demande. ce processus s'occupe de plus de charger dans un buffer les coefficients propres à chaque tuile. Les accès de ce processus sur le bus Wishbone se font par paquets de 128 bits, soit 4 mots de 4 pixels.
 
 
-
-}   	
-    	Le module Vidéo\_Calc est le module chpaargé d'effectuer la transformation géométrique d'ordre 3 sutr le flux vidéo. Ce traitement doit pouvoir être effectué en temps réel, ce qui implique des contraintes de timing importantes. C'es
-
-{}
+\item Le SC\_THREAD process\_tile() : C'est le processus de calcul de la transformation géométrique à proprement parlé : Pour chaque tuile de l'image de sortie, ce processus va demander à get\_tile() de charger le cache. Une fois le cache chargé, process\_tile() va effectué le calcul incrémental sur chaque pixel de la tuile de sortie, va regarder si ce pixel se trouve dans le cache, si oui il procède à l'interpolation puis place le pixel dans la FIFO, sinon un pixel noir est placé dans la FIFO.
 
 
+\item Le SC\_THREAD store\_tile() : Comme son nom l'indique, la seule et unique tache de ce processus est de récupérer les tuiles dans la FIFO et de les stocker en RAM à la bonne place. Comme les  pixels font 8 bits et la taille du bus Wishbone ainsi que la taille des mots en mémoire  est de 32 bits, ce processus va faire des paquets de 4 pixels puis va aller écrire ces paquets en RAM 4 par 4. 
+\end{enumerate} 
 
-
-
-
-
-
-
+TO DO inclure schéma machine à états
+	
+	\subsection{Verilog} 
+Nous n'avons pas eu le temps de terminer l'écriture du module vidéo\_calc, toutefois est présentée ici sous la forme d'un schéma l'architecture telle que nous l'avions imaginée. La problématique principale étant que le style d'écriture en SystemC n'est pas directement transcriptible en SystemVerilog. Il est donc nécessaire de traduire sous la forme d'une machine à états les différentes intéractions se déroulant entre les 3 SC\_THREADs du SystemC.
+\\
+\\
+TO DO inclure schéma vérilog
 
     \part{Soft (LM32)} 
 
@@ -357,7 +379,7 @@ Ce calcul ne nous permet pas de gérer toutes les transformations possibles : ic
  
     \chapter*{Conclusion}
     \addcontentsline{toc}{chapter}{Conclusion}
-{ L'architecture décrite ci-dessus a été implémentée en SystemC dans un premier temps et nous avons arrivons à faire des transformations dans la limite du cache.
+{ L'architecture décrite ci-dessus a été implémentée en SystemC dans un premier temps et nous arrivons à faire des transformations dans la limite du cache.
 
 //TODO mettre une photo d'une transfo
 
