@@ -1,13 +1,13 @@
-/**********************************************************************
+/*!
+ * \file video_calc.cpp
+ * \brief This file contains the module which processes an image
+ * \author Samuel Mokrani & Florian Thorey
+ * \date 20/06/2011
  *
- *  Module de calcul de transformation géométrique
- *  Pour l'instant :
- *  1 TO DO (Va chercher les coeffs en RAM et les mets dans un buffer.)
- *  2 Va chercher des tuiles de B_W * T_H en RAM et les mets dans un buffer.
- *  3 Effectue le calcul sur chaque tuile de T_W * T_H
- *  4 Stocke les tuiles transformées de T_W * T_H en RAM
- *
- *********************************************************************/
+ * First, this module loads all coefficients and information to fill his cache. 
+ * Then it fills the cache and can begin the incremental computation for the tile processed.
+ * To finish, it computes the bilinear interpolation and put each pixel in a fifo to be write in RAM.
+ */
 #include "video_calc.h"
 
 namespace soclib { namespace caba {
@@ -208,11 +208,11 @@ namespace soclib { namespace caba {
 		  else*/
 			 cache_y = (coeff[tile_nb].reg.cache_y >> 16);
 
-        std::cout << "cache_x : "
+        /*std::cout << "cache_x : "
                   << cache_x
                   << " cache_y : "
                   << cache_y
-                  << std::endl;
+                  << std::endl;*/
 
         ask_cache = true;
 
@@ -501,7 +501,7 @@ namespace soclib { namespace caba {
     // fill_cache
     /////////////////////////////
 
-    tmpl(void)::fill_cache(uint32_t deb_im_in, int tile_nb)
+    tmpl(void)::fill_cache(uint32_t deb_im_in)
     {
       // Taille de la zone du cache qui est dans l'image
       uint32_t cache_w;
