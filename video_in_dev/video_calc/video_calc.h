@@ -18,25 +18,24 @@
 #include "../segmentation.h"
 
 # define T_W 16
-/**< Tile width */
+/*!< Tile width */
 # define T_H 16
-/**< Tile height */
-// Largeur du cache
+/*!< Tile height */
 # define C_W 32
-/**< Cache width */
+/*!< Cache width */
 # define C_H 32
-/**< Cache height */
+/*!< Cache height */
 # define F_SIZE 2
-/**< Number of tiles that can contain the fifo */
+/*!< Number of tiles that can contain the fifo */
 # define T_NB (640 * 480) / (16 * 16)
-/**< Number of tiles per image */
+/*!< Number of tiles per image */
 # define T_L_NB p_WIDTH / T_W
-/**< Number of tiles per line */
-# define PIXEL_BLANC 255
-/**< White pixel */
-# define PIXEL_NOIR 0
+/*!< Number of tiles per line */
+# define WHITE_PIXEL 255
+/*!< White pixel */
+# define BLACK_PIXEL 0
 /*!< Black pixel */
-# define NB_COEFF 26
+# define NB_COEFF 28
 /*!< Number of coefficients for the incremental computation */
 
 #define tmpl(x) template<typename wb_param> x VideoCalc<wb_param>
@@ -50,7 +49,7 @@
  */
 typedef union
 {
-  int32_t raw[NB_COEFF + 2]; /*!< All the coefficients and the beginning of the cache */
+  int32_t raw[NB_COEFF]; /*!< All the coefficients and the beginning of the cache */
   struct
   {
 	 int32_t Px[4]; 	/*!< the four P coefficients in the x-direction */
@@ -118,16 +117,16 @@ namespace soclib { namespace caba {
 		/*!
 		 * \brief Store a processed tile in RAM
 		 *
-		 * read intensities from the fifo and write them in RAM
+		 * Read intensities from the fifo and write them in RAM.
+		 *	Indicate to the processor that a picture is processed
 		 */ 
       void store_tile();
 
 		/*!
 		 * \brief Fill the cache
 		 *
-		 * \param deb_im_in: image start address
 		 */
-      void fill_cache(uint32_t deb_im_in);
+      void fill_cache();
 
 		/*!
 		 * \brief Coefficient initialization
