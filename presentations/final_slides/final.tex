@@ -134,6 +134,7 @@
 \end{figure}
 \end{frame}
 
+
 %------------------ Transformation avec pb de cache ------------
 \section{Transformation avec problème de cache (32*32)}
 \begin{frame}
@@ -141,6 +142,34 @@
 \centering
 \includegraphics[scale = 0.3]{transfo_pb_cache.png}
 \caption{Problème de cache (32*32)}
+\end{figure}
+\end{frame}
+
+%------------------ Temps réel------------
+\section{Temps réel}
+\begin{frame}
+\begin{figure}[!h]
+\centering
+\includegraphics[scale = 0.3]{wave_r.png}
+\caption{Avec un cache 48 bits et 4 temps pour lire dans la fifo}
+\end{figure}
+\end{frame}
+
+\section{Temps réel}
+\begin{frame}
+\begin{figure}[!h]
+\centering
+\includegraphics[scale = 0.3]{wave_cache32_r.png}
+\caption{Avec un cache 32 bits et 4 temps pour lire dans la fifo}
+\end{figure}
+\end{frame}
+
+\section{Temps réel}
+\begin{frame}
+\begin{figure}[!h]
+\centering
+\includegraphics[scale = 0.3]{wave_sans_wait_r.png}
+\caption{Avec un cache 48 bits et 1 temps pour lire dans la fifo}
 \end{figure}
 \end{frame}
 
