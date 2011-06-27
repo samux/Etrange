@@ -160,7 +160,7 @@
 \begin{figure}[!h]
 \centering
 \includegraphics[scale = 0.3]{wave_cache32_r.png}
-\caption{Avec un cache 32 bits et 4 temps pour lire dans la fifo}
+\caption{Avec un cache 32*32px et 4 temps pour lire dans la fifo}
 \end{figure}
 \end{frame}
 
@@ -169,10 +169,19 @@
 \begin{figure}[!h]
 \centering
 \includegraphics[scale = 0.3]{wave_sans_wait_r.png}
-\caption{Avec un cache 48 bits et 1 temps pour lire dans la fifo}
+\caption{Avec un cache 48*48px et 1 temps pour lire dans la fifo}
 \end{figure}
 \end{frame}
 
-%------------------ LES PSSC ------------
-\section{PSSC}
+\section{Conclusion}
+\centering
+{Perspectives et améliorations :
+	\begin{itemize}
+		\item Terminer la traduction de Vidéo\_Calc en SystemVerilog
+		\item Une meilleure gesqtion du cache
+		\item Améliorer l'étape d'interpolation
+		\item Avoir des coefficients différents pour chaque tuile
+		\item Changer les coefficients par le clavier
+	\end{itemize}}
+
 \end{document}
