@@ -363,6 +363,50 @@ l'état haut.
 
 	 }
 
+	 \chapter{Aspects temps réel}
+	 {Que ce soit en SystemVerilog ou en SystemC, nous avons pu constater que nos implémentations des modules Video\_In et Video\_Out respectent le temps réel. 
+	 On peut imaginer qu'une configuration de Video\_Calc qui imposerait une surchage sur le bus Wishbone, ralentirait les accès mémoires et pourrait occasionner une perte du temps réel. Toutefois, aucune de nos simulations ne nous a permis d'observer ce phénomène.
+	 Les problèmes de respect des contraintes de temps sont principalement liés à Video\_Calc.
+
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[scale = 0.33]{wave_sans_wait_reduced.png}
+	\caption{Cache de 48*48 pixels}
+	\end{figure}
+	
+	Sur le premier chronogramme, on peut constater que la fin de la réception d'une image par Video\_In, qui correspond au passage à 0 de video\_in/frame\_valid est immédiatement suivie par la génération d'une interruption (video\_in/interrupt). 
+	Ceci vient confirmer le respect du temps réel par Video\_In.\\ 
+	Le signal video\_calc/wb\_master\_1\_CYC\_O commence alors à enchaîner les transitions. 
+	En effet, Video\_Calc s'est mis à fonctionner immédiatement après la fin de la réception de l'image par Video\_In.
+	Après un certain temps, Video\_Calc cesse ses accès mémoire et génère une interruption (video\_calc/port\_0) pour indiquer la fin du traitement de l'image. 
+	Pour respecter les contraintes temps réel, il faut que Video\_Calc ait fini de calculer avant la fin de la réception de l'image suivante. Dans les trois chronogrammes présentés, c'est le cas.
+
+	\section{Modélisation du temps en SystemC}
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[scale = 0.33]{wave_reduced.png}
+	\caption{Cache de 48*48 pixels, prise en compte du temps de calcul de l'intensité finale}
+	\end{figure}
+	En SystemC, les aspects temporels des simulations sont moins conformes à la réalité qu'en SystemVerilog. 
+	C'est le programmeur qui spécifie le comportement temporel de la simulation via des appels à la fonction wait().
+	On peut considérer que notre simulation du module Video\_Calc est réaliste du point de vue du bus Wishbone. 
+	En revanche, les temps de calcul ne sont peut-être pas parfaitement modélisés.\\
+	Le chronogramme ci-dessus correspond à une simulation pour laquelle nous avons rajouter des wait() pour modéliser le fait que le calcul final de l'intensité ne peut probablement pas s'effectuer en un coup d'horloge.
+	Le temps de calcul de Video\_Calc est radicalement différent de celui de la première simulation.
+	On sent bien ici l'importance d'une évaluation correcte des temps de calcul pour que la simulation ait un sens.
+	
+	\section{Impact du cache}
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[scale = 0.33]{wave_cache32_reduced.png}
+	\caption{Cache de 32*32 pixels}
+	\end{figure}
+	Ce dernier chronogramme montre l'impact de la taille du cache sur le temps de calcul de video\_calc. On peut constater qu'il est assez important.
+	L'utilisation d'un cache de grande taille, nécessaire pour la réalisation de certaines transformations, nous amène à ne plus respecter les contraintes temps réel. 
+	Pour que notre système Etrange puisse réaliser en temps réel de nombreuses transformations, il nous faudrait implémenter une politique de gestion du cache plus 
+	perfectionnée et avoir plus de débit pour le transfert de données. 
+	
+
 
 
 
