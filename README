@@ -1,4 +1,12 @@
-video processing (Télécom Partistech: SoC)
 Caroline Keramsi
 Florian Thorey
 Samuel Mokrani
+
+Projet de SoC de Télécom Paristech (Étrange)
+
+sur la branche master : tout le développement systemC
+sur la branche calc_verilog : développement du System Verilog
+
+pour changer de branche : git checkout calc_verilog
+
+Dans le dossier presentations, on retrouve les slides ainsi que le dossier du projet
