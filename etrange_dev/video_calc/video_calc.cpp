@@ -55,7 +55,6 @@ namespace soclib { namespace caba {
   {
 	 bool get_ok = false;
 	 int tile_nb = 0;
-	 int nb_frame = 0;
 
 	 std::cout << " VCALC GET_TILE: START "  << std::endl;
 
@@ -514,23 +513,5 @@ namespace soclib { namespace caba {
 		  &coeff.raw[NB_COEFF / 2]);
 
   }
-
-  /*tmpl(void)::init_coeff()
-	 {
-	 uint32_t addr = wb_tab[8];
-	 for (int tile_nb = 0; tile_nb < T_NB; tile_nb++)
-	 {
-	 master0.wb_read_blk(	addr + tile_nb * NB_COEFF * 4 / 2,
-	 NB_COEFF/2,
-	 &coeff_image[tile_nb].raw[0]);
-
-	 master0.wb_read_blk(	addr + T_NB * NB_COEFF * 4 / 2 +
-	 tile_nb * NB_COEFF * 4 / 2,
-	 NB_COEFF/2,
-	 &coeff_image[tile_nb].raw[NB_COEFF / 2]);
-
-	 }
-	 }*/
-
 
 }}

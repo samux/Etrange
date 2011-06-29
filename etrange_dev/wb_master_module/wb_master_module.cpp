@@ -111,7 +111,7 @@ namespace soclib { namespace caba {
 #if DEBUG_WB
 			std::cout << "WBMaster lit "<< num << "mots en " << saddr << std::endl;
 #endif
-            for (int32_t i = 0; i< num; i++)
+            for (uint32_t i = 0; i< num; i++)
             {
                 sc_core::wait(p_clk.negedge_event());
                 p_wb.ADR_O = saddr;
